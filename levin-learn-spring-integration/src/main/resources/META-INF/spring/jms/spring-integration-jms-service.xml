@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
+                           http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms-2.2.xsd">
+
+    <int:channel id="findBooksByNameRequestChannel" />
+    <int:channel id="findBooksByNameReplyChannel" />
+    
+    <int:channel id="findBookByIsbnRequestChannel" />
+    <int:channel id="findBookByIsbnReplyChannel" />
+    
+    <bean id="bookService" class="levin.learn.commons.service.impl.BookServiceImpl" />
+    
+    <int:service-activator id="findBooksByNameService" 
+                           ref="bookService"
+                           method="findBooksByName"
+                           input-channel="findBooksByNameRequestChannel"
+                           output-channel="findBooksByNameReplyChannel" />
+                           
+    <int:service-activator id="findBookByIsbnService"
+                           ref="bookService"
+                           method="findBookByIsbn"
+                           input-channel="findBookByIsbnRequestChannel"
+                           output-channel="findBookByIsbnReplyChannel" />
+
+    <int-jms:inbound-gateway request-channel="findBooksByNameRequestChannel" 
+                             reply-channel="findBooksByNameReplyChannel"
+                             concurrent-consumers="5"
+                             connection-factory="connectionFactory"
+                             default-reply-destination="findBooksByNameResponseQueue"
+                             request-destination="findBooksByNameRequestQueue" />
+    
+    <int-jms:inbound-gateway request-channel="findBookByIsbnRequestChannel" 
+                             reply-channel="findBookByIsbnReplyChannel"
+                             concurrent-consumers="5"
+                             connection-factory="connectionFactory"
+                             default-reply-destination="findBookByIsbnResponseQueue"
+                             request-destination="findBookByIsbnRequestQueue" />
+</beans>

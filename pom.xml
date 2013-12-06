@@ -1,0 +1,95 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>levin.learn</groupId>
+  <artifactId>levin-learn</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Levin Learn</name>
+  <description>Learn project which I am/was working on</description>
+  <modules>
+  	<module>levin-learn-gemfire</module>
+  	<module>levin-learn-jdbc</module>
+  	<module>levin-learn-spring-integration</module>
+  	<module>levin-learn-commons</module>
+  	<module>levin-learn-javavm</module>
+  	<module>levin-learn-aspectj</module>
+  	<module>levin-learn-ehcache</module>
+  	<module>levin-learn-simplecache</module>
+  	<module>levin-learn-jetty</module>
+  </modules>
+  
+  <properties>
+  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  	
+  	<guava.version>15.0</guava.version>
+  	<junit.version>4.10</junit.version>
+    <slf4j.version>1.7.5</slf4j.version>
+  	
+  	<plugin.source.version>2.2.1</plugin.source.version>
+  </properties>
+  
+  <distributionManagement>
+  	<repository>
+  		<id>nexus-releases</id>
+  		<name>Internal Releases</name>
+  		<url>http://192.168.1.100:8081/nexus/content/repositories/releases/</url>
+  	</repository>
+  	<snapshotRepository>
+  		<id>nexus-snapshots</id>
+  		<name>Internal Snapshots</name>
+  		<url>http://192.168.1.100:8081/nexus/content/repositories/snapshots/</url>
+  	</snapshotRepository>
+  </distributionManagement>
+  
+  <dependencies>
+    <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+    </dependency>
+  </dependencies>
+  
+  <build>
+  	<plugins>
+  		<plugin>
+  			<groupId>org.apache.maven.plugins</groupId>
+  			<artifactId>maven-source-plugin</artifactId>
+  			<version>${plugin.source.version}</version>
+  			<executions>
+  				<execution>
+  					<goals>
+  						<goal>jar</goal>
+  					</goals>
+  				</execution>
+  			</executions>
+  		</plugin>
+  	</plugins>
+  </build>
+  
+  <dependencyManagement>
+  	<dependencies>
+  		<dependency>
+  			<groupId>levin.learn</groupId>
+  			<artifactId>levin-learn-commons</artifactId>
+  			<version>${project.version}</version>
+  		</dependency>
+  	</dependencies>
+  </dependencyManagement>
+</project>

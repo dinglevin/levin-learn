@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:integration="http://www.springframework.org/schema/integration"
+       xmlns:jms="http://www.springframework.org/schema/integration/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
+                           http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms-2.2.xsd">
+    <!-- jms 连接工厂 -->
+    <bean id="activeMQJmsFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL">
+            <value>tcp://192.168.1.100:61616</value>
+        </property>
+    </bean>
+
+    <bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="activeMQJmsFactory" />
+        <property name="sessionCacheSize" value="10"/>
+        <property name="cacheProducers" value="false"/>
+    </bean>
+    
+    <bean id="findBooksByNameRequestQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg name="name" value="levin.learn.jms.request.queue.findBooksByName" />
+    </bean>
+    
+    <bean id="findBooksByNameResponseQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg name="name" value="levin.learn.jms.response.queue.findBooksByName" />
+    </bean>
+    
+    <bean id="findBookByIsbnRequestQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg name="name" value="levin.learn.jms.request.queue.findBookByIsbn" />
+    </bean>
+    
+    <bean id="findBookByIsbnResponseQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg name="name" value="levin.learn.jms.response.queue.findBookByIsbn" />
+    </bean>
+    
+    <bean id="messageConverter" class="levin.learn.spring.integration.jms.ObjectJmsMessageConverter" />
+    
+    <!-- jms 模板 -->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory" />
+        <property name="messageConverter" ref="messageConverter" />
+    </bean>
+
+</beans>

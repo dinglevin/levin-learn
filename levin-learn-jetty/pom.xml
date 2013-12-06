@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>levin.learn</groupId>
+    <artifactId>levin-learn</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>levin-learn-jetty</artifactId>
+  <name>Levin Learn Jetty</name>
+  <description>Levin Learn Jetty Project</description>
+  
+  <properties>
+  	<jetty.version>8.1.9.v20130131</jetty.version>
+  </properties>
+  
+  <dependencies>
+  	<dependency>
+  		<groupId>org.eclipse.jetty</groupId>
+  		<artifactId>jetty-server</artifactId>
+  		<version>${jetty.version}</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.eclipse.jetty</groupId>
+  		<artifactId>jetty-servlet</artifactId>
+  		<version>${jetty.version}</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.eclipse.jetty</groupId>
+  		<artifactId>jetty-webapp</artifactId>
+  		<version>${jetty.version}</version>
+  	</dependency>
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-plus</artifactId>
+		<version>${jetty.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-annotations</artifactId>
+		<version>${jetty.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-jndi</artifactId>
+		<version>${jetty.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-jsp</artifactId>
+		<version>${jetty.version}</version>
+	</dependency> 
+  </dependencies>
+</project>
