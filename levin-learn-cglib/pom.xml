@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>levin.learn</groupId>
+        <artifactId>levin-learn</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>levin-learn-cglib</artifactId>
+    <name>Levin Learn CGLib</name>
+    <description>Levin Learn CGLib Project</description>
+
+    <properties>
+        <cglib.version>2.2.2</cglib.version>
+        <easymock.version>3.2</easymock.version>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>${cglib.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>${easymock.version}</version>
+        </dependency>
+    </dependencies>
+</project>
