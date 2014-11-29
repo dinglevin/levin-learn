@@ -8,32 +8,33 @@
   <name>Levin Learn</name>
   <description>Learn project which I am/was working on</description>
   <modules>
-  	<module>levin-learn-gemfire</module>
-  	<module>levin-learn-jdbc</module>
-  	<module>levin-learn-spring-integration</module>
-  	<module>levin-learn-commons</module>
-  	<module>levin-learn-javavm</module>
-  	<module>levin-learn-aspectj</module>
-  	<module>levin-learn-ehcache</module>
-  	<module>levin-learn-simplecache</module>
-  	<module>levin-learn-jetty</module>
-  	<module>levin-learn-easymock</module>
-  	<module>levin-learn-guava</module>
-  	<module>levin-learn-cglib</module>
-  	<module>levin-learn-asm</module>
-  	<module>levin-learn-jung</module>
+    <module>levin-learn-gemfire</module>
+    <module>levin-learn-jdbc</module>
+    <module>levin-learn-spring-integration</module>
+    <module>levin-learn-commons</module>
+    <module>levin-learn-javavm</module>
+    <module>levin-learn-aspectj</module>
+    <module>levin-learn-ehcache</module>
+    <module>levin-learn-simplecache</module>
+    <module>levin-learn-jetty</module>
+    <module>levin-learn-easymock</module>
+    <module>levin-learn-guava</module>
+    <module>levin-learn-cglib</module>
+    <module>levin-learn-asm</module>
+    <module>levin-learn-jung</module>
     <module>levin-learn-mockito</module>
+    <module>levin-learn-protobuf</module>
   </modules>
   
   <properties>
-  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  	
-  	<guava.version>15.0</guava.version>
-  	<junit.version>4.10</junit.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  
+    <guava.version>15.0</guava.version>
+    <junit.version>4.10</junit.version>
     <slf4j.version>1.7.5</slf4j.version>
-  	
-  	<plugin.source.version>2.2.1</plugin.source.version>
+  
+    <plugin.source.version>2.2.1</plugin.source.version>
   </properties>
   
   <distributionManagement>
