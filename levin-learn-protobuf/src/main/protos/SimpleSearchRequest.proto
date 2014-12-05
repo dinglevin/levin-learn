@@ -1,0 +1,18 @@
+package levin.protobuf;
+option java_package = "org.levin.protobuf.generated.simple";
+option java_outer_classname = "SearchRequestProtos";
+option optimize_for = SPEED;
+
+message SearchRequest {
+    required string query_string = 1;
+    optional int32 page_number = 2;
+    optional int32 result_per_page = 3 [ default = 50 ];
+}
+
+message Test {
+    optional int32 test1 = 1;
+    optional uint32 test2 = 2;
+    optional sint32 test3 = 3;
+    optional fixed32 test4 = 4;
+    optional sfixed32 test5 = 5;
+}

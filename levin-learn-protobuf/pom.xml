@@ -18,6 +18,7 @@
         <protobuf.version>2.5.0</protobuf.version>
         <protoc.path>/Users/dinglevin/local-lib/protobuf/bin/protoc</protoc.path>
         <protobuf-rpc-pro.version>3.2.3</protobuf-rpc-pro.version>
+        <guava.version>16.0</guava.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
@@ -25,7 +26,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>16.0</version>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -66,12 +67,12 @@
                             <protocVersion>${protobuf.version}</protocVersion>
                             <protocCommand>${protoc.path}</protocCommand>
                             <imports>
-                                <param>${basedir}/src/main/proto</param>
+                                <param>${basedir}/src/main/protos</param>
                             </imports>
                             <source>
-                                <directory>${basedir}/src/main/proto</directory>
+                                <directory>${basedir}/src/main/protos</directory>
                                 <includes>
-                                    <include>CalculatorProtocol.proto</include>
+                                    <include>SimpleSearchRequest.proto</include>
                                 </includes>
                             </source>
                             <output>${project.build.directory}/generated-sources/java</output>
