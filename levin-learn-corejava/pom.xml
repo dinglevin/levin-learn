@@ -5,8 +5,8 @@
     <artifactId>levin-learn</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <groupId>levin-learn-javavm</groupId>
-  <artifactId>levin-learn-javavm</artifactId>
-  <name>Levin Learn Java VM</name>
-  <description>Learn Java VM project</description>
+  <groupId>levin-learn-corejava</groupId>
+  <artifactId>levin-learn-corejava</artifactId>
+  <name>Levin Learn Core Java</name>
+  <description>Learn Core Java project</description>
 </project>

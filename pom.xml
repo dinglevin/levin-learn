@@ -12,6 +12,7 @@
     <module>levin-learn-jdbc</module>
     <module>levin-learn-spring-integration</module>
     <module>levin-learn-commons</module>
+    <module>levin-learn-corejava</module>
     <module>levin-learn-javavm</module>
     <module>levin-learn-aspectj</module>
     <module>levin-learn-ehcache</module>

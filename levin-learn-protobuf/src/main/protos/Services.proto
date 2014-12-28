@@ -1,0 +1,12 @@
+package levin.protobuf;
+
+option java_package = "org.levin.protobuf.generated.services";
+option java_outer_classname = "ServicesProtos";
+option java_generic_services = true;
+option optimize_for = SPEED;
+import "SearchRequest.proto";
+import "SearchResponse.proto";
+
+service MyService {
+    rpc request(SearchRequest) returns(SearchResponse);
+}

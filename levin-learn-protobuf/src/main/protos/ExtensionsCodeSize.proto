@@ -1,0 +1,13 @@
+package levin.protobuf;
+option java_package = "org.levin.protobuf.generated.simple";
+option java_outer_classname = "ExtensionsCodeSizeProtos";
+option optimize_for = CODE_SIZE;
+
+message FooCodeSize {
+    optional int32 field1 = 1;
+    extensions 100 to 199;
+}
+
+extend FooCodeSize {
+    optional int32 barCodeSize = 126;
+}

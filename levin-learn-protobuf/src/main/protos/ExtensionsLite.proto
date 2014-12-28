@@ -1,0 +1,13 @@
+package levin.protobuf;
+option java_package = "org.levin.protobuf.generated.simple";
+option java_outer_classname = "ExtensionsLiteProtos";
+option optimize_for = LITE_RUNTIME;
+
+message FooLite {
+    optional int32 field1 = 1;
+    extensions 100 to 199;
+}
+
+extend FooLite {
+    optional int32 barLite = 126;
+}

@@ -72,7 +72,15 @@
                             <source>
                                 <directory>${basedir}/src/main/protos</directory>
                                 <includes>
-                                    <include>SimpleSearchRequest.proto</include>
+                                    <include>SearchRequest.proto</include>
+                                    <include>SearchRequestEnum.proto</include>
+                                    <include>SearchResponse.proto</include>
+                                    <include>Extensions.proto</include>
+                                    <include>SearchRequestLite.proto</include>
+                                    <include>ExtensionsLite.proto</include>
+                                    <include>SearchRequestCodeSize.proto</include>
+                                    <include>ExtensionsCodeSize.proto</include>
+                                    <include>Services.proto</include>
                                 </includes>
                             </source>
                             <output>${project.build.directory}/generated-sources/java</output>
