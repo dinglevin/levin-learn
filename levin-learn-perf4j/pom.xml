@@ -54,7 +54,7 @@
                   <dependency>
                     <groupId>org.perf4j</groupId>
                     <artifactId>perf4j</artifactId>
-                    <classifier>slf4jonly</classifier>
+                    <classifier>log4jonly</classifier>
                   </dependency>
                 </weaveDependencies>
               </configuration>
