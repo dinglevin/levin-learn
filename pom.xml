@@ -25,6 +25,7 @@
     <module>levin-learn-jung</module>
     <module>levin-learn-mockito</module>
     <module>levin-learn-protobuf</module>
+    <module>levin-learn-perf4j</module>
   </modules>
   
   <properties>
