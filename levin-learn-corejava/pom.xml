@@ -9,4 +9,12 @@
   <artifactId>levin-learn-corejava</artifactId>
   <name>Levin Learn Core Java</name>
   <description>Learn Core Java project</description>
+  
+  <dependencies>
+      <dependency>
+        <groupId>org.jfree</groupId>
+        <artifactId>jfreechart</artifactId>
+        <version>1.0.19</version>
+      </dependency>
+  </dependencies>
 </project>
