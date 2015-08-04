@@ -134,7 +134,7 @@ public class LineChartDemo6 extends ApplicationFrame {
         // OPTIONAL CUSTOMISATION COMPLETED.
 
         try {
-            ChartUtilities.saveChartAsPNG(new File("test.png"), chart, 1500, 1000);
+            ChartUtilities.saveChartAsPNG(new File("target/test.png"), chart, 1500, 1000);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

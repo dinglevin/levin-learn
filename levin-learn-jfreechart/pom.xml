@@ -6,9 +6,9 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <groupId>levin-learn</groupId>
-  <artifactId>levin-learn-corejava</artifactId>
-  <name>Levin Learn Core Java</name>
-  <description>Learn Core Java project</description>
+  <artifactId>levin-learn-jfreechart</artifactId>
+  <name>Levin Learn JFreeChart</name>
+  <description>Learn JFreeChart project</description>
   
   <dependencies>
       <dependency>

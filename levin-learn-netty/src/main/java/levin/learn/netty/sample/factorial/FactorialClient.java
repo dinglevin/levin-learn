@@ -8,7 +8,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 
 public class FactorialClient {
-    public static final int COUNT = 1000;
+    public static final int COUNT = 50;
     public static final String HOST = "localhost";
     public static final int PORT = 8001;
     

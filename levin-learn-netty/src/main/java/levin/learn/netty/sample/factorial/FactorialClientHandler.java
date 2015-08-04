@@ -56,7 +56,7 @@ public class FactorialClientHandler extends SimpleChannelInboundHandler<BigInteg
     
     private void sendNumbers() {
         ChannelFuture future = null;
-        for (int i = 0; i < 4096 && next <= COUNT; i++) {
+        for (int i = 0; i < 10 && next <= COUNT; i++) {
             future = ctx.write(Integer.valueOf(next));
             next++;
         }

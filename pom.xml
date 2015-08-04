@@ -27,6 +27,7 @@
     <module>levin-learn-protobuf</module>
     <module>levin-learn-perf4j</module>
     <module>levin-learn-netty</module>
+    <module>levin-learn-jfreechart</module>
   </modules>
   
   <properties>
