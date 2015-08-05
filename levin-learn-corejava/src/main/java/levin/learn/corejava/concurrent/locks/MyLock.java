@@ -20,12 +20,8 @@ public class MyLock {
     
     public MyLock() { 
         // Keep it simple, head is just a place holder
-        head = new Node(null);
-        tail = null;
+        tail = head = new Node(null);
         current = null;
-        
-        head.prev = head;
-        head.next = tail;
     }
     
     public void lock() {
@@ -38,7 +34,7 @@ public class MyLock {
         // Put the latest node to a queue first, then get the first node as the winer
         // this way, the list is the only shared resource to deal with
         enqueue(node);
-        // firstNode maybe null as it could be cleared by unlock
+        
         Node firstNode = head.next;
         if (node == firstNode) {
             current = firstNode.owner;
@@ -69,7 +65,7 @@ public class MyLock {
         
         Node next = curNode.next;
         if (next != null) {
-            if (!setNext(head, curNode, next)) {
+            if (!compareAndSetNext(head, curNode, next)) {
                 throw new IllegalStateException("Expect: " + curNode + ", was: " + 
                         head.next + ", next: " + next);
             }
@@ -84,10 +80,10 @@ public class MyLock {
 
             LockSupport.unpark(next.owner);
         } else {
-            if (!setTail(curNode, null)) {
+            if (!compareAndSetTail(curNode, head)) {
                 unlock();
             } else {
-                setNext(head, curNode, null);
+                compareAndSetNext(head, curNode, null);
             }
         }
     }
@@ -95,14 +91,9 @@ public class MyLock {
     protected void enqueue(Node node) {
         while (true) {
             final Node preTail = tail;
-            if (setTail(preTail, node)) {
-                if (preTail == null) {
-                    node.prev = head;
-                    head.next = node;
-                } else {
-                    node.prev = preTail;
-                    preTail.next = node;
-                }
+            node.prev = preTail;
+            if (compareAndSetTail(preTail, node)) {
+                preTail.next = node;
                 return;
             }
         }
@@ -155,11 +146,11 @@ public class MyLock {
         }
     }
     
-    private boolean setTail(Node expected, Node actual) {
+    private boolean compareAndSetTail(Node expected, Node actual) {
         return UNSAFE.compareAndSwapObject(this, tailOffset, expected, actual);
     }
     
-    private static boolean setNext(Node instance, Node expected, Node actual) {
+    private static boolean compareAndSetNext(Node instance, Node expected, Node actual) {
         return UNSAFE.compareAndSwapObject(instance, nextOffset, expected, actual);
     }
     
