@@ -14,7 +14,7 @@ public class MyLock {
     
     private static final Logger logger = LoggerFactory.getLogger(MyLock.class);
     
-    private Thread current;
+    private volatile Thread current;
     private volatile Node head;
     private volatile Node tail;
     
@@ -30,17 +30,14 @@ public class MyLock {
             throw new IllegalStateException("This is not a reentrant lock");
         }
         
-        Node node = new Node();
-        // Put the latest node to a queue first, then get the first node as the winer
+        // Put the latest node to a queue first, then check if the it is the first node
         // this way, the list is the only shared resource to deal with
-        enqueue(node);
-        
-        Node firstNode = head.next;
-        if (node == firstNode) {
-            current = firstNode.owner;
-            firstNode.state = Node.RUNNING;
+        Node node = new Node();
+        if (enqueue(node)) {
+            current = node.owner;
+            node.state = Node.RUNNING;
             if (LOG_ON) {
-                logger.info("Node[{}] Got lock", firstNode);
+                logger.info("Node[{}] Got lock", node);
             }
         } else {
             node.state = Node.PARKED;
@@ -49,7 +46,15 @@ public class MyLock {
                 logger.info("Parked before: {}", node.prev);
             }
             
-            LockSupport.park(this);
+            LockSupport.park(this); // This may return "spuriously"!!
+            while (node.prev != head) {
+                //throw new IllegalStateException("Running node is not the first node, prev=" + node.prev);
+                if (LOG_ON) {
+                    logger.error("=====================Running node is not the first node, prev={}, interrupt={}", node.prev, Thread.interrupted());
+                }
+                LockSupport.park(this);
+            }
+            
             node.state = Node.RUNNING;
             current = node.owner;
             
@@ -77,24 +82,37 @@ public class MyLock {
             if (LOG_ON) {
                 logger.info("Unparking node: {}", next);
             }
-
             LockSupport.unpark(next.owner);
         } else {
             if (!compareAndSetTail(curNode, head)) {
+                // Another node queued during the time, so we have to unlock that, or else, this node can never unparked
+                if (LOG_ON) {
+                    logger.info("Another node queued: {}", tail);
+                }
                 unlock();
             } else {
-                compareAndSetNext(head, curNode, null);
+                if (compareAndSetNext(head, curNode, null)) {
+                    if (LOG_ON) {
+                        logger.info("Clear current queue");
+                    }
+                } else {
+                    // This could happen because when clear tail, another thread may have queued and change the head.next
+                    // but we don't need to unlock in this case as we already correctly set the tail
+                    if (LOG_ON) {
+                        logger.info("head.next changed: {}, tail: {}, cur: {}, next: {}", head.next, tail, curNode, next);
+                    }
+                }
             }
         }
     }
     
-    protected void enqueue(Node node) {
+    protected boolean enqueue(Node node) {
         while (true) {
             final Node preTail = tail;
             node.prev = preTail;
             if (compareAndSetTail(preTail, node)) {
                 preTail.next = node;
-                return;
+                return node.prev == head;
             }
         }
     }
@@ -108,7 +126,8 @@ public class MyLock {
             throw new IllegalStateException("No owner thread attached to this Lock");
         }
         if (owner != cur) {
-            throw new IllegalStateException("Unlock thread is not the same as lock thread[" + owner + ", " + cur + "]");
+            throw new IllegalStateException("Unlock thread is not the same as lock thread[" + owner + ", " + 
+                    cur + "], curNode: " + curNode);
         }
         
         if (curNode == null) {
@@ -142,7 +161,7 @@ public class MyLock {
         }
         
         public String toString() {
-            return owner.getName() + "-" + owner.getId() + ", state: " + state;
+            return "{" + owner + ", state: " + state + "}";
         }
     }
     

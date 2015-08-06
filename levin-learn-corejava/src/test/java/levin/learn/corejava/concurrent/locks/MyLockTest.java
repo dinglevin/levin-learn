@@ -1,13 +1,21 @@
 package levin.learn.corejava.concurrent.locks;
 
+import java.util.Arrays;
+import java.util.Random;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Theories.class)
 public class MyLockTest {
+    private static final Logger logger = LoggerFactory.getLogger(MyLockTest.class);
+    
     @Test
     public void testSingleThreadLock() {
         MyLock lock = new MyLock();
@@ -118,11 +126,49 @@ public class MyLockTest {
         runner.verify();
     }
     
+    @Test
+    public void testOneRoundAddRunner() throws Exception {
+        oneRoundAddRunner(100);
+    }
+    
+    @Test
+    public void testMultiRoundAddRunner() throws Exception {
+        Random random = new Random();
+        for (int i = 0; i < 100; i++) {
+            int total = random.nextInt(10000);
+            System.out.println("Round - " + i + " with total: " + total);
+            if (total > 0) {
+                oneRoundAddRunner(total);
+            }
+        }
+    }
+    
+    private void oneRoundAddRunner(int total) throws Exception {
+        final int COUNT = total;
+        Thread[] threads = new Thread[COUNT];
+        MyLock lock = new MyLock();
+        AddRunner runner = new AddRunner(lock);
+        
+        for (int i = 0; i < COUNT; i++) {
+            threads[i] = new Thread(runner, "thread" + i);
+            threads[i].start();
+        }
+        
+        for (int i = 0; i < COUNT; i++) {
+            threads[i].join();
+        }
+        
+        Assert.assertEquals(COUNT, runner.getState());
+    }
+    
     public static @DataPoints int[][] candidates = {{100, 50, 10}, {100, 20, 5}, {100, 30, 1}, {1000, 200, 10}};
     
     @Theory
     public void testLockInMultiThread(final int[] params) throws Exception {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
+            if (i % 100 == 0) {
+                System.out.println("Round: " + i + " - " + Arrays.toString(params));
+            }
             doTestLockInMultiThread(params[0], params[1], params[2]);
         }
     }
@@ -133,14 +179,12 @@ public class MyLockTest {
         Runner runner = new Runner(lock, count);
         
         for (int i = 0; i < mid; i++) {
-            threads[i] = new Thread(runner, "thread-" + i);
+            threads[i] = new Thread(runner, "thread" + i);
             threads[i].start();
         }
-        System.out.println("Sleeping");
         Thread.sleep(sleep);
-        System.out.println("Sleep finish");
         for (int i = mid; i < count; i++) {
-            threads[i] = new Thread(runner, "thread-" + i);
+            threads[i] = new Thread(runner, "thread" + i);
             threads[i].start();
         }
         
@@ -154,7 +198,7 @@ public class MyLockTest {
     private static class Runner implements Runnable {
         private final MyLock lock;
         
-        private volatile int state = 0;
+        private int state = 0;
         private int[] stateResults;
         
         public Runner(MyLock lock, int count) {
@@ -163,10 +207,11 @@ public class MyLockTest {
         }
         
         public void run() {
-            //System.out.println(Thread.currentThread() + ": locking");
+            //System.out.println(Thread.currentThread() + ": locking"); 
             lock.lock();
             try {
                 stateResults[state++] += 1;
+                logger.info("state: {}", state);
                 //System.out.println(Thread.currentThread() + ": " + state);
             } finally {
                 lock.unlock();
@@ -185,6 +230,29 @@ public class MyLockTest {
             if (!pass) {
                 throw new IllegalStateException("Validation fail");
             }
+        }
+    }
+    
+    private static class AddRunner implements Runnable {
+        private final MyLock lock;
+        
+        private int state = 0;
+        
+        public AddRunner(MyLock lock) {
+            this.lock = lock;
+        }
+        
+        public void run() {
+            lock.lock();
+            try {
+                state++;
+            } finally {
+                lock.unlock();
+            }
+        }
+        
+        public int getState() {
+            return state;
         }
     }
 }
