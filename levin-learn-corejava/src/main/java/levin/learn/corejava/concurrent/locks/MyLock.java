@@ -84,6 +84,7 @@ public class MyLock {
                 if (LOG_ON) {
                     logger.info("Another node queued: {}", tail);
                 }
+                while (curNode.next == null) { } // wait until the next is available?
                 unlock();
             } else {
                 if (compareAndSetNext(head, curNode, null)) {
