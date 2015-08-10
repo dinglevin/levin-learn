@@ -43,10 +43,14 @@ public class MyLock {
                 logger.info("Parked before: {}", node.prev);
             }
             
+            boolean interrupted = false;
             while (node.prev != head) {
                 LockSupport.park(this); // This may return "spuriously"!!, so put it to while
                 if (node.prev != head) {
                     logger.info("park return spuriously on node: {}", node);
+                }
+                if (Thread.interrupted()) {
+                    interrupted = true;
                 }
             }
             
@@ -55,6 +59,10 @@ public class MyLock {
             
             if (LOG_ON) {
                 logger.info("Wake up, next[{}]", node.next);
+            }
+            
+            if (interrupted) {
+                Thread.currentThread().interrupt();
             }
         }
     }
