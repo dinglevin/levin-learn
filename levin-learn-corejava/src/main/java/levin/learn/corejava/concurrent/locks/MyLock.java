@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MyLock {
-    private static final boolean LOG_ON = true;
+    private static final boolean LOG_ON = false;
     
     private static final Logger logger = LoggerFactory.getLogger(MyLock.class);
     
@@ -43,13 +43,11 @@ public class MyLock {
                 logger.info("Parked before: {}", node.prev);
             }
             
-            LockSupport.park(this); // This may return "spuriously"!!
             while (node.prev != head) {
-                //throw new IllegalStateException("Running node is not the first node, prev=" + node.prev);
-                if (LOG_ON) {
-                    logger.error("=====================Running node is not the first node, prev={}, interrupt={}", node.prev, Thread.interrupted());
+                LockSupport.park(this); // This may return "spuriously"!!, so put it to while
+                if (node.prev != head) {
+                    logger.info("park return spuriously on node: {}", node);
                 }
-                LockSupport.park(this);
             }
             
             node.state = Node.RUNNING;
