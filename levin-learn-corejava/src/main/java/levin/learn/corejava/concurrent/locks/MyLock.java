@@ -1,14 +1,11 @@
 package levin.learn.corejava.concurrent.locks;
 
-import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.LockSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.misc.Unsafe;
-
-@SuppressWarnings("restriction")
 public class MyLock {
     private static final boolean LOG_ON = true;
     
@@ -165,36 +162,16 @@ public class MyLock {
         }
     }
     
+    private static final AtomicReferenceFieldUpdater<MyLock, Node> tailUpdater = 
+            AtomicReferenceFieldUpdater.newUpdater(MyLock.class, Node.class, "tail");
+    private static final AtomicReferenceFieldUpdater<Node, Node> nextUpdater = 
+            AtomicReferenceFieldUpdater.newUpdater(Node.class, Node.class, "next");
+    
     private boolean compareAndSetTail(Node expected, Node actual) {
-        return UNSAFE.compareAndSwapObject(this, tailOffset, expected, actual);
+        return tailUpdater.compareAndSet(this, expected, actual);
     }
     
     private static boolean compareAndSetNext(Node instance, Node expected, Node actual) {
-        return UNSAFE.compareAndSwapObject(instance, nextOffset, expected, actual);
+        return nextUpdater.compareAndSet(instance, expected, actual);
     }
-    
-    // Hotspot implementation via intrinsics API
-    private static final Unsafe UNSAFE;
-    private static final long tailOffset;
-    private static final long nextOffset;
-    static {
-        try {
-            UNSAFE = getUnsafe();
-            Class<?> tk = MyLock.class;
-            tailOffset = UNSAFE.objectFieldOffset(tk.getDeclaredField("tail"));
-            nextOffset = UNSAFE.objectFieldOffset(Node.class.getDeclaredField("next"));
-        } catch (Exception ex) { 
-            throw new Error(ex); 
-        }
-    }
-    
-    public static Unsafe getUnsafe() {
-        try {
-            Field f = Unsafe.class.getDeclaredField("theUnsafe");
-            f.setAccessible(true);
-            return (Unsafe)f.get(null);
-        } catch (Exception e) { 
-            throw new Error("Not able to get Unsafe instance from theUnsafe field of Unsafe class");
-        }
-     }
 }
