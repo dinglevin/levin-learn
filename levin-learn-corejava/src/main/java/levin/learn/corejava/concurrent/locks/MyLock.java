@@ -6,7 +6,7 @@ import java.util.concurrent.locks.LockSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MyLock {
+public class MyLock extends LockAdaptor {
     private static final boolean LOG_ON = false;
     
     private static final Logger logger = LoggerFactory.getLogger(MyLock.class);

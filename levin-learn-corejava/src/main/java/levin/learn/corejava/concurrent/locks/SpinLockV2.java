@@ -2,7 +2,7 @@ package levin.learn.corejava.concurrent.locks;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SpinLockV2 {
+public class SpinLockV2 extends LockAdaptor {
     private final AtomicReference<Thread> owner = new AtomicReference<Thread>(null);
     
     public void lock() {

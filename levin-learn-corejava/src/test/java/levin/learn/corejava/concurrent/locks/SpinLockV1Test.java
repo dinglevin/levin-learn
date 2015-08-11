@@ -1,5 +1,7 @@
 package levin.learn.corejava.concurrent.locks;
 
+import java.util.concurrent.locks.Lock;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -7,13 +9,13 @@ import org.junit.Test;
 public class SpinLockV1Test {
     @Test(expected = IllegalStateException.class)
     public void testUnlockDirectly() {
-        final SpinLockV1 lock = new SpinLockV1();
+        final Lock lock = createLock();
         lock.unlock();
     }
     
     @Test
     public void testUnlockInAnotherThread() throws InterruptedException {
-        final SpinLockV1 lock = new SpinLockV1();
+        final Lock lock = createLock();
         new Thread(new Runnable() {
             public void run() {
                 lock.lock();
@@ -34,7 +36,7 @@ public class SpinLockV1Test {
     public void testLockCorrectly() throws InterruptedException {
         final int COUNT = 100;
         Thread[] threads = new Thread[COUNT];
-        SpinLockV1 lock = new SpinLockV1();
+        Lock lock = createLock();
         AddRunner runner = new AddRunner(lock);
         for (int i = 0; i < COUNT; i++) { 
             threads[i] = new Thread(runner, "thread-" + i);
@@ -49,11 +51,11 @@ public class SpinLockV1Test {
     }
     
     private static class AddRunner implements Runnable {
-        private final SpinLockV1 lock;
+        private final Lock lock;
         
         private int state = 0;
         
-        public AddRunner(SpinLockV1 lock) {
+        public AddRunner(Lock lock) {
             this.lock = lock;
         }
         
@@ -79,5 +81,9 @@ public class SpinLockV1Test {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+    
+    private Lock createLock() {
+        return new SpinLockV1();
     }
 }

@@ -2,6 +2,7 @@ package levin.learn.corejava.concurrent.locks;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +19,7 @@ public class MyLockTest {
     
     @Test
     public void testSingleThreadLock() {
-        MyLock lock = new MyLock();
+        Lock lock = createLock();
         lock.lock();
         try {
             System.out.println("Inside the lock");
@@ -30,7 +31,7 @@ public class MyLockTest {
     
     @Test
     public void testTwoSequenceLock() {
-        MyLock lock = new MyLock();
+        Lock lock = createLock();
         lock.lock();
         try {
             System.out.println("Inside the first lock");
@@ -49,7 +50,7 @@ public class MyLockTest {
     
     @Test
     public void testTwoConcurrentLock() throws InterruptedException {
-        final MyLock lock = new MyLock();
+        final Lock lock = createLock();
         
         Thread[] threads = new Thread[2];
         threads[0] = new Thread(new Runnable() {
@@ -92,7 +93,7 @@ public class MyLockTest {
     
     @Test(expected = IllegalStateException.class)
     public void testNonReentrantLock() {
-        MyLock lock = new MyLock();
+        Lock lock = createLock();
         lock.lock();
         try {
             System.out.println("Inside first lock block");
@@ -111,7 +112,7 @@ public class MyLockTest {
     public void testLockInMultiThreadSequence() throws Exception {
         final int COUNT = 100;
         Thread[] threads = new Thread[COUNT];
-        MyLock lock = new MyLock();
+        Lock lock = createLock();
         Runner runner = new Runner(lock, COUNT);
         
         for (int i = 0; i < COUNT; i++) {
@@ -146,7 +147,7 @@ public class MyLockTest {
     private void oneRoundAddRunner(int total) throws Exception {
         final int COUNT = total;
         Thread[] threads = new Thread[COUNT];
-        MyLock lock = new MyLock();
+        Lock lock = createLock();
         AddRunner runner = new AddRunner(lock);
         
         for (int i = 0; i < COUNT; i++) {
@@ -175,7 +176,7 @@ public class MyLockTest {
     
     private void doTestLockInMultiThread(final int count, final int mid, final int sleep) throws Exception {
         Thread[] threads = new Thread[count];
-        MyLock lock = new MyLock();
+        Lock lock = createLock();
         Runner runner = new Runner(lock, count);
         
         for (int i = 0; i < mid; i++) {
@@ -195,13 +196,17 @@ public class MyLockTest {
         runner.verify();
     }
     
+    private static Lock createLock() {
+        return new MyLock();
+    }
+    
     private static class Runner implements Runnable {
-        private final MyLock lock;
+        private final Lock lock;
         
         private int state = 0;
         private int[] stateResults;
         
-        public Runner(MyLock lock, int count) {
+        public Runner(Lock lock, int count) {
             this.lock = lock;
             this.stateResults = new int[count];
         }
@@ -234,11 +239,11 @@ public class MyLockTest {
     }
     
     private static class AddRunner implements Runnable {
-        private final MyLock lock;
+        private final Lock lock;
         
         private int state = 0;
         
-        public AddRunner(MyLock lock) {
+        public AddRunner(Lock lock) {
             this.lock = lock;
         }
         
