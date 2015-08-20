@@ -28,6 +28,7 @@
     <module>levin-learn-perf4j</module>
     <module>levin-learn-netty</module>
     <module>levin-learn-jfreechart</module>
+    <module>levin-learn-seda</module>
   </modules>
   
   <properties>
