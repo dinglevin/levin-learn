@@ -36,6 +36,7 @@
             <artifactId>netty-all</artifactId>
             <version>4.0.28.Final</version>
         </dependency>
+        <!-- 
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-example</artifactId>
@@ -83,6 +84,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+         -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
