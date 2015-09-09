@@ -28,7 +28,7 @@ package seda.sandStorm.api;
  * This event indicates that the given sink was successfully flushed;
  * this event is generated in response to a SinkIF.flush() call.
  *
- * @see SinkIF
+ * @see EventSink
  * @author Matt Welsh
  */
 public class SinkFlushedEvent implements QueueElementIF {
@@ -36,12 +36,12 @@ public class SinkFlushedEvent implements QueueElementIF {
   /**
    * The sink which was flushed.
    */
-  public SinkIF sink;
+  public EventSink sink;
 
   /**
    * Generate a new SinkFlushedEvent with the given sink.
    */
-  public SinkFlushedEvent(SinkIF sink) {
+  public SinkFlushedEvent(EventSink sink) {
     this.sink = sink;
   }
 }

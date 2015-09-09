@@ -87,7 +87,7 @@ public class DatagramSockState extends seda.sandStorm.lib.aSocket.DatagramSockSt
   }
 
   // This is synchronized with close() 
-  protected synchronized void readInit(SelectSourceIF read_selsource, SinkIF compQ, int readClogTries) {
+  protected synchronized void readInit(SelectSourceIF read_selsource, EventSink compQ, int readClogTries) {
     if (DEBUG) System.err.println("readInit called on "+this);
     if (DEBUG) System.err.println("read_selsource = " + read_selsource);
     if (closed) return; // May have been closed already
@@ -179,7 +179,7 @@ public class DatagramSockState extends seda.sandStorm.lib.aSocket.DatagramSockSt
   // This is synchronized with close() to avoid a race with close()
   // removing the writeReqList while this method is being called.
   // Probably a better way to do this...
-  protected synchronized boolean addWriteRequest(aSocketRequest req, SourceIF write_selsource) {
+  protected synchronized boolean addWriteRequest(aSocketRequest req, EventSource write_selsource) {
     if (closed) return false;
 
     if (DEBUG) System.err.println("DatagramSockState: addWriteRequest called");
@@ -260,7 +260,7 @@ public class DatagramSockState extends seda.sandStorm.lib.aSocket.DatagramSockSt
 
   // This is synchronized to avoid close() interfering with
   // addWriteRequest
-  protected synchronized void close(SinkIF closeEventQueue) {
+  protected synchronized void close(EventSink closeEventQueue) {
     if (closed) return;
 
     closed = true;
@@ -278,7 +278,7 @@ public class DatagramSockState extends seda.sandStorm.lib.aSocket.DatagramSockSt
 
     if (closeEventQueue != null) {
       SinkClosedEvent sce = new SinkClosedEvent(udpsock);
-      closeEventQueue.enqueue_lossy(sce);
+      closeEventQueue.enqueueLossy(sce);
     }
   }
 

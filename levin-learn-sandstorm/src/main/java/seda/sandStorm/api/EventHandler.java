@@ -31,7 +31,7 @@ package seda.sandStorm.api;
  * 
  * @author Matt Welsh
  */
-public interface EventHandlerIF {
+public interface EventHandler {
 
     /**
      * Handle the event corresponding to the given QueueElementIF. This method

@@ -53,7 +53,7 @@ public class ATcpServerSocket {
    * If the server socket dies, an ATcpServerSocketDeadEvent will be
    * posted instead.
    */
-  public ATcpServerSocket(int serverPort, SinkIF compQ) throws IOException {
+  public ATcpServerSocket(int serverPort, EventSink compQ) throws IOException {
     this.serverPort = serverPort;
     SocketMgr.enqueueRequest(new ATcpListenRequest(this, serverPort, compQ, -1));
   }
@@ -70,7 +70,7 @@ public class ATcpServerSocket {
    *   connection. The default value is -1, which indicates that no
    *   SinkCloggedEvents will be generated.
    */
-  public ATcpServerSocket(int serverPort, SinkIF compQ, 
+  public ATcpServerSocket(int serverPort, EventSink compQ, 
     int writeClogThreshold) throws IOException {
     this.serverPort = serverPort;
     SocketMgr.enqueueRequest(new ATcpListenRequest(this, serverPort, compQ, writeClogThreshold));

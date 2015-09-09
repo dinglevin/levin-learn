@@ -42,7 +42,7 @@ import java.util.*;
  *
  * @author Matt Welsh 
  */
-public interface SelectSourceIF extends SourceIF {
+public interface SelectSourceIF extends EventSource {
 
   /**
    * Register a SelectItem with the SelectSource. The SelectItem should 

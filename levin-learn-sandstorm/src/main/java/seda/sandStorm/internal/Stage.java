@@ -25,7 +25,7 @@
 package seda.sandStorm.internal;
 
 import seda.sandStorm.api.ConfigDataIF;
-import seda.sandStorm.api.SinkIF;
+import seda.sandStorm.api.EventSink;
 import seda.sandStorm.api.StageIF;
 import seda.sandStorm.api.internal.StageWrapperIF;
 import seda.sandStorm.main.SandstormConfig;
@@ -39,7 +39,7 @@ public class Stage implements StageIF {
 
     private String name;
     private StageWrapperIF wrapper;
-    private SinkIF mainsink;
+    private EventSink mainsink;
 
     // If true, instantate a SinkProxy for the stage's event queue
     // when batchControllor or rtController are enabled. This should
@@ -50,7 +50,7 @@ public class Stage implements StageIF {
     /**
      * Create a Stage with the given name, wrapper, and sink.
      */
-    public Stage(String name, StageWrapperIF wrapper, SinkIF mainsink,
+    public Stage(String name, StageWrapperIF wrapper, EventSink mainsink,
             ConfigDataIF config) {
         this.name = name;
         this.wrapper = wrapper;
@@ -60,7 +60,7 @@ public class Stage implements StageIF {
 
         if (ENABLE_SINK_PROXY && (cf.getBoolean("global.batchController.enable")
                 || cf.getBoolean("global.rtController.enable"))) {
-            this.mainsink = new SinkProxy((SinkIF) mainsink,
+            this.mainsink = new SinkProxy((EventSink) mainsink,
                     config.getManager(), wrapper);
         }
     }
@@ -84,8 +84,8 @@ public class Stage implements StageIF {
     /**
      * Return the event sink.
      */
-    public SinkIF getSink() {
-        return (SinkIF) mainsink;
+    public EventSink getSink() {
+        return mainsink;
     }
 
     /**
@@ -101,5 +101,4 @@ public class Stage implements StageIF {
     public void destroy() {
         throw new IllegalArgumentException("XXX Not yet implemented!");
     }
-
 }

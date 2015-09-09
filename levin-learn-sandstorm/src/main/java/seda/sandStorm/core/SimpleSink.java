@@ -34,9 +34,9 @@ import seda.sandStorm.api.*;
  * case.
  *
  * @author   Matt Welsh
- * @see      seda.sandStorm.api.SinkIF
+ * @see      seda.sandStorm.api.EventSink
  */
-public abstract class SimpleSink implements SinkIF, ProfilableIF {
+public abstract class SimpleSink implements EventSink, ProfilableIF {
 
   /**
    * Must be implemented by subclasses. 
@@ -46,7 +46,7 @@ public abstract class SimpleSink implements SinkIF, ProfilableIF {
   /**
    * Calls enqueue() and returns false if SinkException occurs.
    */
-  public synchronized boolean enqueue_lossy(QueueElementIF enqueueMe) {
+  public synchronized boolean enqueueLossy(QueueElementIF enqueueMe) {
     try {
       enqueue(enqueueMe);
       return true;
@@ -62,7 +62,7 @@ public abstract class SimpleSink implements SinkIF, ProfilableIF {
    * reject some items but not others. Don't use SimpleSink if this is
    * going to be a problem.
    */
-  public synchronized void enqueue_many(QueueElementIF[] enqueueMe) throws SinkException {
+  public synchronized void enqueueMany(QueueElementIF[] enqueueMe) throws SinkException {
     for (int i = 0; i < enqueueMe.length; i++) {
       enqueue(enqueueMe[i]);
     }
@@ -71,21 +71,21 @@ public abstract class SimpleSink implements SinkIF, ProfilableIF {
   /**
    * Not supported; throws an IllegalArgumentException.
    */
-  public Object enqueue_prepare(QueueElementIF enqueueMe[]) throws SinkException {
+  public Object enqueuePrepare(QueueElementIF enqueueMe[]) throws SinkException {
     throw new IllegalArgumentException("enqueue_prepare not supported on SimpleSink objects");
   }
 
   /**
    * Not supported; throws an IllegalArgumentException.
    */
-  public void enqueue_commit(Object key) {
+  public void enqueueCommit(Object key) {
     throw new IllegalArgumentException("enqueue_commit not supported on SimpleSink objects");
   }
 
   /**
    * Not supported; throws an IllegalArgumentException.
    */
-  public void enqueue_abort(Object key) {
+  public void enqueueAbort(Object key) {
     throw new IllegalArgumentException("enqueue_abort not supported on SimpleSink objects");
   }
 

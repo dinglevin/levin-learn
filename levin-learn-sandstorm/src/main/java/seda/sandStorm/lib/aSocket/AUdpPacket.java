@@ -51,7 +51,7 @@ public class AUdpPacket extends BufferElement {
    * Create an AUdpPacket with the given data, an offset of 0, and a 
    * size of data.length, with the given completion queue.
    */
-  public AUdpPacket(byte data[], SinkIF compQ) {
+  public AUdpPacket(byte data[], EventSink compQ) {
     this(data, 0, data.length, compQ);
   }
 
@@ -66,7 +66,7 @@ public class AUdpPacket extends BufferElement {
    * Create an AUdpPacket with the given data, offset, size, and 
    * completion queue.
    */
-  public AUdpPacket(byte data[], int offset, int size, SinkIF compQ) {
+  public AUdpPacket(byte data[], int offset, int size, EventSink compQ) {
     super(data, offset, size, compQ);
   }
 
@@ -74,7 +74,7 @@ public class AUdpPacket extends BufferElement {
    * Create an AUdpPacket with the given data, offset, size, 
    * completion queue, destination address, and port.
    */
-  public AUdpPacket(byte data[], int offset, int size, SinkIF compQ, InetAddress address, int port) {
+  public AUdpPacket(byte data[], int offset, int size, EventSink compQ, InetAddress address, int port) {
     super(data, offset, size, compQ);
     this.address = address;
     this.port = port;

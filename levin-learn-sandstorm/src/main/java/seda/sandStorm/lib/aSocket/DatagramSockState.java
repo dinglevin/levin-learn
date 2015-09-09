@@ -39,7 +39,7 @@ public abstract class DatagramSockState implements aSocketConst {
   private static final boolean DEBUG = false;
 
   protected AUdpSocket udpsock;
-  protected SinkIF readCompQ;
+  protected EventSink readCompQ;
   protected QueueElementIF clogged_qel;
   protected int clogged_numtries;
   protected int readClogTries, writeClogThreshold, maxPacketSize;
@@ -54,13 +54,13 @@ public abstract class DatagramSockState implements aSocketConst {
   protected AUdpWriteRequest cur_write_req;
   protected BufferElement cur_write_buf;
 
-  protected abstract void readInit(SelectSourceIF read_selsource, SinkIF compQ, int readClogTries);
+  protected abstract void readInit(SelectSourceIF read_selsource, EventSink compQ, int readClogTries);
   protected abstract void doRead();
-  protected abstract boolean addWriteRequest(aSocketRequest req, SourceIF write_selsource);
+  protected abstract boolean addWriteRequest(aSocketRequest req, EventSource write_selsource);
   protected abstract boolean tryWrite() throws SinkClosedException;
   protected abstract void writeMaskEnable();
   protected abstract void writeMaskDisable();
-  protected abstract void close(SinkIF closeEventQueue);
+  protected abstract void close(EventSink closeEventQueue);
   protected abstract DatagramSocket getSocket();
   protected abstract void connect(InetAddress addr, int port);
 

@@ -34,7 +34,7 @@ public class MulticlassRateLimitingPredicate implements EnqueuePredicateIF {
 
   private static final boolean DEBUG = false;
 
-  private SinkIF thesink;
+  private EventSink thesink;
   private int NUM_CLASSES;
   private double targetRate[];
   private int depth[];
@@ -53,7 +53,7 @@ public class MulticlassRateLimitingPredicate implements EnqueuePredicateIF {
    * Create a new RateLimitingPredicate for the given sink,
    * targetRate, and token bucket depth. A rate of -1.0 indicates no rate limit.
    */
-  public MulticlassRateLimitingPredicate(SinkIF sink, int numclasses, double targetRate, int depth) {
+  public MulticlassRateLimitingPredicate(EventSink sink, int numclasses, double targetRate, int depth) {
     this.thesink = sink;
     this.NUM_CLASSES = numclasses;
 

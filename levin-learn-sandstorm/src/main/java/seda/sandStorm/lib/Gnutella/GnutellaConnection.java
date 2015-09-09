@@ -79,7 +79,7 @@ public class GnutellaConnection extends SimpleSink implements QueueElementIF, Gn
    */
   public void sendPing() {
     GnutellaPingPacket ping = new GnutellaPingPacket();
-    enqueue_lossy(ping);
+    enqueueLossy(ping);
   }
 
   /**
@@ -87,7 +87,7 @@ public class GnutellaConnection extends SimpleSink implements QueueElementIF, Gn
    */
   public void sendPing(int ttl) {
     GnutellaPingPacket ping = new GnutellaPingPacket(new GnutellaGUID(), ttl, 0);
-    enqueue_lossy(ping);
+    enqueueLossy(ping);
   }
 
   // Package access only
@@ -109,14 +109,14 @@ public class GnutellaConnection extends SimpleSink implements QueueElementIF, Gn
     conn.enqueue(buf);
   }
 
-  public boolean enqueue_lossy(QueueElementIF element) {
+  public boolean enqueueLossy(QueueElementIF element) {
     GnutellaPacket packet = (GnutellaPacket)element;
     BufferElement buf = packet.getBuffer();
     buf.compQ = gs.getSink();
-    return conn.enqueue_lossy(buf);
+    return conn.enqueueLossy(buf);
   }
 
-  public void enqueue_many(QueueElementIF elements[]) throws SinkException {
+  public void enqueueMany(QueueElementIF elements[]) throws SinkException {
     for (int i = 0; i < elements.length; i++) {
       enqueue(elements[i]);
     }
@@ -126,7 +126,7 @@ public class GnutellaConnection extends SimpleSink implements QueueElementIF, Gn
     return conn.size();
   }
 
-  public void close(SinkIF compQ) throws SinkClosedException {
+  public void close(EventSink compQ) throws SinkClosedException {
     // XXX For now, allow a connection to be closed multiple times
     // This is because clogged connections may push multiple
     // clogged events up, causing the server to attempt to close
@@ -137,20 +137,20 @@ public class GnutellaConnection extends SimpleSink implements QueueElementIF, Gn
     closed = true;
   }
 
-  public void flush(SinkIF compQ) throws SinkClosedException {
+  public void flush(EventSink compQ) throws SinkClosedException {
     conn.flush(compQ);
   }
 
-  public Object enqueue_prepare(QueueElementIF enqueueMe[]) throws SinkException {
-    return conn.enqueue_prepare(enqueueMe);
+  public Object enqueuePrepare(QueueElementIF enqueueMe[]) throws SinkException {
+    return conn.enqueuePrepare(enqueueMe);
   }
 
-  public void enqueue_commit(Object key) {
-    conn.enqueue_commit(key);
+  public void enqueueCommit(Object key) {
+    conn.enqueueCommit(key);
   }
 
-  public void enqueue_abort(Object key) {
-    conn.enqueue_abort(key);
+  public void enqueueAbort(Object key) {
+    conn.enqueueAbort(key);
   }
 
   public String toString() {

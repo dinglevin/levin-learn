@@ -41,7 +41,7 @@ class StageGraphEdge {
 
   StageWrapperIF fromStage;
   StageWrapperIF toStage;
-  SinkIF sink;
+  EventSink sink;
 
   public boolean equals(Object o) {
     if (!(o instanceof StageGraphEdge)) return false;

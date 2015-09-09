@@ -24,76 +24,75 @@
 
 package seda.sandStorm.lib.aSocket;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.core.*;
+import java.net.Socket;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.SinkClosedException;
+import seda.sandStorm.api.EventSink;
+import seda.sandStorm.core.ssLinkedList;
 
 /**
  * Internal class used to represent state of an active socket connection.
  */
 public abstract class SockState implements aSocketConst {
+    protected Socket nbsock;
+    protected ATcpConnection conn;
+    protected EventSink readCompQ;
+    protected QueueElementIF clogged_qel;
+    protected int clogged_numtries;
+    protected int readClogTries, writeClogThreshold;
+    protected byte readBuf[];
+    protected boolean closed = false;
+    protected long seqNum = 1;
 
-  private static final boolean DEBUG = false;
+    protected int outstanding_writes, numEmptyWrites;
+    protected ssLinkedList writeReqList;
+    protected ATcpWriteRequest cur_write_req;
+    protected int cur_offset, cur_length_target;
+    protected byte writeBuf[];
+    protected ATcpInPacket pkt;
 
-  protected Socket nbsock;
-  protected ATcpConnection conn;
-  protected SinkIF readCompQ;
-  protected QueueElementIF clogged_qel;
-  protected int clogged_numtries;
-  protected int readClogTries, writeClogThreshold;
-  protected byte readBuf[];
-  protected boolean closed = false;
-  protected long seqNum = 1;
+    protected static int numActiveWriteSockets = 0;
 
-  protected int outstanding_writes, numEmptyWrites;
-  protected ssLinkedList writeReqList;
-  protected ATcpWriteRequest cur_write_req;
-  protected int cur_offset, cur_length_target;
-  protected byte writeBuf[];
-  protected ATcpInPacket pkt;
+    // This is synchronized with close()
+    protected abstract void readInit(SelectSourceIF read_selsource,
+            EventSink compQ, int readClogTries);
 
-  protected static int numActiveWriteSockets = 0;
+    protected abstract void doRead();
 
-  // This is synchronized with close() 
-  protected abstract void readInit(SelectSourceIF read_selsource, SinkIF compQ, int readClogTries);
-  protected abstract void doRead();
+    // XXX This is synchronized with close() to avoid a race with close()
+    // removing the writeReqList while this method is being called.
+    // Probably a better way to do this...
+    protected abstract boolean addWriteRequest(aSocketRequest req,
+            SelectSourceIF write_selsource);
 
-  // XXX This is synchronized with close() to avoid a race with close()
-  // removing the writeReqList while this method is being called.
-  // Probably a better way to do this...
-  protected abstract boolean addWriteRequest(aSocketRequest req, SelectSourceIF write_selsource);
+    protected abstract void initWrite(ATcpWriteRequest req);
 
-  protected abstract void initWrite(ATcpWriteRequest req);
+    protected abstract boolean tryWrite() throws SinkClosedException;
 
-  protected abstract boolean tryWrite() throws SinkClosedException;
+    void writeReset() {
+        this.cur_write_req = null;
+        this.outstanding_writes--;
+    }
 
-  void writeReset() {
-    this.cur_write_req = null;
-    this.outstanding_writes--;
-  }
+    protected abstract void writeMaskEnable();
 
-  protected abstract void writeMaskEnable();
+    protected abstract void writeMaskDisable();
 
-  protected abstract void writeMaskDisable();
+    static int numActiveWriters() {
+        return numActiveWriteSockets;
+    }
 
-  static int numActiveWriters() {
-    return numActiveWriteSockets;
-  }
+    boolean isClosed() {
+        return closed;
+    }
 
-  boolean isClosed() {
-    return closed;
-  }
+    // XXX This is synchronized to avoid close() interfering with
+    // addWriteRequest
+    protected abstract void close(EventSink closeEventQueue);
 
-  // XXX This is synchronized to avoid close() interfering with
-  // addWriteRequest
-  protected abstract void close(SinkIF closeEventQueue);
-
-  public String toString() {
-    return "SockState ["+nbsock+"]";
-  }
+    public String toString() {
+        return "SockState [" + nbsock + "]";
+    }
 
 }
-

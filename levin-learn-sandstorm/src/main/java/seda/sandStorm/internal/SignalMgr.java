@@ -51,7 +51,7 @@ class SignalMgr implements SignalMgrIF {
    * an object of the given type (although not necessarily the same
    * object instance) will be delivered to the given SinkIF.
    */
-  public void register(SignalIF signalType, SinkIF sink) {
+  public void register(SignalIF signalType, EventSink sink) {
     Class type = signalType.getClass();
     Vector vec = (Vector)signalTbl.get(type);
     if (vec == null) {
@@ -60,7 +60,7 @@ class SignalMgr implements SignalMgrIF {
       signalTbl.put(type, vec);
     } else {
       for (int i = 0; i < vec.size(); i++) {
-	SinkIF s = (SinkIF)vec.elementAt(i);
+	EventSink s = (EventSink)vec.elementAt(i);
 	if (s.equals(sink)) throw new IllegalArgumentException("Sink "+sink+" already registered for signal type "+type);
       }
       vec.addElement(sink);
@@ -70,14 +70,14 @@ class SignalMgr implements SignalMgrIF {
   /**
    * Deregister for the given signal type. 
    */
-  public void deregister(SignalIF signalType, SinkIF sink) {
+  public void deregister(SignalIF signalType, EventSink sink) {
     Class type = signalType.getClass();
     Vector vec = (Vector)signalTbl.get(type);
     if (vec == null) {
       throw new IllegalArgumentException("Sink "+sink+" not registered for signal type "+type);
     } else {
       for (int i = 0; i < vec.size(); i++) {
-	SinkIF s = (SinkIF)vec.elementAt(i);
+	EventSink s = (EventSink)vec.elementAt(i);
 	if (s.equals(sink)) vec.removeElementAt(i);
 	return;
       }
@@ -99,8 +99,8 @@ class SignalMgr implements SignalMgrIF {
     Vector vec = (Vector)signalTbl.get(type);
     if (vec == null) return;
     for (int i = 0; i < vec.size(); i++) {
-      SinkIF s = (SinkIF)vec.elementAt(i);
-      s.enqueue_lossy(signal);
+      EventSink s = (EventSink)vec.elementAt(i);
+      s.enqueueLossy(signal);
     }
   }
 

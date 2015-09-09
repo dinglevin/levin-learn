@@ -43,7 +43,7 @@ class AFileTPImpl extends AFileImpl implements QueueElementIF {
   RandomAccessFile raf;
   private AFile afile;
   private AFileTPTM tm;
-  private SinkIF compQ;
+  private EventSink compQ;
   private FiniteQueue eventQ;
   private boolean readOnly;
   private boolean closed;
@@ -52,7 +52,7 @@ class AFileTPImpl extends AFileImpl implements QueueElementIF {
    * Create an AFileTPIMpl with the given AFile, filename, completion
    * queue, create/readOnly flags, and Thread Manager.
    */
-  AFileTPImpl(AFile afile, String fname, SinkIF compQ, boolean create, boolean readOnly, AFileTPTM tm) throws IOException {
+  AFileTPImpl(AFile afile, String fname, EventSink compQ, boolean create, boolean readOnly, AFileTPTM tm) throws IOException {
     this.afile = afile;
     this.tm = tm;
     this.compQ = compQ;
@@ -103,7 +103,7 @@ class AFileTPImpl extends AFileImpl implements QueueElementIF {
    * Enqueues the given request (which must be an AFileRequest)
    * to the file.
    */
-  public boolean enqueue_lossy(QueueElementIF req) {
+  public boolean enqueueLossy(QueueElementIF req) {
     AFileRequest areq = (AFileRequest)req;
     if (closed || (readOnly && (areq instanceof AFileWriteRequest))) {
       return false;
@@ -124,7 +124,7 @@ class AFileTPImpl extends AFileImpl implements QueueElementIF {
    * Enqueues the given requests (which must be AFileRequests)
    * to the file.
    */
-  public void enqueue_many(QueueElementIF[] elements) throws SinkException {
+  public void enqueueMany(QueueElementIF[] elements) throws SinkException {
     if (closed) {
       throw new SinkClosedException("Sink is closed");
     }
@@ -153,7 +153,7 @@ class AFileTPImpl extends AFileImpl implements QueueElementIF {
    * when the close is complete.
    */
   public void close() {
-    enqueue_lossy(new AFileCloseRequest(afile, compQ));
+    enqueueLossy(new AFileCloseRequest(afile, compQ));
     closed = true;
   }
 
@@ -162,13 +162,13 @@ class AFileTPImpl extends AFileImpl implements QueueElementIF {
    * when all pending requests have completed.
    */
   public void flush() {
-    enqueue_lossy(new AFileFlushRequest(afile, compQ));
+    enqueueLossy(new AFileFlushRequest(afile, compQ));
   }
 
   /**
    * Return the per-file event queue.
    */
-  QueueIF getQueue() {
+  EventQueue getQueue() {
     return eventQ;
   }
 

@@ -31,11 +31,11 @@ import seda.sandStorm.api.*;
  */
 public class ATcpListenRequest extends aSocketRequest implements QueueElementIF {
   public ATcpServerSocket servsock;
-  public SinkIF compQ;
+  public EventSink compQ;
   public int port;
   public int writeClogThreshold;
 
-  ATcpListenRequest(ATcpServerSocket servsock, int port, SinkIF compQ, int writeClogThreshold) {
+  ATcpListenRequest(ATcpServerSocket servsock, int port, EventSink compQ, int writeClogThreshold) {
     this.servsock = servsock;
     this.compQ = compQ;
     this.port = port;

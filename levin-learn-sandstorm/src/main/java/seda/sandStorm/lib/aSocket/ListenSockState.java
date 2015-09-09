@@ -27,7 +27,7 @@ package seda.sandStorm.lib.aSocket;
 import java.io.IOException;
 import java.net.Socket;
 
-import seda.sandStorm.api.SinkIF;
+import seda.sandStorm.api.EventSink;
 
 /**
  * Internal class used to represent a server socket listening on a given port.
@@ -37,7 +37,7 @@ public abstract class ListenSockState {
 
     protected ATcpServerSocket servsock;
     protected int port;
-    protected SinkIF compQ;
+    protected EventSink compQ;
     protected int writeClogThreshold;
 
     protected abstract int getLocalPort();

@@ -156,7 +156,7 @@ public abstract class httpResponse implements httpConst, QueueElementIF {
    * @param payloadSize The size of the payload to allocate.
    * @param compQ The completion queue for the payload.
    */
-  protected httpResponse(int code, String contentType, int payloadSize, SinkIF compQ) {
+  protected httpResponse(int code, String contentType, int payloadSize, EventSink compQ) {
     this.code = code;
     this.contentType = contentType;
     this.contentLength = payloadSize;

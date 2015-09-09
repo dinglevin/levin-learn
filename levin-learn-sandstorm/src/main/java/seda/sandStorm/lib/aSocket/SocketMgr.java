@@ -26,7 +26,7 @@ package seda.sandStorm.lib.aSocket;
 
 import seda.sandStorm.api.ManagerIF;
 import seda.sandStorm.api.SinkException;
-import seda.sandStorm.api.SinkIF;
+import seda.sandStorm.api.EventSink;
 import seda.sandStorm.api.StageIF;
 import seda.sandStorm.api.internal.SystemManagerIF;
 import seda.sandStorm.api.internal.ThreadManagerIF;
@@ -43,9 +43,9 @@ import seda.sandStorm.main.SandstormConfig;
  */
 public class SocketMgr {
     private static ThreadManagerIF aSocketTM, aSocketRCTM;
-    private static SinkIF read_sink;
-    private static SinkIF listen_sink;
-    private static SinkIF write_sink;
+    private static EventSink read_sink;
+    private static EventSink listen_sink;
+    private static EventSink write_sink;
 
     private static Object init_lock = new Object();
     private static boolean initialized = false;

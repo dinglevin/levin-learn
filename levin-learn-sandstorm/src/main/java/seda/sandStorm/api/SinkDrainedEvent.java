@@ -34,7 +34,7 @@ public class SinkDrainedEvent implements QueueElementIF {
   /**
    * The sink which was processed.
    */
-  public SinkIF sink;
+  public EventSink sink;
 
   /**
    * The element which was processed.
@@ -44,7 +44,7 @@ public class SinkDrainedEvent implements QueueElementIF {
   /**
    * Create a new SinkDrainedEvent with the given sink and element.
    */
-  public SinkDrainedEvent(SinkIF sink, QueueElementIF element) {
+  public SinkDrainedEvent(EventSink sink, QueueElementIF element) {
     this.sink = sink;
     this.element = element;
   }

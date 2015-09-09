@@ -45,7 +45,7 @@ public class AUdpSocket extends SimpleSink {
   public static final int DEFAULT_MAX_PACKETSIZE = 16384;
 
   public int maxPacketSize, writeClogThreshold;
-  public SinkIF compQ;
+  public EventSink compQ;
   InetAddress localaddress, remaddress;
   int localport, remport;
 
@@ -59,14 +59,14 @@ public class AUdpSocket extends SimpleSink {
    * Create a socket bound to any available local port. This is mainly
    * used to create outgoing-only sockets.
    */
-  public AUdpSocket(SinkIF compQ) throws IOException {
+  public AUdpSocket(EventSink compQ) throws IOException {
     this(null, 0, compQ, DEFAULT_MAX_PACKETSIZE, -1);
   }
 
   /**
    * Create a socket bound to the given local port. 
    */
-  public AUdpSocket(int localport, SinkIF compQ) throws IOException {
+  public AUdpSocket(int localport, EventSink compQ) throws IOException {
     this(null, localport, compQ, DEFAULT_MAX_PACKETSIZE, -1);
   }
 
@@ -84,7 +84,7 @@ public class AUdpSocket extends SimpleSink {
    * indicates that no SinkCloggedEvents will be generated.
    *
    */
-  public AUdpSocket(InetAddress localaddr, int localport, SinkIF compQ, int maxPacketSize, int writeClogThreshold) throws IOException {
+  public AUdpSocket(InetAddress localaddr, int localport, EventSink compQ, int maxPacketSize, int writeClogThreshold) throws IOException {
     this.remaddress = null;
     this.remport = -1;
     this.maxPacketSize = maxPacketSize;
@@ -107,7 +107,7 @@ public class AUdpSocket extends SimpleSink {
    * socket). Until this method is called, no data will be read from 
    * the socket.
    */
-  public void startReader(SinkIF receiveQ) {
+  public void startReader(EventSink receiveQ) {
     startReader(receiveQ, -1);
   }
 
@@ -126,7 +126,7 @@ public class AUdpSocket extends SimpleSink {
    * tries. The default value is -1, which indicates that the aSocket
    * layer will attempt to push the queue entry indefinitely.
    */
-  public void startReader(SinkIF receiveQ, int readClogTries) {
+  public void startReader(EventSink receiveQ, int readClogTries) {
     if (readerstarted) throw new IllegalArgumentException("startReader already called on this socket");
     SocketMgr.enqueueRequest(new AUdpStartReadRequest(this, receiveQ, readClogTries));
     readerstarted = true;
@@ -147,7 +147,7 @@ public class AUdpSocket extends SimpleSink {
    * The packet must be of type BufferElement or AUdpPacket. Drops the packet 
    * if it cannot be enqueued.
    */
-  public boolean enqueue_lossy(QueueElementIF packet) {
+  public boolean enqueueLossy(QueueElementIF packet) {
     if (closed) return false;
     if (packet == null) return false;
     SocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packet));
@@ -158,7 +158,7 @@ public class AUdpSocket extends SimpleSink {
    * Enqueue an set of outgoing packets to this socket.
    * Each packet must be of type BufferElement or AUdpPacket.
    */
-  public void enqueue_many(QueueElementIF packets[]) throws SinkException {
+  public void enqueueMany(QueueElementIF packets[]) throws SinkException {
     if (closed) throw new SinkClosedException("AUdpSocket closed");
     for (int i = 0; i < packets.length; i++) {
       if (packets[i] == null) throw new BadQueueElementException("AUdpSocket.enqueue_many got null element", packets[i]);
@@ -170,7 +170,7 @@ public class AUdpSocket extends SimpleSink {
    * Close the socket. A SinkClosedEvent will be posted on the given
    * compQ when the close is complete.
    */
-  public void close(SinkIF compQ) throws SinkClosedException {
+  public void close(EventSink compQ) throws SinkClosedException {
     if (closed) throw new SinkClosedException("AUdpSocket closed");
     closed = true;
     SocketMgr.enqueueRequest(new AUdpCloseRequest(this, compQ));
@@ -180,7 +180,7 @@ public class AUdpSocket extends SimpleSink {
    * Flush the socket. A SinkFlushedEvent will be posted on the given
    * compQ when the close is complete.
    */
-  public void flush(SinkIF compQ) throws SinkClosedException {
+  public void flush(EventSink compQ) throws SinkClosedException {
     if (closed) throw new SinkClosedException("AUdpSocket closed");
     SocketMgr.enqueueRequest(new AUdpFlushRequest(this, compQ));
   }

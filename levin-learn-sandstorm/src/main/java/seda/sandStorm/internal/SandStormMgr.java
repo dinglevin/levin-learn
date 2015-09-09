@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import seda.sandStorm.api.ConfigDataIF;
-import seda.sandStorm.api.EventHandlerIF;
+import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.ManagerIF;
 import seda.sandStorm.api.NoSuchStageException;
 import seda.sandStorm.api.ProfilableIF;
@@ -217,7 +217,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
         String classname = descr.className;
         ConfigData config = new ConfigData(this, descr.initArgs);
         Class<?> theclass = Class.forName(classname);
-        EventHandlerIF evHandler = (EventHandlerIF) theclass.newInstance();
+        EventHandler evHandler = (EventHandler) theclass.newInstance();
         
         LOGGER.info("Sandstorm: Loaded " + stagename + " from " + classname);
 
@@ -231,7 +231,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
      * Create a stage with the given name from the given event handler with the
      * given initial arguments.
      */
-    public StageIF createStage(String stageName, EventHandlerIF evHandler,
+    public StageIF createStage(String stageName, EventHandler evHandler,
             String initargs[]) throws Exception {
         ConfigDataIF config = new ConfigData(this, initargs);
         if (stagetbl.get(stageName) != null) {

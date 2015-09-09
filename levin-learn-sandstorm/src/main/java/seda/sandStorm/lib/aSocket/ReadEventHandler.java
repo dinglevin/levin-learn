@@ -27,13 +27,13 @@ package seda.sandStorm.lib.aSocket;
 import java.io.IOException;
 
 import seda.sandStorm.api.ConfigDataIF;
-import seda.sandStorm.api.EventHandlerIF;
+import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.QueueElementIF;
 
 /**
  * Internal event handler used to process socket read events.
  */
-class ReadEventHandler extends SocketEventHandler implements EventHandlerIF {
+class ReadEventHandler extends SocketEventHandler implements EventHandler {
 
     private static final boolean DEBUG = false;
 

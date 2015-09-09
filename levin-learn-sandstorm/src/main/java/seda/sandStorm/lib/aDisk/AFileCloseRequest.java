@@ -34,11 +34,11 @@ import seda.sandStorm.core.*;
  */
 public class AFileCloseRequest extends AFileRequest {
 
-  public AFileCloseRequest(AFile afile, SinkIF compQ) {
+  public AFileCloseRequest(AFile afile, EventSink compQ) {
     super(afile, compQ);
   }
 
-  public AFileCloseRequest(SinkIF compQ) {
+  public AFileCloseRequest(EventSink compQ) {
     super(compQ);
   }
 

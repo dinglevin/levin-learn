@@ -66,11 +66,11 @@ public class ssTimer implements Runnable, ProfilableIF {
   public static class ssTimerEvent {
     public long            time_millis;
     public QueueElementIF  obj;
-    public SinkIF queue;
+    public EventSink queue;
     public ssTimerEvent      nextE;
     public ssTimerEvent      prevE;
     
-    public ssTimerEvent(long m, QueueElementIF o, SinkIF q) {
+    public ssTimerEvent(long m, QueueElementIF o, EventSink q) {
       time_millis = m;
       obj = o;
       queue = q;
@@ -93,7 +93,7 @@ public class ssTimer implements Runnable, ProfilableIF {
    * @param queue   the queue on which the object will be placed
    */
   public ssTimer.ssTimerEvent registerEvent(long millis, QueueElementIF obj,
-					  SinkIF queue) {
+					  EventSink queue) {
     long time_millis = System.currentTimeMillis() + millis;
     ssTimerEvent newTimer = new ssTimerEvent(time_millis, obj, queue);
     
@@ -113,7 +113,7 @@ public class ssTimer implements Runnable, ProfilableIF {
    */
   public ssTimer.ssTimerEvent registerEvent(java.util.Date the_date,
 					  QueueElementIF obj,
-					  SinkIF queue) {
+					  EventSink queue) {
     ssTimerEvent newTimer = new ssTimerEvent(the_date.getTime(),
 					 obj, queue);
     insertEvent(newTimer);
@@ -306,7 +306,7 @@ public class ssTimer implements Runnable, ProfilableIF {
     }
 
     if (fire != null) {
-      fire.queue.enqueue_lossy(fire.obj);
+      fire.queue.enqueueLossy(fire.obj);
     } 
   }
 

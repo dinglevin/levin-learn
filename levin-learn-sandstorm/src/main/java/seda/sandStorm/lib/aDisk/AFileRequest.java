@@ -41,13 +41,13 @@ import java.io.*;
 public abstract class AFileRequest implements QueueElementIF {
 
   AFile afile;
-  SinkIF compQ;
+  EventSink compQ;
 
-  protected AFileRequest(SinkIF compQ) {
+  protected AFileRequest(EventSink compQ) {
     this.compQ = compQ;
   }
 
-  protected AFileRequest(AFile afile, SinkIF compQ) {
+  protected AFileRequest(AFile afile, EventSink compQ) {
     this.afile = afile;
     this.compQ = compQ;
   }
@@ -60,12 +60,12 @@ public abstract class AFileRequest implements QueueElementIF {
     return afile.getImpl();
   }
 
-  SinkIF getCompQ() {
+  EventSink getCompQ() {
     return compQ;
   }
 
   void complete(QueueElementIF comp) {
-    if (compQ != null) compQ.enqueue_lossy(comp);
+    if (compQ != null) compQ.enqueueLossy(comp);
   }
 
 }

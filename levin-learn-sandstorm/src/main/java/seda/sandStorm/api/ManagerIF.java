@@ -72,7 +72,7 @@ public interface ManagerIF {
    * @see seda.sandStorm.api.internal.SystemManagerIF
    * @see ConfigDataIF
    */
-  public StageIF createStage(String stagename, EventHandlerIF eventHandler,
+  public StageIF createStage(String stagename, EventHandler eventHandler,
       String initargs[]) throws Exception;
 
   /**

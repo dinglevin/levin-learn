@@ -34,7 +34,7 @@ package seda.sandStorm.api;
  * means it must be simple and fast.
  * 
  * @author   Matt Welsh
- * @see SinkIF
+ * @see EventSink
  *
  */
 public interface EnqueuePredicateIF {

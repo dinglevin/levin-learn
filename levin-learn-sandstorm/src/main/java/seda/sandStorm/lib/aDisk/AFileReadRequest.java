@@ -40,7 +40,7 @@ public class AFileReadRequest extends AFileRequest {
    * Create a read request to fill in the given BufferElement.
    * Completion events will be posted on the given completion queue.
    */
-  public AFileReadRequest(BufferElement buf, SinkIF compQ) {
+  public AFileReadRequest(BufferElement buf, EventSink compQ) {
     super(compQ);
     this.buf = buf;
   }

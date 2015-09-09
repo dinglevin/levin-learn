@@ -44,7 +44,7 @@ public class AFile extends SimpleSink {
 
   private String fname;
   private AFileImpl impl;
-  private SinkIF compQ;
+  private EventSink compQ;
 
   /**
    * Open the file with the given pathname. 
@@ -60,7 +60,7 @@ public class AFile extends SimpleSink {
    * @exception FileNotFoundException If the file does not exist and 
    *  'create' is false.
    */
-  public AFile(String name, SinkIF compQ, boolean create, boolean readOnly) throws IOException {
+  public AFile(String name, EventSink compQ, boolean create, boolean readOnly) throws IOException {
     AFileMgr.initialize();
     this.compQ = compQ;
     this.fname = name;
@@ -86,16 +86,16 @@ public class AFile extends SimpleSink {
    * Enqueues the given request (which must be an AFileRequest)
    * to the file.
    */
-  public synchronized boolean enqueue_lossy(QueueElementIF req) {
-    return impl.enqueue_lossy(req);
+  public synchronized boolean enqueueLossy(QueueElementIF req) {
+    return impl.enqueueLossy(req);
   }
 
   /**
    * Enqueues the given requests (which must be AFileRequests)
    * to the file.
    */
-  public synchronized void enqueue_many(QueueElementIF[] elements) throws SinkException {
-    impl.enqueue_many(elements);
+  public synchronized void enqueueMany(QueueElementIF[] elements) throws SinkException {
+    impl.enqueueMany(elements);
   }
 
   // The following are convenience methods ---------------------------------

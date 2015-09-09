@@ -122,7 +122,7 @@ public class ATcpConnection extends SimpleSink implements QueueElementIF {
    * socket). Until this method is called, no data will be read from 
    * the socket.
    */
-  public void startReader(SinkIF receiveQ) {
+  public void startReader(EventSink receiveQ) {
     if (readerstarted) throw new IllegalArgumentException("startReader already called on this connection");
     SocketMgr.enqueueRequest(new ATcpStartReadRequest(this, receiveQ, -1));
     readerstarted = true;
@@ -143,7 +143,7 @@ public class ATcpConnection extends SimpleSink implements QueueElementIF {
    * tries. The default value is -1, which indicates that the aSocket
    * layer will attempt to push the queue entry indefinitely.
    */
-  public void startReader(SinkIF receiveQ, int readClogTries) {
+  public void startReader(EventSink receiveQ, int readClogTries) {
     if (readerstarted) throw new IllegalArgumentException("startReader already called on this connection");
     SocketMgr.enqueueRequest(new ATcpStartReadRequest(this, receiveQ, readClogTries));
     readerstarted = true;
@@ -162,7 +162,7 @@ public class ATcpConnection extends SimpleSink implements QueueElementIF {
    * Enqueue an outgoing packet to be written to this socket. 
    * Drops the packet if it cannot be enqueued.
    */
-  public boolean enqueue_lossy(QueueElementIF buf) {
+  public boolean enqueueLossy(QueueElementIF buf) {
     if (closed) return false;
     if (buf == null) return false;
     SocketMgr.enqueueRequest(new ATcpWriteRequest(this, (BufferElement)buf));
@@ -172,7 +172,7 @@ public class ATcpConnection extends SimpleSink implements QueueElementIF {
   /**
    * Enqueue a set of outgoing packets to be written to this socket.
    */
-  public void enqueue_many(QueueElementIF bufarr[]) throws SinkException {
+  public void enqueueMany(QueueElementIF bufarr[]) throws SinkException {
     if (closed) throw new SinkClosedException("ATcpConnection closed");
     for (int i = 0; i < bufarr.length; i++) {
       if (bufarr[i] == null) throw new BadQueueElementException("ATcpConnection.enqueue_many got null element", bufarr[i]);
@@ -184,7 +184,7 @@ public class ATcpConnection extends SimpleSink implements QueueElementIF {
    * Close the socket. A SinkClosedEvent will be posted on the given
    * compQ when the close is complete.
    */
-  public void close(SinkIF compQ) throws SinkClosedException { 
+  public void close(EventSink compQ) throws SinkClosedException { 
     if (closed) throw new SinkClosedException("ATcpConnection closed");
     closed = true;
     SocketMgr.enqueueRequest(new ATcpCloseRequest(this, compQ));
@@ -194,7 +194,7 @@ public class ATcpConnection extends SimpleSink implements QueueElementIF {
    * Flush the socket. A SinkFlushedEvent will be posted on the given
    * compQ when the close is complete.
    */
-  public void flush(SinkIF compQ) throws SinkClosedException { 
+  public void flush(EventSink compQ) throws SinkClosedException { 
     if (closed) throw new SinkClosedException("ATcpConnection closed");
     SocketMgr.enqueueRequest(new ATcpFlushRequest(this, compQ));
   } 

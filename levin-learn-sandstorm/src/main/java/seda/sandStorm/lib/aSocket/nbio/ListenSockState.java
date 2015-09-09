@@ -66,11 +66,11 @@ public class ListenSockState extends seda.sandStorm.lib.aSocket.ListenSockState 
       // Can't create socket - probably because the address was 
       // already in use
       ATcpListenFailedEvent ev = new ATcpListenFailedEvent(servsock, ioe.getMessage());
-      compQ.enqueue_lossy(ev);
+      compQ.enqueueLossy(ev);
       return;
     }
     this.servsock.lss = this;
-    compQ.enqueue_lossy(new ATcpListenSuccessEvent(servsock));
+    compQ.enqueueLossy(new ATcpListenSuccessEvent(servsock));
   }
 
   protected Socket accept() throws IOException {
@@ -91,7 +91,7 @@ public class ListenSockState extends seda.sandStorm.lib.aSocket.ListenSockState 
       e.printStackTrace();
 
       ATcpServerSocketClosedEvent dead = new ATcpServerSocketClosedEvent(servsock);
-      compQ.enqueue_lossy(dead);
+      compQ.enqueueLossy(dead);
       // Deregister
       listen_selsource.deregister(si); 
       throw e;
@@ -125,12 +125,12 @@ public class ListenSockState extends seda.sandStorm.lib.aSocket.ListenSockState 
     }
     nbservsock = null;
     ATcpServerSocketClosedEvent closed = new ATcpServerSocketClosedEvent(servsock);
-    compQ.enqueue_lossy(closed);
+    compQ.enqueueLossy(closed);
   }
 
   protected void complete(ATcpConnection conn) {
     if (DEBUG) System.err.println("LSS: complete called on conn "+conn);
-    if (!compQ.enqueue_lossy(conn)) {
+    if (!compQ.enqueueLossy(conn)) {
       if (DEBUG) System.err.println("LSS: Could not enqueue_lossy new conn "+conn);
     }
   }

@@ -69,7 +69,7 @@ public class ConnectSockState extends seda.sandStorm.lib.aSocket.ConnectSockStat
       nbsock = new NonblockingSocket(req.addr, req.port, false);
     } catch (IOException ioe) {
       // Cannot connect 
-      compQ.enqueue_lossy(new ATcpConnectFailedEvent(clisock, "Got error trying to connect: "+ioe.getMessage()));
+      compQ.enqueueLossy(new ATcpConnectFailedEvent(clisock, "Got error trying to connect: "+ioe.getMessage()));
       return;
     }
   }
@@ -91,7 +91,7 @@ public class ConnectSockState extends seda.sandStorm.lib.aSocket.ConnectSockStat
       tmparr[0] = conn;
 
       try {
-        key = compQ.enqueue_prepare(tmparr);
+        key = compQ.enqueuePrepare(tmparr);
       } catch (SinkException se) {
 	// Whoops - cannot enqueue it
 	if (connectNumTries++ > connectClogTries) {
@@ -107,7 +107,7 @@ public class ConnectSockState extends seda.sandStorm.lib.aSocket.ConnectSockStat
       if (DEBUG) System.err.println("finishing");
       // Reserved entry, complete connection
       if (!nbsock.connectDone()) {
-        compQ.enqueue_abort(key);
+        compQ.enqueueAbort(key);
         System.err.println("aSocket.CSS.complete: Warning: connectDone returned false!");
         // Try again later
         return;
@@ -120,12 +120,12 @@ public class ConnectSockState extends seda.sandStorm.lib.aSocket.ConnectSockStat
       conn.sockState = ss;
 
       // Finally enqueue
-      compQ.enqueue_commit(key);
+      compQ.enqueueCommit(key);
       completed = true;
 
     } catch (IOException ioe) {
       error(new ATcpConnectFailedEvent(clisock, "Got error trying to connect: "+ioe.getMessage()));
-      if (key != null) compQ.enqueue_abort(key);
+      if (key != null) compQ.enqueueAbort(key);
 
       return;
     }
@@ -138,7 +138,7 @@ public class ConnectSockState extends seda.sandStorm.lib.aSocket.ConnectSockStat
 
   protected void error(aSocketErrorEvent error) {
     si.revents = 0;
-    compQ.enqueue_lossy(error);
+    compQ.enqueueLossy(error);
     write_selsource.deregister(si); 
   }
 }

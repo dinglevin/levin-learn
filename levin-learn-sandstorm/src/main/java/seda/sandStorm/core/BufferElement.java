@@ -41,7 +41,7 @@ public class BufferElement implements QueueElementIF {
   /**
    * The completion queue associated with this buffer.
    */
-  public SinkIF compQ;
+  public EventSink compQ;
 
   /**
    * A user-defined tag object associated with this buffer.
@@ -74,7 +74,7 @@ public class BufferElement implements QueueElementIF {
    * Create a BufferElement with the given data, an offset of 0, and a 
    * size of data.length, with the given completion queue.
    */
-  public BufferElement(byte data[], SinkIF compQ) {
+  public BufferElement(byte data[], EventSink compQ) {
     this(data, 0, data.length, compQ);
   }
 
@@ -89,7 +89,7 @@ public class BufferElement implements QueueElementIF {
    * Create a BufferElement with the given data, offset, size, and 
    * completion queue.
    */
-  public BufferElement(byte data[], int offset, int size, SinkIF compQ) {
+  public BufferElement(byte data[], int offset, int size, EventSink compQ) {
     this.data = data;
     if ((offset >= data.length) || (size > (data.length - offset))) {
       throw new IllegalArgumentException("BufferElement created with invalid offset and/or size (off="+offset+", size="+size+", data.length="+data.length+")");
@@ -130,7 +130,7 @@ public class BufferElement implements QueueElementIF {
   /**
    * Return the completion queue for this buffer.
    */
-  public SinkIF getCompletionQueue() {
+  public EventSink getCompletionQueue() {
     return compQ;
   }
 

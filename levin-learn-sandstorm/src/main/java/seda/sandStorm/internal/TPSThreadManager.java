@@ -30,7 +30,7 @@ import java.util.Hashtable;
 import seda.sandStorm.api.ManagerIF;
 import seda.sandStorm.api.QueueElementIF;
 import seda.sandStorm.api.SingleThreadedEventHandlerIF;
-import seda.sandStorm.api.SourceIF;
+import seda.sandStorm.api.EventSource;
 import seda.sandStorm.api.internal.ResponseTimeControllerIF;
 import seda.sandStorm.api.internal.StageWrapperIF;
 import seda.sandStorm.api.internal.ThreadManagerIF;
@@ -113,7 +113,7 @@ public class TPSThreadManager implements ThreadManagerIF {
 
         protected ThreadPool tp;
         protected StageWrapperIF wrapper;
-        protected SourceIF source;
+        protected EventSource source;
         protected String name;
         protected ResponseTimeControllerIF rtController = null;
         protected boolean firstToken = false;

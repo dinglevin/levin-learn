@@ -34,11 +34,11 @@ import seda.sandStorm.core.*;
  */
 public class AFileFlushRequest extends AFileRequest {
 
-  public AFileFlushRequest(AFile afile, SinkIF compQ) {
+  public AFileFlushRequest(AFile afile, EventSink compQ) {
     super(afile, compQ);
   }
 
-  public AFileFlushRequest(SinkIF compQ) {
+  public AFileFlushRequest(EventSink compQ) {
     super(compQ);
   }
 

@@ -25,9 +25,9 @@
 package seda.sandStorm.lib.aSocket;
 
 import seda.sandStorm.api.ConfigDataIF;
-import seda.sandStorm.api.EventHandlerIF;
-import seda.sandStorm.api.SinkIF;
-import seda.sandStorm.api.SourceIF;
+import seda.sandStorm.api.EventHandler;
+import seda.sandStorm.api.EventSink;
+import seda.sandStorm.api.EventSource;
 import seda.sandStorm.api.StageIF;
 import seda.sandStorm.api.internal.ResponseTimeControllerIF;
 import seda.sandStorm.api.internal.StageStatsIF;
@@ -44,14 +44,14 @@ import seda.sandStorm.internal.StageStats;
 class SocketStageWrapper implements StageWrapperIF {
     private String name;
     private StageIF stage;
-    private EventHandlerIF handler;
+    private EventHandler handler;
     private ConfigDataIF config;
     private FiniteQueue eventQ;
     private SelectSourceIF selsource;
     private ThreadManagerIF tm;
     private StageStatsIF stats;
 
-    SocketStageWrapper(String name, EventHandlerIF handler,
+    SocketStageWrapper(String name, EventHandler handler,
             ConfigDataIF config, ThreadManagerIF tm) {
         this.name = name;
         this.handler = handler;
@@ -59,11 +59,8 @@ class SocketStageWrapper implements StageWrapperIF {
         this.tm = tm;
         this.stats = new StageStats(this);
 
-        int queuelen;
-        if ((queuelen = config.getInt("_queuelength")) <= 0) {
-            queuelen = -1;
-        }
-        if (queuelen == -1) {
+        int queuelen = config.getInt("_queuelength");
+        if (queuelen <= 0) {
             eventQ = new FiniteQueue();
         } else {
             eventQ = new FiniteQueue();
@@ -71,7 +68,7 @@ class SocketStageWrapper implements StageWrapperIF {
             eventQ.setEnqueuePredicate(pred);
         }
         this.selsource = ((SocketEventHandler) handler).getSelectSource();
-        this.stage = new Stage(name, this, (SinkIF) eventQ, config);
+        this.stage = new Stage(name, this, (EventSink) eventQ, config);
         this.config.setStage(this.stage);
     }
 
@@ -98,7 +95,7 @@ class SocketStageWrapper implements StageWrapperIF {
     /**
      * Return the event handler associated with this stage.
      */
-    public EventHandlerIF getEventHandler() {
+    public EventHandler getEventHandler() {
         return handler;
     }
 
@@ -113,7 +110,7 @@ class SocketStageWrapper implements StageWrapperIF {
      * Return the source from which events should be pulled to pass to this
      * EventHandlerIF. <b>Note</b> that this method is not used internally.
      */
-    public SourceIF getSource() {
+    public EventSource getSource() {
         return eventQ;
     }
 
@@ -130,7 +127,7 @@ class SocketStageWrapper implements StageWrapperIF {
     }
 
     // So aSocketTM can access it
-    SourceIF getEventQueue() {
+    EventSource getEventQueue() {
         return eventQ;
     }
 

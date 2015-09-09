@@ -77,7 +77,7 @@ class SockState extends seda.sandStorm.lib.aSocket.SockState {
     }
 
   // This is synchronized with close() 
-  protected synchronized void readInit(SelectSourceIF read_selsource, SinkIF compQ, int readClogTries) {
+  protected synchronized void readInit(SelectSourceIF read_selsource, EventSink compQ, int readClogTries) {
     if (DEBUG) System.err.println("readInit called on "+this);
     if (closed) return; // May have been closed already
     this.read_selsource = (SelectSource)read_selsource;
@@ -256,7 +256,7 @@ class SockState extends seda.sandStorm.lib.aSocket.SockState {
 
   // XXX This is synchronized to avoid close() interfering with
   // addWriteRequest
-  protected synchronized void close(SinkIF closeEventQueue) {
+  protected synchronized void close(EventSink closeEventQueue) {
     if (closed) return;
 
     closed = true;
@@ -281,7 +281,7 @@ class SockState extends seda.sandStorm.lib.aSocket.SockState {
 
     if (closeEventQueue != null) {
       SinkClosedEvent sce = new SinkClosedEvent(conn);
-      closeEventQueue.enqueue_lossy(sce);
+      closeEventQueue.enqueueLossy(sce);
     }
   }
 

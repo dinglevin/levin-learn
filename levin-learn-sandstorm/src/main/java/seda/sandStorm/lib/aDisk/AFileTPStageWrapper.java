@@ -25,8 +25,8 @@
 package seda.sandStorm.lib.aDisk;
 
 import seda.sandStorm.api.ConfigDataIF;
-import seda.sandStorm.api.EventHandlerIF;
-import seda.sandStorm.api.SourceIF;
+import seda.sandStorm.api.EventHandler;
+import seda.sandStorm.api.EventSource;
 import seda.sandStorm.api.StageIF;
 import seda.sandStorm.api.internal.ResponseTimeControllerIF;
 import seda.sandStorm.api.internal.StageStatsIF;
@@ -42,14 +42,14 @@ import seda.sandStorm.internal.Stage;
 class AFileTPStageWrapper implements StageWrapperIF {
     private String name;
     private StageIF stage;
-    private EventHandlerIF handler;
+    private EventHandler handler;
     private ConfigDataIF config;
     private ThreadManagerIF tm;
 
     // This stagewrapper has no (real) event queue: Threads created
     // by AFileTPTM will poll across the per-AFile queues instead.
     // This class is just used for bookkeeping purposes.
-    AFileTPStageWrapper(String name, EventHandlerIF handler,
+    AFileTPStageWrapper(String name, EventHandler handler,
             ConfigDataIF config, ThreadManagerIF tm) {
         this.name = name;
         this.handler = handler;
@@ -86,7 +86,7 @@ class AFileTPStageWrapper implements StageWrapperIF {
     /**
      * Return the event handler associated with this stage.
      */
-    public EventHandlerIF getEventHandler() {
+    public EventHandler getEventHandler() {
         return handler;
     }
 
@@ -101,7 +101,7 @@ class AFileTPStageWrapper implements StageWrapperIF {
      * Return the source from which events should be pulled to pass to this
      * EventHandlerIF.
      */
-    public SourceIF getSource() {
+    public EventSource getSource() {
         // Not used
         return null;
     }

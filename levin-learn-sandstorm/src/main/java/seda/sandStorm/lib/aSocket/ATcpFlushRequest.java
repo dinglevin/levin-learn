@@ -32,9 +32,9 @@ import seda.sandStorm.api.*;
 class ATcpFlushRequest extends aSocketRequest implements QueueElementIF {
 
   ATcpConnection conn;
-  SinkIF compQ;
+  EventSink compQ;
 
-  ATcpFlushRequest(ATcpConnection conn, SinkIF compQ) {
+  ATcpFlushRequest(ATcpConnection conn, EventSink compQ) {
     this.conn = conn;
     this.compQ = compQ;
   }

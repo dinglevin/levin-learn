@@ -124,7 +124,7 @@ class AFileTPTM extends TPSThreadManager implements ThreadManagerIF, ProfilableI
 
     fileQueueEntry(AFileTPImpl impl) {
       this.impl = impl;
-      this.size = ((SourceIF)impl.getQueue()).size();
+      this.size = ((EventSource)impl.getQueue()).size();
     }
   }
 
@@ -181,7 +181,7 @@ class AFileTPTM extends TPSThreadManager implements ThreadManagerIF, ProfilableI
 	    n++;
 	  }
 	  // If events still pending, place back on file queue
-	  if (((SourceIF)impl.getQueue()).size() != 0) fileReady(impl);
+	  if (((EventSource)impl.getQueue()).size() != 0) fileReady(impl);
 
 	  Thread.currentThread().yield();
 

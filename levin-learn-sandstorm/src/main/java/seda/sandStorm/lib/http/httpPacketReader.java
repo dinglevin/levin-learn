@@ -57,13 +57,13 @@ class httpPacketReader implements httpConst {
   private int httpver;
   private Vector header;
   private httpConnection conn;
-  private SinkIF compQ;
+  private EventSink compQ;
 
   /**
    * Create an httpPacketReader with the given httpConnection
    * and completion queue.
    */
-  httpPacketReader(httpConnection conn, SinkIF compQ) {
+  httpPacketReader(httpConnection conn, EventSink compQ) {
     this.conn = conn;
     this.compQ = compQ;
     this.ais = new aSocketInputStream();
@@ -183,7 +183,7 @@ class httpPacketReader implements httpConst {
   private void processHeader() throws IOException {
     httpRequest req = new httpRequest(conn,request,url,httpver,header);
     if (DEBUG) System.err.println("httpPacketReader: Pushing req to user");
-    if (!compQ.enqueue_lossy(req)) {
+    if (!compQ.enqueueLossy(req)) {
       System.err.println("httpPacketReader: WARNING: Could not enqueue_lossy to user: "+req);
     }
   }

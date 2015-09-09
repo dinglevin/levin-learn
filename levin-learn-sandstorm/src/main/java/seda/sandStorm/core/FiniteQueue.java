@@ -30,396 +30,437 @@ import seda.sandStorm.api.internal.*;
 import java.util.Hashtable;
 
 /**
- * The FiniteQueue class is a simple implementation of the QueueIF
- * interface, using a linked list.
+ * The FiniteQueue class is a simple implementation of the QueueIF interface,
+ * using a linked list.
  *
- * @author   Matt Welsh
- * @see      seda.sandStorm.api.QueueIF
+ * @author Matt Welsh
+ * @see seda.sandStorm.api.EventQueue
  */
 
-public class FiniteQueue implements QueueIF, ProfilableIF {
+public class FiniteQueue implements EventQueue, ProfilableIF {
 
-  private static final boolean DEBUG = false;
+    private static final boolean DEBUG = false;
 
-  private ssLinkedList qlist;
-  private int queueSize;
-  private Object blocker;
-  private Hashtable provisionalTbl;
-  private EnqueuePredicateIF pred;
-  private String name;
+    private ssLinkedList qlist;
+    private int queueSize;
+    private Object blocker;
+    private Hashtable provisionalTbl;
+    private EnqueuePredicateIF pred;
+    private String name;
 
-  /** 
-   * Create a FiniteQueue with the given enqueue predicate.
-   */
-  public FiniteQueue(EnqueuePredicateIF pred) {
-    this.name = null;
-    this.pred = pred;
-    qlist = new ssLinkedList();
-    queueSize = 0;
-    blocker = new Object();
-    provisionalTbl = new Hashtable(1);
-  }
-
-  /**
-   * Create a FiniteQueue with no enqueue predicate.
-   */
-  public FiniteQueue() {
-    this((EnqueuePredicateIF)null);
-  }
-  
-  /**
-   * Create a FiniteQueue with no enqueue and the given name. Used for
-   * debugging.
-   */
-  public FiniteQueue(String name) {
-    this((EnqueuePredicateIF)null);
-    this.name = name;
-  }
-
-  /** 
-   * Return the size of the queue.
-   */
-  public int size() {
-    synchronized(blocker) {
-      synchronized(qlist) {
-	return queueSize;
-      }
+    /**
+     * Create a FiniteQueue with the given enqueue predicate.
+     */
+    public FiniteQueue(EnqueuePredicateIF pred) {
+        this.name = null;
+        this.pred = pred;
+        qlist = new ssLinkedList();
+        queueSize = 0;
+        blocker = new Object();
+        provisionalTbl = new Hashtable(1);
     }
-  }
 
-  public void enqueue(QueueElementIF enqueueMe) throws SinkFullException {
-
-    if (DEBUG) System.err.println("**** ENQUEUE ("+name+") **** Entered");
-    synchronized(blocker) {
-
-      synchronized(qlist) {
-	if (DEBUG) System.err.println("**** ENQUEUE ("+name+") **** Checking pred");
-	if ((pred != null) && (!pred.accept(enqueueMe))) 
-	  throw new SinkFullException("FiniteQueue is full!");
-	queueSize++;
-	if (DEBUG) System.err.println("**** ENQUEUE ("+name+") **** Add to tail");
-	qlist.add_to_tail(enqueueMe);  // wake up one blocker
-      }
-      // XXX MDW: Trying to track down a bug here ...
-      if (DEBUG) System.err.println("**** ENQUEUE ("+name+") **** Doing notify");
-      blocker.notify();
-      if (DEBUG) System.err.println("**** ENQUEUE ("+name+") **** Done with notify");
-      //blocker.notifyAll();
+    /**
+     * Create a FiniteQueue with no enqueue predicate.
+     */
+    public FiniteQueue() {
+        this((EnqueuePredicateIF) null);
     }
-    if (DEBUG) System.err.println("**** ENQUEUE ("+name+") **** Exiting");
-  }
 
-  public boolean enqueue_lossy(QueueElementIF enqueueMe) {
-    try {
-      this.enqueue(enqueueMe);
-    } catch (Exception e) {
-      return false;
+    /**
+     * Create a FiniteQueue with no enqueue and the given name. Used for
+     * debugging.
+     */
+    public FiniteQueue(String name) {
+        this((EnqueuePredicateIF) null);
+        this.name = name;
     }
-    return true;
-  }
 
-  public void enqueue_many(QueueElementIF[] enqueueMe) throws SinkFullException {
-    synchronized(blocker) {
-      int qlen = enqueueMe.length;
-
-      synchronized(qlist) {
-	if (pred != null) {
-	  int i = 0;
-	  while ((i < qlen) && (pred.accept(enqueueMe[i]))) i++;
-	  if (i != qlen) throw new SinkFullException("FiniteQueue is full!");
-	}
-
-	queueSize += qlen;
-	for (int i=0; i<qlen; i++) {
-	  qlist.add_to_tail(enqueueMe[i]);
-	}
-      }
-      blocker.notifyAll();  // wake up all sleepers
+    /**
+     * Return the size of the queue.
+     */
+    public int size() {
+        synchronized (blocker) {
+            synchronized (qlist) {
+                return queueSize;
+            }
+        }
     }
-  }
 
-  public QueueElementIF dequeue() {
-    
-    QueueElementIF el = null;
-    synchronized(blocker) {
-      synchronized(qlist) {
-	if (qlist.size() == 0)
-	  return null;
+    public void enqueue(QueueElementIF enqueueMe) throws SinkFullException {
 
-	el = (QueueElementIF) qlist.remove_head();
-	queueSize--;
-	return el;
-      }
+        if (DEBUG)
+            System.err.println("**** ENQUEUE (" + name + ") **** Entered");
+        synchronized (blocker) {
+
+            synchronized (qlist) {
+                if (DEBUG)
+                    System.err.println(
+                            "**** ENQUEUE (" + name + ") **** Checking pred");
+                if ((pred != null) && (!pred.accept(enqueueMe)))
+                    throw new SinkFullException("FiniteQueue is full!");
+                queueSize++;
+                if (DEBUG)
+                    System.err.println(
+                            "**** ENQUEUE (" + name + ") **** Add to tail");
+                qlist.add_to_tail(enqueueMe); // wake up one blocker
+            }
+            // XXX MDW: Trying to track down a bug here ...
+            if (DEBUG)
+                System.err.println(
+                        "**** ENQUEUE (" + name + ") **** Doing notify");
+            blocker.notify();
+            if (DEBUG)
+                System.err.println(
+                        "**** ENQUEUE (" + name + ") **** Done with notify");
+            // blocker.notifyAll();
+        }
+        if (DEBUG)
+            System.err.println("**** ENQUEUE (" + name + ") **** Exiting");
     }
-  }
 
-  public QueueElementIF[] dequeue_all() {
-    
-    synchronized(blocker) {
-      synchronized(qlist) {
-	int qs = qlist.size();
-	if (qs == 0) return null;
-
-	QueueElementIF[] retIF = new QueueElementIF[qs];
-	for (int i=0; i<qs; i++)
-	  retIF[i] = (QueueElementIF) qlist.remove_head();
-	queueSize -= qs;
-	return retIF;
-      }
+    public boolean enqueueLossy(QueueElementIF enqueueMe) {
+        try {
+            this.enqueue(enqueueMe);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
-  }
 
-  public QueueElementIF[] dequeue(int num) {
-    
-    synchronized(blocker) {
-      synchronized(qlist) {
-	int qs = Math.min(qlist.size(), num);
+    public void enqueueMany(QueueElementIF[] enqueueMe)
+            throws SinkFullException {
+        synchronized (blocker) {
+            int qlen = enqueueMe.length;
 
-	if (qs == 0)
-	  return null;
+            synchronized (qlist) {
+                if (pred != null) {
+                    int i = 0;
+                    while ((i < qlen) && (pred.accept(enqueueMe[i])))
+                        i++;
+                    if (i != qlen)
+                        throw new SinkFullException("FiniteQueue is full!");
+                }
 
-	QueueElementIF[] retIF = new QueueElementIF[qs];
-	for (int i=0; i<qs; i++)
-	  retIF[i] = (QueueElementIF) qlist.remove_head();
-	queueSize -= qs;
-	return retIF;
-      }
+                queueSize += qlen;
+                for (int i = 0; i < qlen; i++) {
+                    qlist.add_to_tail(enqueueMe[i]);
+                }
+            }
+            blocker.notifyAll(); // wake up all sleepers
+        }
     }
-  }
 
-  public QueueElementIF[] dequeue(int num, boolean mustReturnNum) {
-    
-    synchronized(blocker) {
-      synchronized(qlist) {
-	int qs;
+    public QueueElementIF dequeue() {
 
-	if (!mustReturnNum) {
-	  qs = Math.min(qlist.size(), num);
-	} else {
-	  if (qlist.size() < num) return null;
-	  qs = num;
-	}
+        QueueElementIF el = null;
+        synchronized (blocker) {
+            synchronized (qlist) {
+                if (qlist.size() == 0)
+                    return null;
 
-	if (qs == 0)
-	  return null;
-
-	QueueElementIF[] retIF = new QueueElementIF[qs];
-	for (int i=0; i<qs; i++)
-	  retIF[i] = (QueueElementIF) qlist.remove_head();
-	queueSize -= qs;
-	return retIF;
-      }
+                el = (QueueElementIF) qlist.remove_head();
+                queueSize--;
+                return el;
+            }
+        }
     }
-  }
 
-  public QueueElementIF[] blocking_dequeue_all(int timeout_millis) {
-    QueueElementIF[] rets = null;
-    long    goal_time;
-    int     num_spins = 0;
+    public QueueElementIF[] dequeue_all() {
 
-    if (DEBUG) System.err.println("**** B_DEQUEUE_A ("+name+") **** Entered");
+        synchronized (blocker) {
+            synchronized (qlist) {
+                int qs = qlist.size();
+                if (qs == 0)
+                    return null;
 
-    goal_time = System.currentTimeMillis() + timeout_millis;
-    while (true) {
-      synchronized(blocker) {
-
-	if (DEBUG) System.err.println("**** B_DEQUEUE_A ("+name+") **** Doing D_A");
-	rets = this.dequeue_all();
-	if (DEBUG) System.err.println("**** B_DEQUEUE_A ("+name+") **** RETS IS "+rets);
-	if ((rets != null) || (timeout_millis == 0)) {
-	  if (DEBUG) System.err.println("**** B_DEQUEUE_A ("+name+") **** RETURNING (1)");
-	  return rets;
-	}
-
-	if (timeout_millis == -1) {
-	  try {
-	    blocker.wait();
-	  } catch (InterruptedException ie) {
-	  }
-	} else {
-	  try {
-	    if (DEBUG) System.err.println("**** B_DEQUEUE_A ("+name+") **** WAITING ON BLOCKER");
-	    blocker.wait(timeout_millis);
-	  } catch (InterruptedException ie) {
-	  }
-	}
-	
-	if (DEBUG) System.err.println("**** B_DEQUEUE_A ("+name+") **** Doing D_A (2)");
-	rets = this.dequeue_all();
-	if (DEBUG) System.err.println("**** B_DEQUEUE_A ("+name+") **** RETS(2) IS "+rets);
-	if (rets != null) {
-	  if (DEBUG) System.err.println("**** B_DEQUEUE_A ("+name+") **** RETURNING(2)");
-	  return rets;
-	}
-	
-	if (timeout_millis != -1) {
-	  if (System.currentTimeMillis() >= goal_time) {
-	    if (DEBUG) System.err.println("**** B_DEQUEUE_A ("+name+") **** RETURNING(3)");
-	    return null;
-	  }
-	}
-      }
+                QueueElementIF[] retIF = new QueueElementIF[qs];
+                for (int i = 0; i < qs; i++)
+                    retIF[i] = (QueueElementIF) qlist.remove_head();
+                queueSize -= qs;
+                return retIF;
+            }
+        }
     }
-  }
 
-  public QueueElementIF[] blocking_dequeue(int timeout_millis, int num, boolean mustReturnNum) {
+    public QueueElementIF[] dequeue(int num) {
 
-    QueueElementIF[] rets = null;
-    long    goal_time;
-    int     num_spins = 0;
+        synchronized (blocker) {
+            synchronized (qlist) {
+                int qs = Math.min(qlist.size(), num);
 
-    goal_time = System.currentTimeMillis() + timeout_millis;
-    while (true) {
-      synchronized(blocker) {
+                if (qs == 0)
+                    return null;
 
-	rets = this.dequeue(num, mustReturnNum);
-	if ((rets != null) || (timeout_millis == 0)) {
-	  return rets;
-	}
-
-	if (timeout_millis == -1) {
-	  try {
-	    blocker.wait();
-	  } catch (InterruptedException ie) {
-	  }
-	} else {
-	  try {
-	    blocker.wait(timeout_millis);
-	  } catch (InterruptedException ie) {
-	  }
-	}
-	
-	rets = this.dequeue(num, mustReturnNum);
-	if (rets != null) {
-	  return rets;
-	}
-	
-	if (timeout_millis != -1) {
-	  if (System.currentTimeMillis() >= goal_time) {
-	    // Timeout - take whatever we can get
-	    return this.dequeue(num);
-	  }
-	}
-      }
+                QueueElementIF[] retIF = new QueueElementIF[qs];
+                for (int i = 0; i < qs; i++)
+                    retIF[i] = (QueueElementIF) qlist.remove_head();
+                queueSize -= qs;
+                return retIF;
+            }
+        }
     }
-  }
 
-  public QueueElementIF[] blocking_dequeue(int timeout_millis, int num) {
-    return blocking_dequeue(timeout_millis, num, false);
-  }
+    public QueueElementIF[] dequeue(int num, boolean mustReturnNum) {
 
+        synchronized (blocker) {
+            synchronized (qlist) {
+                int qs;
 
-  public QueueElementIF blocking_dequeue(int timeout_millis) {
-    QueueElementIF rets = null;
-    long    goal_time;
-    int     num_spins = 0;
+                if (!mustReturnNum) {
+                    qs = Math.min(qlist.size(), num);
+                } else {
+                    if (qlist.size() < num)
+                        return null;
+                    qs = num;
+                }
 
-    goal_time = System.currentTimeMillis() + timeout_millis;
-    while (true) {
-      synchronized(blocker) {
+                if (qs == 0)
+                    return null;
 
-	rets = this.dequeue();
-	if ((rets != null) || (timeout_millis == 0)) {
-	  return rets;
-	}
-
-        if (timeout_millis == -1) {
-	  try {
-	    blocker.wait();
-	  } catch (InterruptedException ie) {
-	  }
-	} else {
-	  try {
-	    blocker.wait(timeout_millis);
-	  } catch (InterruptedException ie) {
-	  }
-	}
-	
-	rets = this.dequeue();
-	if (rets != null) {
-	  return rets;
-	}
-	
-	if (timeout_millis != -1) {
-	  if (System.currentTimeMillis() >= goal_time)
-	    return null;
-	}
-      }
+                QueueElementIF[] retIF = new QueueElementIF[qs];
+                for (int i = 0; i < qs; i++)
+                    retIF[i] = (QueueElementIF) qlist.remove_head();
+                queueSize -= qs;
+                return retIF;
+            }
+        }
     }
-  }
 
-  /** 
-   * Return the profile size of the queue.
-   */
-  public int profileSize() {
-    return size();
-  }
+    public QueueElementIF[] blocking_dequeue_all(int timeout_millis) {
+        QueueElementIF[] rets = null;
+        long goal_time;
+        int num_spins = 0;
 
-  /**
-   * Provisionally enqueue the given elements.
-   */
-  public Object enqueue_prepare(QueueElementIF enqueueMe[]) throws SinkException {
-    int qlen = enqueueMe.length;
-    synchronized(blocker) {
-      synchronized(qlist) {
-	if (pred != null) {
-	  int i = 0;
-	  while ((i < qlen) && (pred.accept(enqueueMe[i]))) i++;
-	  if (i != qlen) throw new SinkFullException("FiniteQueue is full!");
-	}
-	queueSize += qlen;
-	Object key = new Object();
-	provisionalTbl.put(key, enqueueMe);
-	return key;
-      }
+        if (DEBUG)
+            System.err.println("**** B_DEQUEUE_A (" + name + ") **** Entered");
+
+        goal_time = System.currentTimeMillis() + timeout_millis;
+        while (true) {
+            synchronized (blocker) {
+
+                if (DEBUG)
+                    System.err.println(
+                            "**** B_DEQUEUE_A (" + name + ") **** Doing D_A");
+                rets = this.dequeue_all();
+                if (DEBUG)
+                    System.err.println("**** B_DEQUEUE_A (" + name
+                            + ") **** RETS IS " + rets);
+                if ((rets != null) || (timeout_millis == 0)) {
+                    if (DEBUG)
+                        System.err.println("**** B_DEQUEUE_A (" + name
+                                + ") **** RETURNING (1)");
+                    return rets;
+                }
+
+                if (timeout_millis == -1) {
+                    try {
+                        blocker.wait();
+                    } catch (InterruptedException ie) {
+                    }
+                } else {
+                    try {
+                        if (DEBUG)
+                            System.err.println("**** B_DEQUEUE_A (" + name
+                                    + ") **** WAITING ON BLOCKER");
+                        blocker.wait(timeout_millis);
+                    } catch (InterruptedException ie) {
+                    }
+                }
+
+                if (DEBUG)
+                    System.err.println("**** B_DEQUEUE_A (" + name
+                            + ") **** Doing D_A (2)");
+                rets = this.dequeue_all();
+                if (DEBUG)
+                    System.err.println("**** B_DEQUEUE_A (" + name
+                            + ") **** RETS(2) IS " + rets);
+                if (rets != null) {
+                    if (DEBUG)
+                        System.err.println("**** B_DEQUEUE_A (" + name
+                                + ") **** RETURNING(2)");
+                    return rets;
+                }
+
+                if (timeout_millis != -1) {
+                    if (System.currentTimeMillis() >= goal_time) {
+                        if (DEBUG)
+                            System.err.println("**** B_DEQUEUE_A (" + name
+                                    + ") **** RETURNING(3)");
+                        return null;
+                    }
+                }
+            }
+        }
     }
-  }
 
-  /** 
-   * Commit a provisional enqueue.
-   */
-  public void enqueue_commit(Object key) {
-    synchronized(blocker) {
-      synchronized(qlist) {
-	QueueElementIF elements[] = (QueueElementIF[])provisionalTbl.remove(key);
-	if (elements == null) throw new IllegalArgumentException("Unknown enqueue key "+key);
-	for (int i=0; i<elements.length; i++) {
-	  qlist.add_to_tail(elements[i]);
-	}
-      }
-      blocker.notifyAll();
+    public QueueElementIF[] blocking_dequeue(int timeout_millis, int num,
+            boolean mustReturnNum) {
+
+        QueueElementIF[] rets = null;
+        long goal_time;
+        int num_spins = 0;
+
+        goal_time = System.currentTimeMillis() + timeout_millis;
+        while (true) {
+            synchronized (blocker) {
+
+                rets = this.dequeue(num, mustReturnNum);
+                if ((rets != null) || (timeout_millis == 0)) {
+                    return rets;
+                }
+
+                if (timeout_millis == -1) {
+                    try {
+                        blocker.wait();
+                    } catch (InterruptedException ie) {
+                    }
+                } else {
+                    try {
+                        blocker.wait(timeout_millis);
+                    } catch (InterruptedException ie) {
+                    }
+                }
+
+                rets = this.dequeue(num, mustReturnNum);
+                if (rets != null) {
+                    return rets;
+                }
+
+                if (timeout_millis != -1) {
+                    if (System.currentTimeMillis() >= goal_time) {
+                        // Timeout - take whatever we can get
+                        return this.dequeue(num);
+                    }
+                }
+            }
+        }
     }
-  }
 
-  /** 
-   * Abort a provisional enqueue.
-   */
-  public void enqueue_abort(Object key) {
-    synchronized(blocker) {
-      synchronized(qlist) {
-	QueueElementIF elements[] = (QueueElementIF[])provisionalTbl.remove(key);
-	if (elements == null) throw new IllegalArgumentException("Unknown enqueue key "+key);
-	queueSize -= elements.length;
-      }
+    public QueueElementIF[] blocking_dequeue(int timeout_millis, int num) {
+        return blocking_dequeue(timeout_millis, num, false);
     }
-  }
 
-  /**
-   * Set the enqueue predicate for this sink. 
-   */
-  public void setEnqueuePredicate(EnqueuePredicateIF pred) {
-    this.pred = pred;
-  }
+    public QueueElementIF blocking_dequeue(int timeout_millis) {
+        QueueElementIF rets = null;
+        long goal_time;
+        int num_spins = 0;
 
-  /**
-   * Return the enqueue predicate for this sink.
-   */
-  public EnqueuePredicateIF getEnqueuePredicate() {
-    return pred;
-  }
+        goal_time = System.currentTimeMillis() + timeout_millis;
+        while (true) {
+            synchronized (blocker) {
 
-  public String toString() {
-    return "FiniteQueue <"+name+">";
-  }
+                rets = this.dequeue();
+                if ((rets != null) || (timeout_millis == 0)) {
+                    return rets;
+                }
+
+                if (timeout_millis == -1) {
+                    try {
+                        blocker.wait();
+                    } catch (InterruptedException ie) {
+                    }
+                } else {
+                    try {
+                        blocker.wait(timeout_millis);
+                    } catch (InterruptedException ie) {
+                    }
+                }
+
+                rets = this.dequeue();
+                if (rets != null) {
+                    return rets;
+                }
+
+                if (timeout_millis != -1) {
+                    if (System.currentTimeMillis() >= goal_time)
+                        return null;
+                }
+            }
+        }
+    }
+
+    /**
+     * Return the profile size of the queue.
+     */
+    public int profileSize() {
+        return size();
+    }
+
+    /**
+     * Provisionally enqueue the given elements.
+     */
+    public Object enqueuePrepare(QueueElementIF enqueueMe[])
+            throws SinkException {
+        int qlen = enqueueMe.length;
+        synchronized (blocker) {
+            synchronized (qlist) {
+                if (pred != null) {
+                    int i = 0;
+                    while ((i < qlen) && (pred.accept(enqueueMe[i])))
+                        i++;
+                    if (i != qlen)
+                        throw new SinkFullException("FiniteQueue is full!");
+                }
+                queueSize += qlen;
+                Object key = new Object();
+                provisionalTbl.put(key, enqueueMe);
+                return key;
+            }
+        }
+    }
+
+    /**
+     * Commit a provisional enqueue.
+     */
+    public void enqueueCommit(Object key) {
+        synchronized (blocker) {
+            synchronized (qlist) {
+                QueueElementIF elements[] = (QueueElementIF[]) provisionalTbl
+                        .remove(key);
+                if (elements == null)
+                    throw new IllegalArgumentException(
+                            "Unknown enqueue key " + key);
+                for (int i = 0; i < elements.length; i++) {
+                    qlist.add_to_tail(elements[i]);
+                }
+            }
+            blocker.notifyAll();
+        }
+    }
+
+    /**
+     * Abort a provisional enqueue.
+     */
+    public void enqueueAbort(Object key) {
+        synchronized (blocker) {
+            synchronized (qlist) {
+                QueueElementIF elements[] = (QueueElementIF[]) provisionalTbl
+                        .remove(key);
+                if (elements == null)
+                    throw new IllegalArgumentException(
+                            "Unknown enqueue key " + key);
+                queueSize -= elements.length;
+            }
+        }
+    }
+
+    /**
+     * Set the enqueue predicate for this sink.
+     */
+    public void setEnqueuePredicate(EnqueuePredicateIF pred) {
+        this.pred = pred;
+    }
+
+    /**
+     * Return the enqueue predicate for this sink.
+     */
+    public EnqueuePredicateIF getEnqueuePredicate() {
+        return pred;
+    }
+
+    public String toString() {
+        return "FiniteQueue <" + name + ">";
+    }
 
 }

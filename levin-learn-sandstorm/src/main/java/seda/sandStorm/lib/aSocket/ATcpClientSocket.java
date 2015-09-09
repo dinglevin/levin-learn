@@ -55,7 +55,7 @@ public class ATcpClientSocket {
    * connection is established. If an error occurs, an
    * ATcpConnectFailedEvent will be posted instead.
    */
-  public ATcpClientSocket(InetAddress addr, int port, SinkIF compQ) {
+  public ATcpClientSocket(InetAddress addr, int port, EventSink compQ) {
     this(addr, port, compQ, -1, -1);
   }
 
@@ -65,7 +65,7 @@ public class ATcpClientSocket {
    * connection is established. If an error occurs, an
    * ATcpConnectFailedEvent will be posted instead.
    */
-  public ATcpClientSocket(String host, int port, SinkIF compQ) 
+  public ATcpClientSocket(String host, int port, EventSink compQ) 
     throws UnknownHostException {
     this(InetAddress.getByName(host), port, compQ, -1, -1);
   }
@@ -90,7 +90,7 @@ public class ATcpClientSocket {
    * layer will attempt to push the queue entry indefinitely.
    *
    */
-  public ATcpClientSocket(InetAddress addr, int port, SinkIF compQ, int writeClogThreshold, int connectClogTries) {
+  public ATcpClientSocket(InetAddress addr, int port, EventSink compQ, int writeClogThreshold, int connectClogTries) {
     this.address = addr;
     this.port = port;
     SocketMgr.enqueueRequest(new ATcpConnectRequest(this, addr, port, compQ, writeClogThreshold, connectClogTries));
@@ -116,7 +116,7 @@ public class ATcpClientSocket {
    * layer will attempt to push the queue entry indefinitely.
    *
    */
-  public ATcpClientSocket(String host, int port, SinkIF compQ, 
+  public ATcpClientSocket(String host, int port, EventSink compQ, 
       int writeClogThreshold, int connectClogTries) 
     throws UnknownHostException {
     this(InetAddress.getByName(host), port, compQ, writeClogThreshold, connectClogTries);

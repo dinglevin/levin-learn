@@ -46,7 +46,7 @@ import java.net.*;
  * @see GnutellaConnection, GnutellaPacket
  * 
  */
-public class GnutellaServer implements EventHandlerIF, GnutellaConst {
+public class GnutellaServer implements EventHandler, GnutellaConst {
 
     private static final boolean DEBUG = false;
 
@@ -59,7 +59,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
     private ATcpServerSocket servsock;
     private ATcpClientSocket clisock;
     private ManagerIF mgr;
-    private SinkIF mySink, clientSink;
+    private EventSink mySink, clientSink;
 
     // ATcpConnection -> GnutellaPacketReader
     private Hashtable readerTable;
@@ -94,7 +94,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
      * Create a Gnutella server listening for incoming connections on the
      * default port of 6346.
      */
-    public GnutellaServer(ManagerIF mgr, SinkIF clientSink) throws Exception {
+    public GnutellaServer(ManagerIF mgr, EventSink clientSink) throws Exception {
         this(mgr, clientSink, DEFAULT_GNUTELLA_PORT);
     }
 
@@ -103,7 +103,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
      * listenPort. If listenPort == 0, no incoming connections will be accepted.
      * (Outgoing connections can still be established using openConnection.)
      */
-    public GnutellaServer(ManagerIF mgr, SinkIF clientSink, int listenPort)
+    public GnutellaServer(ManagerIF mgr, EventSink clientSink, int listenPort)
             throws Exception {
         this.mgr = mgr;
         this.clientSink = clientSink;
@@ -198,7 +198,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
                 pendingConnTable.remove(failed.getSocket());
                 GnutellaConnectFailedEvent cfe = new GnutellaConnectFailedEvent(
                         (ATcpClientSocket) failed.getSocket());
-                clientSink.enqueue_lossy(cfe);
+                clientSink.enqueueLossy(cfe);
             }
 
         } else if (qel instanceof SinkDrainedEvent) {
@@ -210,7 +210,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
             GnutellaConnection gc = (GnutellaConnection) connTable
                     .get(sce.sink);
             if (gc != null)
-                clientSink.enqueue_lossy(new SinkCloggedEvent(gc, null));
+                clientSink.enqueueLossy(new SinkCloggedEvent(gc, null));
 
         } else if (qel instanceof SinkClosedEvent) {
             // Some connection closed; tell the user
@@ -218,7 +218,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
             GnutellaConnection gc = (GnutellaConnection) connTable
                     .get(sce.sink);
             if (gc != null)
-                clientSink.enqueue_lossy(new SinkClosedEvent(gc));
+                clientSink.enqueueLossy(new SinkClosedEvent(gc));
             cleanupConnection((ATcpConnection) sce.sink, gc);
         }
     }
@@ -250,7 +250,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
                     System.err
                             .println("GnutellaServer: Finished reading packet");
                 gp.setConnection(gc);
-                if (!clientSink.enqueue_lossy(gp)) {
+                if (!clientSink.enqueueLossy(gp)) {
                     // System.err.println("GS: Warning: Cannot enqueue_lossy
                     // packet "+gp);
                 }
@@ -285,7 +285,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
                         "GnutellaServer: upstream connection established");
             pendingConnTable.remove(conn.getClientSocket());
             newConnTable.put(conn, new connectionState(false));
-            SinkIF upstream = (SinkIF) conn;
+            EventSink upstream = (EventSink) conn;
             // Send the connect message
 
             if (DEBUG)
@@ -312,12 +312,12 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
 
         connTable.put(conn, gc);
         activeConnections.addElement(gc);
-        if (!clientSink.enqueue_lossy(gc)) {
+        if (!clientSink.enqueueLossy(gc)) {
             System.err.println("GS: Warning: Cannot enqueue_lossy " + gc);
         }
     }
 
-    void closeConnection(ATcpConnection tcpconn, SinkIF compQ) {
+    void closeConnection(ATcpConnection tcpconn, EventSink compQ) {
         try {
             tcpconn.close(compQ);
         } catch (SinkClosedException e) {
@@ -365,7 +365,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
             // Finished handshake
             if (cs.is_incoming) {
                 // Is an incoming connection - got connect message
-                SinkIF sink = (SinkIF) pkt.getConnection();
+                EventSink sink = (EventSink) pkt.getConnection();
                 sendBytes(sink, connectReplyMsg);
                 if (DEBUG)
                     System.err
@@ -381,7 +381,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
         }
     }
 
-    private void sendBytes(SinkIF sink, byte msg[]) {
+    private void sendBytes(EventSink sink, byte msg[]) {
         BufferElement buf = new BufferElement(msg);
         try {
             sink.enqueue(buf);
@@ -410,13 +410,13 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
     /**
      * Register a sink to receive incoming packets on this connection.
      */
-    public void registerSink(SinkIF sink) {
+    public void registerSink(EventSink sink) {
         this.clientSink = sink;
     }
 
     // Return my sink so that GnutellaConnection can redirect
     // packet completions to it
-    SinkIF getSink() {
+    EventSink getSink() {
         return mySink;
     }
 
@@ -430,7 +430,7 @@ public class GnutellaServer implements EventHandlerIF, GnutellaConst {
             GnutellaConnection gc = (GnutellaConnection) activeConnections
                     .elementAt(i);
             if (!gc.equals(exclude)) {
-                if (!gc.enqueue_lossy(pkt)) {
+                if (!gc.enqueueLossy(pkt)) {
                     System.err.println(
                             "GS: Warning: Could not enqueue_lossy packet to "
                                     + gc);

@@ -32,7 +32,7 @@ import seda.sandStorm.api.internal.*;
  * A StageIF is used by an event handler to access other stages and is
  * obtained by a call to ManagerIF.getStage().
  *
- * @see EventHandlerIF
+ * @see EventHandler
  * @see ManagerIF
  * @author   Matt Welsh
  */
@@ -46,7 +46,7 @@ public interface StageIF {
   /**
    * Return the event sink for this stage. 
    */
-  public SinkIF getSink();
+  public EventSink getSink();
 
   /**
    * Return the stage wrapper associated with this stage.

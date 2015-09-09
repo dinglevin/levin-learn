@@ -31,10 +31,10 @@ import seda.sandStorm.api.*;
  */
 class ATcpStartReadRequest extends aSocketRequest implements QueueElementIF {
   ATcpConnection conn;
-  SinkIF compQ;
+  EventSink compQ;
   int readClogTries;
 
-  ATcpStartReadRequest(ATcpConnection conn, SinkIF compQ, int readClogTries) {
+  ATcpStartReadRequest(ATcpConnection conn, EventSink compQ, int readClogTries) {
     this.conn = conn;
     this.compQ = compQ;
     this.readClogTries = readClogTries;

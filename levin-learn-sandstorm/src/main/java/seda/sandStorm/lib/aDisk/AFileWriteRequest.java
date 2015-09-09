@@ -40,7 +40,7 @@ public class AFileWriteRequest extends AFileRequest {
    * Create a write request using the given buffer and completion
    * queue.
    */
-  public AFileWriteRequest(BufferElement buf, SinkIF compQ) {
+  public AFileWriteRequest(BufferElement buf, EventSink compQ) {
     super(compQ);
     this.buf = buf;
   }

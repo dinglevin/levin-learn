@@ -41,7 +41,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class GnutellaCatcher implements EventHandlerIF {
+public class GnutellaCatcher implements EventHandler {
 
   private static final boolean DEBUG = false;
 
@@ -102,7 +102,7 @@ public class GnutellaCatcher implements EventHandlerIF {
       GnutellaConnection gc = (GnutellaConnection)item;
       GnutellaPingPacket ping = new GnutellaPingPacket();
       if (DEBUG) System.err.println("GnutellaCatcher sending ping");
-      gc.enqueue_lossy(ping);
+      gc.enqueueLossy(ping);
 
     } else if (item instanceof GnutellaPongPacket) {
       GnutellaPongPacket pong = (GnutellaPongPacket)item;

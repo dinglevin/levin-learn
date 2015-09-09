@@ -26,14 +26,14 @@ package seda.sandStorm.core;
 
 import seda.sandStorm.api.EnqueuePredicateIF;
 import seda.sandStorm.api.QueueElementIF;
-import seda.sandStorm.api.SinkIF;
+import seda.sandStorm.api.EventSink;
 import seda.util.StatsGatherer;
 
 /**
  * This enqueue predicate implements input rate policing.
  */
 public class RateLimitingPredicate implements EnqueuePredicateIF {
-  private SinkIF thesink;
+  private EventSink thesink;
   private double targetRate;
   private int depth;
   private double tokenCount;
@@ -51,7 +51,7 @@ public class RateLimitingPredicate implements EnqueuePredicateIF {
    * Create a new RateLimitingPredicate for the given sink,
    * targetRate, and token bucket depth. A rate of -1.0 indicates no rate limit.
    */
-  public RateLimitingPredicate(SinkIF sink, double targetRate, int depth) {
+  public RateLimitingPredicate(EventSink sink, double targetRate, int depth) {
     this.thesink = sink;
     this.targetRate = targetRate;
     this.regenTimeMS = (1.0 / targetRate) * 1.0e3;

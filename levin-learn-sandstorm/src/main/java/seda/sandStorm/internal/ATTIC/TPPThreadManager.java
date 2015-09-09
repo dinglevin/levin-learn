@@ -28,7 +28,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import seda.sandStorm.api.QueueElementIF;
-import seda.sandStorm.api.SourceIF;
+import seda.sandStorm.api.EventSource;
 import seda.sandStorm.api.internal.StageWrapperIF;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.main.SandstormConfig;
@@ -134,7 +134,7 @@ class TPPThreadManager implements ThreadManagerIF {
                         StageWrapperIF s = (StageWrapperIF) stages.elementAt(i);
                         if (DEBUG_VERBOSE)
                             System.err.println(name + ": inspecting " + s);
-                        SourceIF src = s.getSource();
+                        EventSource src = s.getSource();
                         QueueElementIF qelarr[] = src.dequeue_all();
                         if (qelarr != null) {
                             if (DEBUG)

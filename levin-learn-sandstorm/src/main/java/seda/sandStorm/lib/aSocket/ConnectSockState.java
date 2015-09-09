@@ -38,7 +38,7 @@ import java.util.*;
 public abstract class ConnectSockState {
 
   protected ATcpClientSocket clisock; 
-  protected SinkIF compQ;
+  protected EventSink compQ;
   protected int connectClogTries, connectNumTries;
   protected int writeClogThreshold;
   protected boolean completed = false;

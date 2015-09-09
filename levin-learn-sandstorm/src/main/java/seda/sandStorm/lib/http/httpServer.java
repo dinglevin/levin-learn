@@ -44,7 +44,7 @@ import java.net.*;
  * @see httpConnection
  * @see httpRequest
  */
-public class httpServer implements EventHandlerIF, httpConst {
+public class httpServer implements EventHandler, httpConst {
 
   private static final boolean DEBUG = false;
 
@@ -52,7 +52,7 @@ public class httpServer implements EventHandlerIF, httpConst {
   protected int listenPort;
   protected ATcpServerSocket servsock;
   protected ManagerIF mgr;
-  protected SinkIF mySink, clientSink;
+  protected EventSink mySink, clientSink;
 
   // ATcpConnection -> httpConnection
   private Hashtable connTable; 
@@ -63,7 +63,7 @@ public class httpServer implements EventHandlerIF, httpConst {
    * Create an HTTP server listening for incoming connections on 
    * the default port of 8080.
    */
-  public httpServer(ManagerIF mgr, SinkIF clientSink) throws Exception {
+  public httpServer(ManagerIF mgr, EventSink clientSink) throws Exception {
     this(mgr, clientSink, DEFAULT_HTTP_PORT);
   }
 
@@ -71,7 +71,7 @@ public class httpServer implements EventHandlerIF, httpConst {
    * Create an HTTP server listening for incoming connections on
    * the given listenPort. 
    */
-  public httpServer(ManagerIF mgr, SinkIF clientSink, int listenPort) throws Exception {
+  public httpServer(ManagerIF mgr, EventSink clientSink, int listenPort) throws Exception {
     this.mgr = mgr;
     this.clientSink = clientSink;
     this.listenPort = listenPort;
@@ -148,19 +148,19 @@ public class httpServer implements EventHandlerIF, httpConst {
       // Some connection is clogged; tell the user 
       SinkCloggedEvent sce = (SinkCloggedEvent)qel;
       httpConnection hc = (httpConnection)connTable.get(sce.sink);
-      if (hc != null) clientSink.enqueue_lossy(new SinkCloggedEvent(hc, null));
+      if (hc != null) clientSink.enqueueLossy(new SinkCloggedEvent(hc, null));
 
     } else if (qel instanceof SinkClosedEvent) {
       // Some connection closed; tell the user 
       SinkClosedEvent sce = (SinkClosedEvent)qel;
       httpConnection hc = (httpConnection)connTable.get(sce.sink);
       if (hc != null) {
-	clientSink.enqueue_lossy(new SinkClosedEvent(hc));
+	clientSink.enqueueLossy(new SinkClosedEvent(hc));
         cleanupConnection(hc);
       }
 
     } else if (qel instanceof ATcpListenSuccessEvent) {
-      clientSink.enqueue_lossy(qel);
+      clientSink.enqueueLossy(qel);
     }
   }
 
@@ -182,7 +182,7 @@ public class httpServer implements EventHandlerIF, httpConst {
    * Register a sink to receive incoming packets on this
    * connection.
    */
-  public void registerSink(SinkIF sink) {
+  public void registerSink(EventSink sink) {
     this.clientSink = sink;
   }
 
@@ -204,7 +204,7 @@ public class httpServer implements EventHandlerIF, httpConst {
 
   // Return my sink so that httpConnection can redirect
   // packet completions to it
-  SinkIF getSink() {
+  EventSink getSink() {
     return mySink;
   }
 

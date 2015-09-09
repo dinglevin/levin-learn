@@ -43,7 +43,7 @@ public class SinkCloggedEvent implements QueueElementIF {
   /**
    * The sink which clogged.
    */
-  public SinkIF sink;
+  public EventSink sink;
 
   /**
    * The element which clogged.
@@ -53,7 +53,7 @@ public class SinkCloggedEvent implements QueueElementIF {
   /**
    * Create a new SinkCloggedEvent with the given sink and element.
    */
-  public SinkCloggedEvent(SinkIF sink, QueueElementIF element) {
+  public SinkCloggedEvent(EventSink sink, QueueElementIF element) {
     this.sink = sink;
     this.element = element;
   }

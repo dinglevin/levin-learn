@@ -34,14 +34,14 @@ public class QueueThresholdPredicate implements EnqueuePredicateIF {
 
   private static final boolean DEBUG = false;
 
-  private SinkIF thesink;
+  private EventSink thesink;
   private int threshold;
 
   /**
    * Create a new QueueThresholdPredicate for the given sink and
    * threshold. A threshold of -1 indicates no threshold.
    */
-  public QueueThresholdPredicate(SinkIF sink, int threshold) {
+  public QueueThresholdPredicate(EventSink sink, int threshold) {
     this.thesink = sink;
     this.threshold = threshold;
   }

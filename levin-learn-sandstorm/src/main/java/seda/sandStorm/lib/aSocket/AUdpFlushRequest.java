@@ -32,9 +32,9 @@ import seda.sandStorm.api.*;
 public class AUdpFlushRequest extends aSocketRequest implements QueueElementIF {
 
   AUdpSocket sock;
-  SinkIF compQ;
+  EventSink compQ;
 
-  public AUdpFlushRequest(AUdpSocket sock, SinkIF compQ) {
+  public AUdpFlushRequest(AUdpSocket sock, EventSink compQ) {
     this.sock = sock;
     this.compQ = compQ;
   }

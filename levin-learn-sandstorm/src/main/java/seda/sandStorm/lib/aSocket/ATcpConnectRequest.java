@@ -35,14 +35,14 @@ import java.net.*;
 public class ATcpConnectRequest extends aSocketRequest implements QueueElementIF {
 
   public ATcpClientSocket clisock;
-  public SinkIF compQ;
+  public EventSink compQ;
   public InetAddress addr;
   public int port;
   public int writeClogThreshold;
   public int connectClogTries;
 
   public ATcpConnectRequest(ATcpClientSocket clisock, InetAddress addr, int port, 
-      SinkIF compQ, int writeClogThreshold, int connectClogTries) {
+      EventSink compQ, int writeClogThreshold, int connectClogTries) {
     this.clisock = clisock;
     this.compQ = compQ;
     this.addr = addr;

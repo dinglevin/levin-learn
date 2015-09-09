@@ -32,9 +32,9 @@ import seda.sandStorm.api.*;
 public class ATcpCloseRequest extends aSocketRequest implements QueueElementIF {
 
   ATcpConnection conn;
-  public SinkIF compQ;
+  public EventSink compQ;
 
-  ATcpCloseRequest(ATcpConnection conn, SinkIF compQ) {
+  ATcpCloseRequest(ATcpConnection conn, EventSink compQ) {
     this.conn = conn;
     this.compQ = compQ;
   }

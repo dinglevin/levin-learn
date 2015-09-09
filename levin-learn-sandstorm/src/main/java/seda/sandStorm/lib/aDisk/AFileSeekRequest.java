@@ -40,7 +40,7 @@ public class AFileSeekRequest extends AFileRequest {
    * Seek to the given offset. When the seek has completed, a
    * completion event will be posted to the given queue.
    */
-  public AFileSeekRequest(int offset, SinkIF compQ) {
+  public AFileSeekRequest(int offset, EventSink compQ) {
     super(compQ);
     this.offset = offset;
   }

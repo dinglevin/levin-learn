@@ -34,7 +34,7 @@ import java.util.*;
 /**
  * Internal event handler used to handle socket write events.
  */
-class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aSocketConst {
+class WriteEventHandler extends SocketEventHandler implements EventHandler, aSocketConst {
 
   private static final boolean DEBUG = false;
 
@@ -117,10 +117,10 @@ class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aS
 	  ss.writeReset();
 
 	  // Send completion upcall
-	  SinkIF cq = wreq.buf.getCompletionQueue();
+	  EventSink cq = wreq.buf.getCompletionQueue();
 	  if (cq != null) {
 	    SinkDrainedEvent sde = new SinkDrainedEvent(ss.conn, wreq.buf);
-	    cq.enqueue_lossy(sde);
+	    cq.enqueueLossy(sde);
 	  }
 
 	  // Clear the request
@@ -146,7 +146,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aS
         if(freq.compQ != null) {
            // JRVB: added check to avoid NullPointerException
 	SinkFlushedEvent sfe = new SinkFlushedEvent(freq.conn);
-	freq.compQ.enqueue_lossy(sfe);
+	freq.compQ.enqueueLossy(sfe);
         }
 
 	// Clear the request
@@ -236,10 +236,10 @@ class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aS
 	  ss.writeReset();
 
 	  // Send completion upcall
-	  SinkIF cq = wreq.buf.getCompletionQueue();
+	  EventSink cq = wreq.buf.getCompletionQueue();
 	  if (cq != null) {
 	    SinkDrainedEvent sde = new SinkDrainedEvent(ss.udpsock, wreq.buf);
-	    cq.enqueue_lossy(sde);
+	    cq.enqueueLossy(sde);
 	  }
 
 	  // Clear the request
@@ -263,7 +263,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aS
 
 	// OK - by the time we have the lock we can claim the flush is done
 	SinkFlushedEvent sfe = new SinkFlushedEvent(freq.sock);
-	freq.compQ.enqueue_lossy(sfe);
+	freq.compQ.enqueueLossy(sfe);
 
 	// Clear the request
 	if (!ss.isClosed()) {
@@ -309,7 +309,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aS
       // only works in jdk1.4
 //      if (DEBUG) System.err.println("connected = " + udpsock.getSocket().isConnected());
       AUdpConnectEvent ev = new AUdpConnectEvent(udpsock);
-      udpsock.compQ.enqueue_lossy(ev);
+      udpsock.compQ.enqueueLossy(ev);
 
     } else if (req instanceof AUdpDisconnectRequest) {
 
@@ -317,7 +317,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aS
       AUdpSocket udpsock = dreq.sock;
       udpsock.getSocket().disconnect();
       AUdpDisconnectEvent ev = new AUdpDisconnectEvent(udpsock);
-      udpsock.compQ.enqueue_lossy(ev);
+      udpsock.compQ.enqueueLossy(ev);
 
     } else if (req instanceof ATcpWriteRequest) {
 
@@ -331,10 +331,10 @@ class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aS
 	if (!ss.addWriteRequest(req, selsource)) {
 	  // Couldn't enqueue: this connection is clogged
 	  ATcpWriteRequest wreq = (ATcpWriteRequest)req;
-	  SinkIF cq = wreq.buf.getCompletionQueue();
+	  EventSink cq = wreq.buf.getCompletionQueue();
 	  if (cq != null) {
 	    SinkCloggedEvent sce = new SinkCloggedEvent(wreq.conn, wreq.buf);
-	    cq.enqueue_lossy(sce);
+	    cq.enqueueLossy(sce);
 	  }
 	} else {
             if (DEBUG) System.err.println("WriteEventHandler: " + ss.outstanding_writes + " outstanding writes" );
@@ -352,10 +352,10 @@ class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aS
 	if (!ss.addWriteRequest(req, selsource)) {
 	  // Couldn't enqueue: this connection is clogged
 	  AUdpWriteRequest wreq = (AUdpWriteRequest)req;
-	  SinkIF cq = wreq.buf.getCompletionQueue();
+	  EventSink cq = wreq.buf.getCompletionQueue();
 	  if (cq != null) {
 	    SinkCloggedEvent sce = new SinkCloggedEvent(wreq.sock, wreq.buf);
-	    cq.enqueue_lossy(sce);
+	    cq.enqueueLossy(sce);
 	  }
 	}
       }

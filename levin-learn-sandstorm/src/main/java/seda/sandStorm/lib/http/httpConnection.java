@@ -48,7 +48,7 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
 
   private ATcpConnection tcpconn;
   private httpServer hs;
-  private SinkIF compQ;
+  private EventSink compQ;
   private httpPacketReader hpr;
 
   /** 
@@ -61,14 +61,14 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
    * Package-internal: Create an httpConnection with the given TCP 
    * connection and completion queue.
    */
-  httpConnection(ATcpConnection tcpconn, httpServer hs, SinkIF compQ) {
+  httpConnection(ATcpConnection tcpconn, httpServer hs, EventSink compQ) {
     this.tcpconn = tcpconn;
     this.hs = hs;
     this.compQ = compQ;
     this.hpr = new httpPacketReader(this, compQ);
 
     // Push myself to user
-    compQ.enqueue_lossy(this);
+    compQ.enqueueLossy(this);
   }
 
   /**
@@ -100,20 +100,20 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
     httpResponder resp = (httpResponder)element;
     httpResponse packet = resp.getResponse();
     BufferElement bufarr[] = packet.getBuffers(resp.sendHeader());
-    tcpconn.enqueue_many(bufarr);
+    tcpconn.enqueueMany(bufarr);
   }
 
   /**
    * Enqueue outgoing data on this connection. The 'element' must be
    * of type httpResponder.
    */
-  public boolean enqueue_lossy(QueueElementIF element) {
+  public boolean enqueueLossy(QueueElementIF element) {
     if (DEBUG) System.err.println("httpConnection.enqueue_lossy: "+element);
     httpResponder resp = (httpResponder)element;
     httpResponse packet = resp.getResponse();
     BufferElement bufarr[] = packet.getBuffers(resp.sendHeader());
     try {
-      tcpconn.enqueue_many(bufarr);
+      tcpconn.enqueueMany(bufarr);
     } catch (SinkException se) {
       return false;
     }
@@ -124,7 +124,7 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
    * Enqueue outgoing data on this connection. Each item in the 
    * elements array must be of type httpResponse.
    */
-  public void enqueue_many(QueueElementIF elements[]) throws SinkException {
+  public void enqueueMany(QueueElementIF elements[]) throws SinkException {
     for (int i = 0; i < elements.length; i++) {
       enqueue(elements[i]);
     }
@@ -140,7 +140,7 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
   /**
    * Close the connection.
    */
-  public void close(final SinkIF compQ) throws SinkClosedException {
+  public void close(final EventSink compQ) throws SinkClosedException {
     // XXX For now, allow a connection to be closed multiple times.
     // Tricky bit below: Provide anonymous SinkIF as 'compQ' which
     // we re-enqueue onto user compQ as appropriate SinkDrainedEvent!
@@ -157,20 +157,20 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
    * Flush the connection; a SinkFlushedEvent will be pushed to the
    * user when all packets have drained.
    */
-  public void flush(SinkIF compQ) throws SinkClosedException {
+  public void flush(EventSink compQ) throws SinkClosedException {
     tcpconn.flush(compQ);
   }
 
-  public Object enqueue_prepare(QueueElementIF enqueueMe[]) throws SinkException {
-    return tcpconn.enqueue_prepare(enqueueMe);
+  public Object enqueuePrepare(QueueElementIF enqueueMe[]) throws SinkException {
+    return tcpconn.enqueuePrepare(enqueueMe);
   }
 
-  public void enqueue_commit(Object key) {
-    tcpconn.enqueue_commit(key);
+  public void enqueueCommit(Object key) {
+    tcpconn.enqueueCommit(key);
   }
 
-  public void enqueue_abort(Object key) {
-    tcpconn.enqueue_abort(key);
+  public void enqueueAbort(Object key) {
+    tcpconn.enqueueAbort(key);
   }
 
 

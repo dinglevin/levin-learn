@@ -37,14 +37,14 @@ import java.util.*;
  *
  * @author Matt Welsh
  */
-public class SinkProxy implements SinkIF, ProfilableIF {
+public class SinkProxy implements EventSink, ProfilableIF {
 
   private static final boolean DEBUG = false;
 
   private ManagerIF mgr;
   private StageWrapperIF toStage;
   private StageGraph stageGraph;
-  public SinkIF thesink;
+  public EventSink thesink;
   private Thread client = null;
   private Hashtable clientTbl = null;
 
@@ -72,7 +72,7 @@ public class SinkProxy implements SinkIF, ProfilableIF {
    * @param mgr The associated manager.
    * @param toStage The stage which this sink pushes events to.
    */
-  public SinkProxy(SinkIF sink, ManagerIF mgr, StageWrapperIF toStage) {
+  public SinkProxy(EventSink sink, ManagerIF mgr, StageWrapperIF toStage) {
     this.thesink = sink;
     this.mgr = mgr;
     this.stageGraph = mgr.getProfiler().getGraphProfiler();
@@ -97,20 +97,20 @@ public class SinkProxy implements SinkIF, ProfilableIF {
     enqueueSuccessCount++; 
   }
 
-  public boolean enqueue_lossy(QueueElementIF enqueueMe) {
+  public boolean enqueueLossy(QueueElementIF enqueueMe) {
     recordUse();
     enqueueCount++; 
-    boolean pass = thesink.enqueue_lossy(enqueueMe);
+    boolean pass = thesink.enqueueLossy(enqueueMe);
     if (pass) enqueueSuccessCount++;
     return pass;
   }
 
-  public void enqueue_many(QueueElementIF[] enqueueMe) throws SinkException {
+  public void enqueueMany(QueueElementIF[] enqueueMe) throws SinkException {
     recordUse();
     if (enqueueMe != null) {
       enqueueCount += enqueueMe.length;
     }
-    thesink.enqueue_many(enqueueMe);
+    thesink.enqueueMany(enqueueMe);
     if (enqueueMe != null) {
       enqueueSuccessCount += enqueueMe.length;
     }
@@ -123,24 +123,24 @@ public class SinkProxy implements SinkIF, ProfilableIF {
     return size();
   }
 
-  public Object enqueue_prepare(QueueElementIF enqueueMe[]) throws SinkException {
+  public Object enqueuePrepare(QueueElementIF enqueueMe[]) throws SinkException {
     recordUse();
     if (enqueueMe != null) {
       enqueueCount += enqueueMe.length;
     }
-    Object key = thesink.enqueue_prepare(enqueueMe);
+    Object key = thesink.enqueuePrepare(enqueueMe);
     if (enqueueMe != null) {
       enqueueSuccessCount += enqueueMe.length;
     }
     return key;
   }
 
-  public void enqueue_commit(Object key) {
-    thesink.enqueue_commit(key);
+  public void enqueueCommit(Object key) {
+    thesink.enqueueCommit(key);
   }
 
-  public void enqueue_abort(Object key) {
-    thesink.enqueue_abort(key);
+  public void enqueueAbort(Object key) {
+    thesink.enqueueAbort(key);
   }
 
   public void setEnqueuePredicate(EnqueuePredicateIF pred) {

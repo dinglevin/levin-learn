@@ -31,13 +31,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import seda.sandStorm.api.ConfigDataIF;
-import seda.sandStorm.api.EventHandlerIF;
+import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.QueueElementIF;
 
 /**
  * Internal event handler for socket listen events.
  */
-class ListenEventHandler extends SocketEventHandler implements EventHandlerIF {
+class ListenEventHandler extends SocketEventHandler implements EventHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ListenEventHandler.class);
 
     ListenEventHandler() {

@@ -43,12 +43,12 @@ public class SinkClosedEvent implements QueueElementIF {
   /**
    * The sink that closed.
    */
-  public SinkIF sink;
+  public EventSink sink;
 
   /**
    * Create a new SinkClosedEvent with the given sink.
    */
-  public SinkClosedEvent(SinkIF sink) {
+  public SinkClosedEvent(EventSink sink) {
     this.sink = sink;
   }
 

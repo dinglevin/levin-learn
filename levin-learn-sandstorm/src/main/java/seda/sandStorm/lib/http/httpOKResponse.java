@@ -71,7 +71,7 @@ public class httpOKResponse extends httpResponse implements httpConst, QueueElem
    * Create an httpOKResponse with a given response payload size,
    * MIME type, and completion sink.
    */
-  public httpOKResponse(String contentType, int payloadSize, SinkIF compQ) {
+  public httpOKResponse(String contentType, int payloadSize, EventSink compQ) {
     super(httpResponse.RESPONSE_OK, contentType, payloadSize, compQ);
   }
 

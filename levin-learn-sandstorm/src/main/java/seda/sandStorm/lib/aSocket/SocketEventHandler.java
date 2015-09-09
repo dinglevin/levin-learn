@@ -25,15 +25,15 @@
 package seda.sandStorm.lib.aSocket;
 
 import seda.sandStorm.api.ConfigDataIF;
-import seda.sandStorm.api.EventHandlerIF;
+import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.QueueElementIF;
-import seda.sandStorm.api.SinkIF;
+import seda.sandStorm.api.EventSink;
 
 /**
  * Abstract superclass of the event handlers used by aSocket.
  */
-abstract class SocketEventHandler implements EventHandlerIF {
-    protected SinkIF eventQ;
+abstract class SocketEventHandler implements EventHandler {
+    protected EventSink eventQ;
     protected SelectSourceIF selsource;
 
     SocketEventHandler() {

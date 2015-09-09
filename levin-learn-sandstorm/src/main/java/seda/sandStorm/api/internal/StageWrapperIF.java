@@ -42,13 +42,13 @@ public interface StageWrapperIF {
     /**
      * Return the event handler associated with this stage.
      */
-    public EventHandlerIF getEventHandler();
+    public EventHandler getEventHandler();
 
     /**
      * Return the source from which events should be pulled to pass to this
      * EventHandlerIF.
      */
-    public SourceIF getSource();
+    public EventSource getSource();
 
     /**
      * Return the thread manager which will run this stage.

@@ -28,8 +28,8 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import seda.sandStorm.api.QueueElementIF;
-import seda.sandStorm.api.SinkIF;
-import seda.sandStorm.api.SourceIF;
+import seda.sandStorm.api.EventSink;
+import seda.sandStorm.api.EventSource;
 import seda.sandStorm.api.internal.StageWrapperIF;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.main.SandstormConfig;
@@ -162,11 +162,11 @@ class AggTPSThreadManager implements ThreadManagerIF {
     class appThread implements Runnable {
 
         private StageWrapperIF wrapper;
-        private SourceIF source;
+        private EventSource source;
         private String name;
         private threadPool mytp;
 
-        appThread(StageWrapperIF wrapper, SourceIF source, String name,
+        appThread(StageWrapperIF wrapper, EventSource source, String name,
                 threadPool tp) {
             this.wrapper = wrapper;
             this.source = source;
@@ -299,10 +299,10 @@ class AggTPSThreadManager implements ThreadManagerIF {
     class threadPool {
         String stagename;
         StageWrapperIF wrapper;
-        SourceIF source;
+        EventSource source;
         private Vector threads;
 
-        threadPool(StageWrapperIF wrapper, SourceIF source) {
+        threadPool(StageWrapperIF wrapper, EventSource source) {
             this.wrapper = wrapper;
             this.source = source;
             this.stagename = wrapper.getStage().getName();
@@ -380,8 +380,8 @@ class AggTPSThreadManager implements ThreadManagerIF {
                     System.err.println("AggTPSTM Governor: Inspecting " + pool);
 
                 // Only adjust pools pulling data from a SourceIF/SinkIF pair
-                if (pool.source instanceof SinkIF) {
-                    SinkIF sink = (SinkIF) pool.source;
+                if (pool.source instanceof EventSink) {
+                    EventSink sink = (EventSink) pool.source;
                     int sz = sink.size();
                     if (DEBUG)
                         System.err.println("AggTPSTM Governor: size " + sz

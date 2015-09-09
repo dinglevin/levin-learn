@@ -39,11 +39,11 @@ public interface SignalMgrIF {
    * an object of the given type (although not necessarily the same
    * object instance) will be delivered to the given SinkIF.
    */
-  public void register(SignalIF signalType, SinkIF sink);
+  public void register(SignalIF signalType, EventSink sink);
 
   /**
    * Deregister for the given signal type. 
    */
-  public void deregister(SignalIF signalType, SinkIF sink);
+  public void deregister(SignalIF signalType, EventSink sink);
 
 }

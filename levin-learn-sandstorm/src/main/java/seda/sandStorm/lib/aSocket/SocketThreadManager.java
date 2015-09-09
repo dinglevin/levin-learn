@@ -24,10 +24,10 @@
 
 package seda.sandStorm.lib.aSocket;
 
-import seda.sandStorm.api.EventHandlerIF;
+import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.ManagerIF;
 import seda.sandStorm.api.QueueElementIF;
-import seda.sandStorm.api.SourceIF;
+import seda.sandStorm.api.EventSource;
 import seda.sandStorm.api.internal.StageWrapperIF;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.internal.ThreadPool;
@@ -87,9 +87,9 @@ class SocketThreadManager implements ThreadManagerIF, aSocketConst {
         protected ThreadPool tp;
         protected StageWrapperIF wrapper;
         protected SelectSourceIF selsource;
-        protected SourceIF eventQ;
+        protected EventSource eventQ;
         protected String name;
-        protected EventHandlerIF handler;
+        protected EventHandler handler;
 
         protected aSocketThread(SocketStageWrapper wrapper) {
             if (DEBUG)

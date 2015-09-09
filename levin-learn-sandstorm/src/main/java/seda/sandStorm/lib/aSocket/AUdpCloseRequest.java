@@ -32,9 +32,9 @@ import seda.sandStorm.api.*;
 public class AUdpCloseRequest extends aSocketRequest implements QueueElementIF {
 
   AUdpSocket sock;
-  public SinkIF compQ;
+  public EventSink compQ;
 
-  public AUdpCloseRequest(AUdpSocket sock, SinkIF compQ) {
+  public AUdpCloseRequest(AUdpSocket sock, EventSink compQ) {
     this.sock = sock;
     this.compQ = compQ;
   }

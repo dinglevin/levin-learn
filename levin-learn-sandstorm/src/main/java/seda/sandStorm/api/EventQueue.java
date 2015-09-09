@@ -25,17 +25,14 @@
 package seda.sandStorm.api;
 
 /**
- * A QueueIF implements a finite-length event queue.
- * In fact QueueIF simply extends SourceIF and SinkIF, 
- * which represent the 'source' and 'sink' ends of the queue.
+ * A EventQueue implements a finite-length event queue. In fact EventQueue simply
+ * extends SourceIF and SinkIF, which represent the 'source' and 'sink' ends of
+ * the queue.
  *
- * @see SourceIF
- * @see SinkIF
- * @author   Matt Welsh
+ * @see EventSource
+ * @see EventSink
+ * @author Matt Welsh
  */
-
-public interface QueueIF extends SourceIF, SinkIF {
-
-  /* No additional methods: Just extends SourceIF and SinkIF */
-
+public interface EventQueue extends EventSource, EventSink {
+    /* No additional methods: Just extends SourceIF and SinkIF */
 }

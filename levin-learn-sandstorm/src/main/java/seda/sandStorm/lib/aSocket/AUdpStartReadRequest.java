@@ -31,10 +31,10 @@ import seda.sandStorm.api.*;
  */
 public class AUdpStartReadRequest extends aSocketRequest implements QueueElementIF {
   AUdpSocket sock;
-  SinkIF compQ;
+  EventSink compQ;
   int readClogTries;
 
-  public AUdpStartReadRequest(AUdpSocket sock, SinkIF compQ, int readClogTries) {
+  public AUdpStartReadRequest(AUdpSocket sock, EventSink compQ, int readClogTries) {
     this.sock = sock;
     this.compQ = compQ;
     this.readClogTries = readClogTries;
