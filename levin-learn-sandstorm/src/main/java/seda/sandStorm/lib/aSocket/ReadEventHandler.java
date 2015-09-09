@@ -33,7 +33,7 @@ import seda.sandStorm.api.QueueElementIF;
 /**
  * Internal event handler used to process socket read events.
  */
-class ReadEventHandler extends aSocketEventHandler implements EventHandlerIF {
+class ReadEventHandler extends SocketEventHandler implements EventHandlerIF {
 
     private static final boolean DEBUG = false;
 

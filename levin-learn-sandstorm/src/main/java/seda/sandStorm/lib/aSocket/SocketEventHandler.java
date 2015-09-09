@@ -22,25 +22,35 @@
  * 
  */
 
-static jclass _mdw_exceptions_exc_class;
-static char * _mdw_exceptions_msg;
+package seda.sandStorm.lib.aSocket;
 
-#define THROW_EXCEPTION(ENV, EXCEPTION_TYPE, MESSAGE) \
-  _mdw_exceptions_msg = MESSAGE; /* Force evaluation */ \
-  _mdw_exceptions_exc_class = (*ENV)->FindClass(ENV, EXCEPTION_TYPE); \
-  if (_mdw_exceptions_exc_class != NULL) (*ENV)->ThrowNew(ENV, _mdw_exceptions_exc_class, MESSAGE);
-    
-#define EXC_IF_NOTOK_VOIDRET(EXPR, ENV, EXCEPTION_TYPE, MESSAGE) { \
-  if (!(EXPR)) { THROW_EXCEPTION(ENV, EXCEPTION_TYPE, MESSAGE); return; } \
-} 
+import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.EventHandlerIF;
+import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.SinkIF;
 
-#define EXC_IF_NOTOK(EXPR, ENV, EXCEPTION_TYPE, MESSAGE, RETVAL) { \
-  if (!(EXPR)) { THROW_EXCEPTION(ENV, EXCEPTION_TYPE, MESSAGE); return RETVAL; } \
+/**
+ * Abstract superclass of the event handlers used by aSocket.
+ */
+abstract class SocketEventHandler implements EventHandlerIF {
+    protected SinkIF eventQ;
+    protected SelectSourceIF selsource;
+
+    SocketEventHandler() {
+        this.selsource = SocketMgr.getFactory().newSelectSource();
+    }
+
+    // Used to let ReadStageWrapper get a handle to the selsource
+    SelectSourceIF getSelectSource() {
+        return selsource;
+    }
+
+    public abstract void init(ConfigDataIF config);
+
+    public abstract void destroy();
+
+    public abstract void handleEvent(QueueElementIF qel);
+
+    public abstract void handleEvents(QueueElementIF qelarr[]);
+
 }
-  
-
-
-  
-    
-  
-  

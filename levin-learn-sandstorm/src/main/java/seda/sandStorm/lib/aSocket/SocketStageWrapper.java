@@ -67,11 +67,10 @@ class SocketStageWrapper implements StageWrapperIF {
             eventQ = new FiniteQueue();
         } else {
             eventQ = new FiniteQueue();
-            QueueThresholdPredicate pred = new QueueThresholdPredicate(eventQ,
-                    queuelen);
+            QueueThresholdPredicate pred = new QueueThresholdPredicate(eventQ, queuelen);
             eventQ.setEnqueuePredicate(pred);
         }
-        this.selsource = ((aSocketEventHandler) handler).getSelectSource();
+        this.selsource = ((SocketEventHandler) handler).getSelectSource();
         this.stage = new Stage(name, this, (SinkIF) eventQ, config);
         this.config.setStage(this.stage);
     }

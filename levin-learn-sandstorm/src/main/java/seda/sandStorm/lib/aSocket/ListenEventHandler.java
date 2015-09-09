@@ -24,122 +24,118 @@
 
 package seda.sandStorm.lib.aSocket;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.core.*;
+import java.io.IOException;
+import java.net.Socket;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.EventHandlerIF;
+import seda.sandStorm.api.QueueElementIF;
 
 /**
  * Internal event handler for socket listen events.
  */
-class ListenEventHandler extends aSocketEventHandler implements EventHandlerIF {
+class ListenEventHandler extends SocketEventHandler implements EventHandlerIF {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListenEventHandler.class);
 
-  private static final boolean DEBUG = false;
-
-  ListenEventHandler() {
-  }
-
-  public void init(ConfigDataIF config) {
-  }
-
-  public void destroy() {
-  }
-
-  private void processAccept(ListenSockState lss) throws IOException {
-    if (DEBUG) System.err.println("ListenEventHandler: processAccept called");
-
-    Socket sock;
-
-    int numAccepted = 0;
-
-    // Try to do as many accepts as we can in one go
-    while (numAccepted++ < aSocketConst.MAX_ACCEPTS_AT_ONCE) {
-      // XXX: must check this.
-      sock = lss.accept();
-
-      if (sock == null) break;
-
-      if (DEBUG) System.err.println("ListenThread: did accept on "+sock.getInetAddress().getHostAddress()+":"+sock.getPort());
-      ATcpConnection conn = new ATcpConnection(lss.servsock, sock.getInetAddress(), sock.getPort());
-      if (DEBUG) System.err.println("ListenThread: Created new conn "+conn);
-      SockState ss = SocketMgr.getFactory().newSockState(conn, sock, lss.writeClogThreshold);
-      if (DEBUG) System.err.println("ListenThread: Created new sockstate "+ss);
-      conn.sockState = ss;
-      if (DEBUG) System.err.println("ListenThread: Calling lss complete");
-      lss.complete(conn);
+    ListenEventHandler() {
     }
 
-    if (DEBUG) System.err.println("ListenEventHandler: processAccept finished");
-  }
-
-  private void processListenRequest(aSocketRequest req) throws IOException {
-
-    if (req instanceof ATcpListenRequest) {
-      // This registers itself
-      ListenSockState lss;
-      lss = SocketMgr.getFactory().newListenSockState((ATcpListenRequest)req, selsource);
-
-    } else if (req instanceof ATcpSuspendAcceptRequest) {
-      ATcpSuspendAcceptRequest susreq = (ATcpSuspendAcceptRequest)req;
-
-      ListenSockState lss = susreq.servsock.lss;
-      if (lss == null) {
-	throw new Error("ListenEventHandler: Got ATcpSuspendAcceptRequest for server socket "+susreq.servsock+" with null lss!");
-      }
-      lss.suspend();
-
-    } else if (req instanceof ATcpResumeAcceptRequest) {
-      ATcpResumeAcceptRequest resreq = (ATcpResumeAcceptRequest)req;
-
-      ListenSockState lss = resreq.servsock.lss;
-      if (lss == null) {
-	throw new Error("ListenEventHandler: Got ATcpResumeAcceptRequest for server socket "+resreq.servsock+" with null lss!");
-      }
-      lss.resume();
-
-    } else if (req instanceof ATcpCloseServerRequest) {
-      ATcpCloseServerRequest creq = (ATcpCloseServerRequest)req;
-
-      ListenSockState lss = creq.servsock.lss;
-      // OK for lss to be null if closed down already
-      if (lss != null) lss.close();
-
-    } else {
-      throw new IllegalArgumentException("Bad request type to enqueueListen");
+    public void init(ConfigDataIF config) {
     }
-  }
 
-  public void handleEvent(QueueElementIF qel) {
-    if (DEBUG) System.err.println("ListenEventHandler: Got QEL: "+qel);
-
-    try {
-
-      if (qel instanceof SelectQueueElement) {
-        ListenSockState lss;
-        lss = (ListenSockState)((SelectQueueElement)qel).getAttachment();
-        ((SelectQueueElement)qel).clearEvents();
-
-	processAccept(lss);
-
-      } else if (qel instanceof aSocketRequest) {
-	processListenRequest((aSocketRequest)qel);
-
-      } else {
-	throw new IllegalArgumentException("ReadEventHandler: Got unknown event type "+qel);
-      }
-
-    } catch (Exception e) {
-      System.err.println("ListenEventHandler: Got exception: "+e);
-      e.printStackTrace();
+    public void destroy() {
     }
-  }
 
-  public void handleEvents(QueueElementIF qelarr[]) {
-    for (int i = 0; i < qelarr.length; i++) {
-      handleEvent(qelarr[i]);
+    private void processAccept(ListenSockState lss) throws IOException {
+        LOGGER.debug("ListenEventHandler: processAccept called");
+
+        int numAccepted = 0;
+
+        // Try to do as many accepts as we can in one go
+        while (numAccepted++ < aSocketConst.MAX_ACCEPTS_AT_ONCE) {
+            // XXX: must check this.
+            Socket sock = lss.accept();
+
+            if (sock == null)
+                break;
+
+            LOGGER.debug("ListenThread: did accept on {}:{}", sock.getInetAddress().getHostAddress(), sock.getPort());
+            
+            ATcpConnection conn = new ATcpConnection(lss.servsock, sock.getInetAddress(), sock.getPort());
+            
+            LOGGER.debug("ListenThread: Created new conn {}", conn);
+            
+            SockState ss = SocketMgr.getFactory().newSockState(conn, sock, lss.writeClogThreshold);
+            conn.sockState = ss;
+            
+            LOGGER.debug("ListenThread: Created new sockstate {}, and complete ListenSocketState ", ss);
+
+            lss.complete(conn);
+        }
+
+        LOGGER.debug("ListenEventHandler: processAccept finished");
     }
-  }
+
+    private void processListenRequest(aSocketRequest req) throws IOException {
+        if (req instanceof ATcpListenRequest) {
+            // This registers itself
+            SocketMgr.getFactory().newListenSockState((ATcpListenRequest) req, selsource);
+        } else if (req instanceof ATcpSuspendAcceptRequest) {
+            ATcpSuspendAcceptRequest susreq = (ATcpSuspendAcceptRequest) req;
+
+            ListenSockState lss = susreq.servsock.lss;
+            if (lss == null) {
+                throw new Error("ListenEventHandler: Got ATcpSuspendAcceptRequest for server socket "
+                                + susreq.servsock + " with null lss!");
+            }
+            lss.suspend();
+        } else if (req instanceof ATcpResumeAcceptRequest) {
+            ATcpResumeAcceptRequest resreq = (ATcpResumeAcceptRequest) req;
+
+            ListenSockState lss = resreq.servsock.lss;
+            if (lss == null) {
+                throw new Error("ListenEventHandler: Got ATcpResumeAcceptRequest for server socket "
+                                + resreq.servsock + " with null lss!");
+            }
+            lss.resume();
+        } else if (req instanceof ATcpCloseServerRequest) {
+            ATcpCloseServerRequest creq = (ATcpCloseServerRequest) req;
+
+            ListenSockState lss = creq.servsock.lss;
+            // OK for lss to be null if closed down already
+            if (lss != null)
+                lss.close();
+        } else {
+            throw new IllegalArgumentException("Bad request type to enqueueListen");
+        }
+    }
+
+    public void handleEvent(QueueElementIF qel) {
+        LOGGER.debug("ListenEventHandler: Got QEL: {}", qel);
+
+        try {
+            if (qel instanceof SelectQueueElement) {
+                ListenSockState lss = (ListenSockState) ((SelectQueueElement) qel).getAttachment();
+                ((SelectQueueElement) qel).clearEvents();
+
+                processAccept(lss);
+            } else if (qel instanceof aSocketRequest) {
+                processListenRequest((aSocketRequest) qel);
+            } else {
+                throw new IllegalArgumentException("ReadEventHandler: Got unknown event type " + qel);
+            }
+        } catch (Exception e) {
+            System.err.println("ListenEventHandler: Got exception: " + e);
+            e.printStackTrace();
+        }
+    }
+
+    public void handleEvents(QueueElementIF qelarr[]) {
+        for (int i = 0; i < qelarr.length; i++) {
+            handleEvent(qelarr[i]);
+        }
+    }
 }
-

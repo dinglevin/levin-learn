@@ -125,8 +125,7 @@ class SocketThreadManager implements ThreadManagerIF, aSocketConst {
                                     + ": numActive is zero, waiting on event queue");
                         QueueElementIF qelarr[];
                         if (aggTarget == -1) {
-                            qelarr = eventQ
-                                    .blocking_dequeue_all(EVENT_QUEUE_TIMEOUT);
+                            qelarr = eventQ.blocking_dequeue_all(EVENT_QUEUE_TIMEOUT);
                         } else {
                             qelarr = eventQ.blocking_dequeue(
                                     EVENT_QUEUE_TIMEOUT, aggTarget);

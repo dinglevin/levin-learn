@@ -25,9 +25,7 @@
 
 package seda.util;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
+import java.text.DecimalFormat;
 
 /**
  * This class provides some generic utility functions.

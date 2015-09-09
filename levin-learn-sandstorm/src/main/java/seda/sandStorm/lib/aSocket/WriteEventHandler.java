@@ -34,7 +34,7 @@ import java.util.*;
 /**
  * Internal event handler used to handle socket write events.
  */
-class WriteEventHandler extends aSocketEventHandler implements EventHandlerIF, aSocketConst {
+class WriteEventHandler extends SocketEventHandler implements EventHandlerIF, aSocketConst {
 
   private static final boolean DEBUG = false;
 

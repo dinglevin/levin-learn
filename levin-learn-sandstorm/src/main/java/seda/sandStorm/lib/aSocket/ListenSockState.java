@@ -24,33 +24,31 @@
 
 package seda.sandStorm.lib.aSocket;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.core.*;
+import java.io.IOException;
+import java.net.Socket;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import seda.sandStorm.api.SinkIF;
 
 /**
- * Internal class used to represent a server socket listening on a 
- * given port.
+ * Internal class used to represent a server socket listening on a given port.
  */
 public abstract class ListenSockState {
+    protected static int num_connections = 0;
 
-  private static final boolean DEBUG = false;
+    protected ATcpServerSocket servsock;
+    protected int port;
+    protected SinkIF compQ;
+    protected int writeClogThreshold;
 
-  protected static int num_connections = 0;
+    protected abstract int getLocalPort();
 
-  protected ATcpServerSocket servsock;
-  protected int port;
-  protected SinkIF compQ;
-  protected int writeClogThreshold;
+    protected abstract Socket accept() throws IOException;
 
-  protected abstract int getLocalPort();
-  protected abstract Socket accept() throws IOException;
-  protected abstract void suspend();
-  protected abstract void resume();
-  protected abstract void close();
-  protected abstract void complete(ATcpConnection conn);
+    protected abstract void suspend();
+
+    protected abstract void resume();
+
+    protected abstract void close();
+
+    protected abstract void complete(ATcpConnection conn);
 }
-
