@@ -24,30 +24,27 @@
 
 package seda.sandStorm.api.internal;
 
-import seda.sandStorm.api.*;
-
 /**
  * A ThreadManagerIF is responsible for creating, managing, and scheduling
  * threads across a set of stages.
  * 
- * @author   Matt Welsh
+ * @author Matt Welsh
  */
 public interface ThreadManagerIF {
 
-  /**
-   * Register a stage with this thread manager and start its threads.
-   */
-  public void register(StageWrapperIF stage);
+    /**
+     * Register a stage with this thread manager and start its threads.
+     */
+    public void register(StageWrapperIF stage);
 
-  /**
-   * Deregister a stage with this thread manager and stop its threads.
-   */
-  public void deregister(StageWrapperIF stage);
+    /**
+     * Deregister a stage with this thread manager and stop its threads.
+     */
+    public void deregister(StageWrapperIF stage);
 
-  /**
-   * Stop the thread manager and all threads managed by it.
-   */
-  public void deregisterAll();
+    /**
+     * Stop the thread manager and all threads managed by it.
+     */
+    public void deregisterAll();
 
 }
-

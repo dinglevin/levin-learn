@@ -298,7 +298,7 @@ class WriteEventHandler extends aSocketEventHandler implements EventHandlerIF, a
 
       // This registers itself
       ConnectSockState ss;
-      ss = aSocketMgr.getFactory().newConnectSockState((ATcpConnectRequest)req, selsource);
+      ss = SocketMgr.getFactory().newConnectSockState((ATcpConnectRequest)req, selsource);
 
     } else if (req instanceof AUdpConnectRequest) {
 

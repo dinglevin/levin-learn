@@ -64,7 +64,7 @@ class ListenEventHandler extends aSocketEventHandler implements EventHandlerIF {
       if (DEBUG) System.err.println("ListenThread: did accept on "+sock.getInetAddress().getHostAddress()+":"+sock.getPort());
       ATcpConnection conn = new ATcpConnection(lss.servsock, sock.getInetAddress(), sock.getPort());
       if (DEBUG) System.err.println("ListenThread: Created new conn "+conn);
-      SockState ss = aSocketMgr.getFactory().newSockState(conn, sock, lss.writeClogThreshold);
+      SockState ss = SocketMgr.getFactory().newSockState(conn, sock, lss.writeClogThreshold);
       if (DEBUG) System.err.println("ListenThread: Created new sockstate "+ss);
       conn.sockState = ss;
       if (DEBUG) System.err.println("ListenThread: Calling lss complete");
@@ -79,7 +79,7 @@ class ListenEventHandler extends aSocketEventHandler implements EventHandlerIF {
     if (req instanceof ATcpListenRequest) {
       // This registers itself
       ListenSockState lss;
-      lss = aSocketMgr.getFactory().newListenSockState((ATcpListenRequest)req, selsource);
+      lss = SocketMgr.getFactory().newListenSockState((ATcpListenRequest)req, selsource);
 
     } else if (req instanceof ATcpSuspendAcceptRequest) {
       ATcpSuspendAcceptRequest susreq = (ATcpSuspendAcceptRequest)req;
@@ -141,7 +141,5 @@ class ListenEventHandler extends aSocketEventHandler implements EventHandlerIF {
       handleEvent(qelarr[i]);
     }
   }
-
-
 }
 

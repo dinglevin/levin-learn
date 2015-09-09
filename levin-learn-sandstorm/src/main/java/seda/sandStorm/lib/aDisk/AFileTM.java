@@ -24,41 +24,38 @@
 
 package seda.sandStorm.lib.aDisk;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.api.internal.*;
-import java.io.*;
+import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.ThreadManagerIF;
 
 /**
  * Internal abstract class used to represent an AFile thread manager.
  */
 abstract class AFileTM implements ThreadManagerIF {
 
-  /**
-   * Register a stage with this thread manager.
-   */
-  public abstract void register(StageWrapperIF stage);
+    /**
+     * Register a stage with this thread manager.
+     */
+    public abstract void register(StageWrapperIF stage);
 
-  /**
-   *
-   * Deregister a stage with this thread manager.
-   */
-  public abstract void deregister(StageWrapperIF stage);
+    /**
+     *
+     * Deregister a stage with this thread manager.
+     */
+    public abstract void deregister(StageWrapperIF stage);
 
-  /**
-   * Start the thread manager.
-   */
-  public abstract void start();
+    /**
+     * Start the thread manager.
+     */
+    public abstract void start();
 
-  /**
-   * Stop the thread manager and all threads managed by it.
-   */
-  public abstract void stop();
+    /**
+     * Stop the thread manager and all threads managed by it.
+     */
+    public abstract void stop();
 
-  /**
-   * Enqueue an AFileRequest for this thread manager to handle.
-   */
-  public abstract void enqueueRequest(AFileRequest req);
+    /**
+     * Enqueue an AFileRequest for this thread manager to handle.
+     */
+    public abstract void enqueueRequest(AFileRequest req);
 
 }
-
-

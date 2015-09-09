@@ -22,40 +22,57 @@
  * 
  */
 
-package seda.sandStorm.lib.aDisk;
+package seda.sandStorm.lib.aSocket;
 
 import seda.sandStorm.api.ConfigDataIF;
 import seda.sandStorm.api.EventHandlerIF;
+import seda.sandStorm.api.SinkIF;
 import seda.sandStorm.api.SourceIF;
 import seda.sandStorm.api.StageIF;
 import seda.sandStorm.api.internal.ResponseTimeControllerIF;
 import seda.sandStorm.api.internal.StageStatsIF;
 import seda.sandStorm.api.internal.StageWrapperIF;
 import seda.sandStorm.api.internal.ThreadManagerIF;
+import seda.sandStorm.core.FiniteQueue;
+import seda.sandStorm.core.QueueThresholdPredicate;
 import seda.sandStorm.internal.Stage;
+import seda.sandStorm.internal.StageStats;
 
 /**
- * Internal stage wrapper implementation for AFileTPImpl.
- *
- * @author Matt Welsh
+ * Internal stage wrapper implementation for aSocket.
  */
-class AFileTPStageWrapper implements StageWrapperIF {
+class SocketStageWrapper implements StageWrapperIF {
     private String name;
     private StageIF stage;
     private EventHandlerIF handler;
     private ConfigDataIF config;
+    private FiniteQueue eventQ;
+    private SelectSourceIF selsource;
     private ThreadManagerIF tm;
+    private StageStatsIF stats;
 
-    // This stagewrapper has no (real) event queue: Threads created
-    // by AFileTPTM will poll across the per-AFile queues instead.
-    // This class is just used for bookkeeping purposes.
-    AFileTPStageWrapper(String name, EventHandlerIF handler,
+    SocketStageWrapper(String name, EventHandlerIF handler,
             ConfigDataIF config, ThreadManagerIF tm) {
         this.name = name;
         this.handler = handler;
         this.config = config;
         this.tm = tm;
-        this.stage = new Stage(name, this, null, config);
+        this.stats = new StageStats(this);
+
+        int queuelen;
+        if ((queuelen = config.getInt("_queuelength")) <= 0) {
+            queuelen = -1;
+        }
+        if (queuelen == -1) {
+            eventQ = new FiniteQueue();
+        } else {
+            eventQ = new FiniteQueue();
+            QueueThresholdPredicate pred = new QueueThresholdPredicate(eventQ,
+                    queuelen);
+            eventQ.setEnqueuePredicate(pred);
+        }
+        this.selsource = ((aSocketEventHandler) handler).getSelectSource();
+        this.stage = new Stage(name, this, (SinkIF) eventQ, config);
         this.config.setStage(this.stage);
     }
 
@@ -63,10 +80,7 @@ class AFileTPStageWrapper implements StageWrapperIF {
      * Initialize this stage.
      */
     public void init() throws Exception {
-        if (handler != null) {
-            handler.init(config);
-        }
-
+        handler.init(config);
         tm.register(this);
     }
 
@@ -75,8 +89,7 @@ class AFileTPStageWrapper implements StageWrapperIF {
      */
     public void destroy() throws Exception {
         tm.deregister(this);
-        if (handler != null)
-            handler.destroy();
+        handler.destroy();
     }
     
     public String getName() {
@@ -99,11 +112,10 @@ class AFileTPStageWrapper implements StageWrapperIF {
 
     /**
      * Return the source from which events should be pulled to pass to this
-     * EventHandlerIF.
+     * EventHandlerIF. <b>Note</b> that this method is not used internally.
      */
     public SourceIF getSource() {
-        // Not used
-        return null;
+        return eventQ;
     }
 
     /**
@@ -113,9 +125,18 @@ class AFileTPStageWrapper implements StageWrapperIF {
         return tm;
     }
 
-    /** Not implemented. */
+    // So aSocketTM can access it
+    SelectSourceIF getSelectSource() {
+        return selsource;
+    }
+
+    // So aSocketTM can access it
+    SourceIF getEventQueue() {
+        return eventQ;
+    }
+
     public StageStatsIF getStats() {
-        return null;
+        return stats;
     }
 
     /** Not implemented. */
@@ -124,7 +145,7 @@ class AFileTPStageWrapper implements StageWrapperIF {
     }
 
     public String toString() {
-        return "AFILETPSW[" + stage.getName() + "]";
+        return "ASOCKETSW[" + stage.getName() + "]";
     }
 
 }

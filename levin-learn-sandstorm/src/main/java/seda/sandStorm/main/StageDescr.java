@@ -36,20 +36,27 @@ import java.util.*;
  */
 public class StageDescr {
     /** The name of the stage. */
-    public String stageName;
+    public final String stageName;
 
     /** The fully-qualified class name of the stage's event handler. */
-    public String className;
+    public final String className;
 
     /** The initial arguments to the stage. */
-    public Map<String, String> initArgs;
+    public final Map<String, String> initArgs;
 
     /**
      * The stage's event queue threshold. -1 indicates an infinite threshold.
      */
-    public int queueThreshold;
+    public final int queueThreshold;
 
-    public StageDescr() {
-        queueThreshold = -1;
+    public StageDescr(String stageName, String className, Map<String, String> initArgs, int queueThreshold) {
+        this.stageName = stageName;
+        this.className = className;
+        this.initArgs = initArgs;
+        this.queueThreshold = queueThreshold;
+    }
+    
+    public StageDescr(String stageName, String className, Map<String, String> initArgs) {
+        this(stageName, className, initArgs, -1);
     }
 }

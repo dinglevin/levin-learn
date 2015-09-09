@@ -32,14 +32,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StreamTokenizer;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Vector;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import seda.sandStorm.api.StageNameAlreadyBoundException;
 
@@ -55,7 +60,8 @@ import seda.sandStorm.api.StageNameAlreadyBoundException;
  *
  */
 public class SandstormConfig implements Cloneable {
-    private static final boolean DEBUG = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SandstormConfig.class);
+    
     private static final String DELIM_CHAR = ".";
     
     public static final String LIST_ELEMENT_DELIMITER = " ";
@@ -153,9 +159,8 @@ public class SandstormConfig implements Cloneable {
             car = key.substring(0, c);
             cdr = key.substring(c + 1, key.length());
         }
-        if (DEBUG)
-            System.err.println("getVal: cs=" + cs + " key=" + key + " car="
-                    + car + ", cdr=" + cdr);
+
+        LOGGER.debug("getVal: cs={}, key={}, car={}, cdr={}", cs, key, car, cdr);
 
         if (cdr == null) {
             // OK, we are at a terminal node
@@ -163,10 +168,10 @@ public class SandstormConfig implements Cloneable {
         } else {
             // We are at an intermediate node
             ConfigSection subsec = cs.getSubsection(car);
-            if (subsec == null)
+            if (subsec == null) {
                 return null;
-            else
-                return getVal(subsec, cdr);
+            }
+            return getVal(subsec, cdr);
         }
     }
 
@@ -212,10 +217,10 @@ public class SandstormConfig implements Cloneable {
      */
     public String getString(String key, String defaultval) {
         String val = getVal(root, key);
-        if (val == null)
+        if (val == null) {
             return defaultval;
-        else
-            return val;
+        }
+        return val;
     }
 
     /**
@@ -239,12 +244,11 @@ public class SandstormConfig implements Cloneable {
      */
     public boolean getBoolean(String key, boolean defaultval) {
         String val = getVal(root, key);
-        if (val == null)
+        if (val == null) {
             return defaultval;
-        if (val.equals("true") || val.equals("TRUE"))
-            return true;
-        else
-            return false;
+        }
+        
+        return "true".equalsIgnoreCase(val);
     }
 
     /**
@@ -283,7 +287,7 @@ public class SandstormConfig implements Cloneable {
      * Set the given configuration option specified as an int.
      */
     public void putInt(String key, int val) {
-        putVal(root, key, new Integer(val).toString());
+        putVal(root, key, Integer.toString(val));
     }
 
     /**
@@ -305,7 +309,7 @@ public class SandstormConfig implements Cloneable {
         if (val == null)
             return defaultval;
         try {
-            return new Double(val).doubleValue();
+            return Double.parseDouble(val);
         } catch (NumberFormatException nfe) {
             return defaultval;
         }
@@ -316,63 +320,49 @@ public class SandstormConfig implements Cloneable {
      * not set.
      */
     public String[] getStringList(String key) {
-        String ret[];
         String val = (String) getVal(root, key);
-        if (val == null)
-            return null;
-        StringTokenizer st = new StringTokenizer(val,
-                SandstormConfig.LIST_ELEMENT_DELIMITER);
-        Vector v = new Vector(1);
-        while (st.hasMoreElements()) {
-            v.addElement(st.nextElement());
-        }
-        ret = new String[v.size()];
-        for (int i = 0; i < ret.length; i++) {
-            ret[i] = (String) v.elementAt(i);
-        }
-        return ret;
+        return StringUtils.split(val, LIST_ELEMENT_DELIMITER);
     }
 
     /**
-     * Set the given configuration option specified as an int.
+     * Set the given configuration option specified as an double.
      */
     public void putDouble(String key, double val) {
-        putVal(root, key, new Double(val).toString());
+        putVal(root, key, Double.toString(val));
     }
 
     /**
      * Set the given key to the given string list value.
      */
     public void puttStringList(String key, String valarr[]) {
-        String s = "";
-        for (int i = 0; i < valarr.length; i++) {
-            s += valarr[i];
-            if (i != valarr.length - 1)
-                s += SandstormConfig.LIST_ELEMENT_DELIMITER;
-        }
-        putVal(root, key, s);
+        String listValue = StringUtils.join(valarr, LIST_ELEMENT_DELIMITER);
+        putVal(root, key, listValue);
     }
 
-    // Return enumeration of keys matching prefix starting with cs.
-    // Recursive.
-    private Enumeration getKeys(ConfigSection cs, String prefix) {
+    private List<String> getAllUnderlyingKeys(ConfigSection cs) {
+        List<String> result = Lists.newArrayList();
+        Iterator<String> keys = cs.getKeys();
+        if (keys != null) {
+            while (keys.hasNext()) {
+                result.add(keys.next());
+            }
+        }
+        Iterator<ConfigSection> sections = cs.getSubsections();
+        if (sections != null) {
+            while (sections.hasNext()) {
+                ConfigSection subsec = sections.next();
+                result.add(subsec.getName() + DELIM_CHAR);
+            }
+        }
+        return result;
+    }
+    
+    // Return enumeration of keys matching prefix starting with cs. Recursive.
+    private Iterator<String> getKeys(ConfigSection cs, String prefix) {
         // We are at the end of the prefix
         if (prefix == null) {
-            Vector v = new Vector(1);
-            Enumeration e = cs.getKeys();
-            if (e != null) {
-                while (e.hasMoreElements()) {
-                    v.addElement(e.nextElement());
-                }
-            }
-            e = cs.getSubsections();
-            if (e != null) {
-                while (e.hasMoreElements()) {
-                    ConfigSection subsec = (ConfigSection) e.nextElement();
-                    v.addElement(subsec.getName() + DELIM_CHAR);
-                }
-            }
-            return v.elements();
+            List<String> underlyingKeys = getAllUnderlyingKeys(cs);
+            return underlyingKeys.iterator();
         }
 
         // First look for single item matching prefix
@@ -382,9 +372,8 @@ public class SandstormConfig implements Cloneable {
             return null;
         String val = cs.getVal(tok);
         if (val != null) {
-            Vector v = new Vector(1);
-            v.addElement(tok);
-            return v.elements();
+            List<String> result = Lists.newArrayList(tok);
+            return result.iterator();
         }
 
         // Look for subsection matching prefix
@@ -396,20 +385,20 @@ public class SandstormConfig implements Cloneable {
     }
 
     /**
-     * Return an enumeration of the keys matching the given prefix. A given key
+     * Return an Iterator of the keys matching the given prefix. A given key
      * maps onto a set of child keys if it ends in a "." character (that is, it
      * is an internal node within the tree). A key not ending in "." is a
      * terminal node and maps onto a value that may be obtained using getString,
      * getInt, or getDouble.
      */
-    public Enumeration getKeys(String prefix) {
+    public Iterator<String> getKeys(String prefix) {
         return getKeys(root, prefix);
     }
 
     /**
      * Return an enumeration of the top-level keys in this configuration.
      */
-    public Enumeration getKeys() {
+    public Iterator<String> getKeys() {
         return getKeys(root, null);
     }
 
@@ -431,20 +420,16 @@ public class SandstormConfig implements Cloneable {
      *            The name of the stage as it should be registered.
      * @param className
      *            The fully-qualified class name of the stage event handler.
-     * @param initargs
+     * @param initArgs
      *            The initial arguments to pass into the stage.
      */
-    public void addStage(String stageName, String className, String initargs[])
+    public void addStage(String stageName, String className, String initArgs[])
             throws StageNameAlreadyBoundException, IOException {
         if (stages.get(stageName) != null) {
-            throw new StageNameAlreadyBoundException("Stage " + stageName
-                    + " already registered in SandstormConfig");
+            throw new StageNameAlreadyBoundException("Stage " + stageName + " already registered in SandstormConfig");
         }
 
-        StageDescr descr = new StageDescr();
-        descr.stageName = stageName;
-        descr.className = className;
-        descr.initArgs = stringArrayToMap(initargs);
+        StageDescr descr = new StageDescr(stageName, className, stringArrayToMap(initArgs));
         stages.put(stageName, descr);
     }
 
@@ -459,21 +444,19 @@ public class SandstormConfig implements Cloneable {
      * Read the configuration from the given file.
      */
     public void readFile(String fname) throws IOException {
-
-        Reader in = new directiveReader(
-                new BufferedReader(new FileReader(fname)));
+        Reader in = new DirectiveReader(new BufferedReader(new FileReader(fname)));
         root = new ConfigSection(in);
 
         ConfigSection global_initargs = null;
 
         if (!root.getName().equals("sandstorm"))
             throw new IOException("Outermost section config file named "
-                    + root.getName() + ", expecting sandstorm");
+                    + root.getName() + ", expecting 'sandstorm'");
 
         setDefaultValues();
 
         // Set command line values
-        this.defaultInitArgs = new HashMap<>();
+        this.defaultInitArgs = Maps.newHashMap();
         if (cmdLineArgs != null) {
             Iterator<Map.Entry<String, String>> e = cmdLineArgs.entrySet().iterator();
             while (e.hasNext()) {
@@ -487,10 +470,10 @@ public class SandstormConfig implements Cloneable {
             }
         }
 
-        if (DEBUG) {
-            System.err.println("DOING DUMP: -----------------------");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("DOING DUMP: -----------------------");
             root.dump();
-            System.err.println("DONE WITH DUMP ---------------------");
+            LOGGER.debug("DONE WITH DUMP ---------------------");
         }
 
         // Get global init args
@@ -500,42 +483,39 @@ public class SandstormConfig implements Cloneable {
         }
 
         // Get stages
-        if (DEBUG)
-            System.err.println("Parsing stages");
+        LOGGER.debug("Parsing stages");
+        
         ConfigSection stagesec = root.getSubsection("stages");
         if (stagesec != null) {
-            for (int i = 0; i < stagesec.subsections.size(); i++) {
-                ConfigSection sec = (ConfigSection) stagesec.subsections
-                        .elementAt(i);
-                StageDescr descr = new StageDescr();
-                descr.stageName = sec.getName();
-                descr.className = sec.getVal("class");
-                if (descr.className == null)
-                    throw new IOException(
-                            "Missing class name in <stage> section of config file");
-                if (DEBUG)
-                    System.err.println("Parsing stage " + descr.stageName);
+            for (int i = 0; i < stagesec.subSections.size(); i++) {
+                ConfigSection sec = stagesec.subSections.get(i);
+                String stageName = sec.getName();
+                String className = sec.getVal("class");
+                if (className == null)
+                    throw new IOException("Missing class name in <stage> section of config file");
+                
+                LOGGER.debug("Parsing stage {}", stageName);
 
-                descr.initArgs = new Hashtable(1);
+                Map<String, String> initArgs = Maps.newHashMap();
 
                 // Add global args
                 if (global_initargs != null) {
-                    Enumeration e2 = global_initargs.getKeys();
-                    while (e2.hasMoreElements()) {
-                        String key = (String) e2.nextElement();
+                    Iterator<String> e2 = global_initargs.getKeys();
+                    while (e2.hasNext()) {
+                        String key = e2.next();
                         String val = global_initargs.getVal(key);
-                        descr.initArgs.put(key, val);
+                        initArgs.put(key, val);
                     }
                 }
 
                 // Add stage-specific args
                 ConfigSection args = sec.getSubsection("initargs");
                 if (args != null) {
-                    Enumeration e2 = args.getKeys();
-                    while (e2.hasMoreElements()) {
-                        String key = (String) e2.nextElement();
+                    Iterator<String> e2 = args.getKeys();
+                    while (e2.hasNext()) {
+                        String key = e2.next();
                         String val = args.getVal(key);
-                        descr.initArgs.put(key, val);
+                        initArgs.put(key, val);
                     }
                 }
 
@@ -544,21 +524,22 @@ public class SandstormConfig implements Cloneable {
                     Iterator<Map.Entry<String, String>> e2 = defaultInitArgs.entrySet().iterator();
                     while (e2.hasNext()) {
                         Map.Entry<String, String> entry = e2.next();
-                        descr.initArgs.put(entry.getKey(), entry.getValue());
+                        initArgs.put(entry.getKey(), entry.getValue());
                     }
                 }
 
+                int queueThreshold = -1;
                 try {
                     String val = sec.getVal("queueThreshold");
-                    if (val == null)
-                        descr.queueThreshold = -1;
-                    else
-                        descr.queueThreshold = Integer.parseInt(val);
+                    if (val != null)
+                        queueThreshold = Integer.parseInt(val);
                 } catch (NumberFormatException ne) {
-                    descr.queueThreshold = -1;
+                    queueThreshold = -1;
                 }
-                if (DEBUG)
-                    System.err.println("Adding stage " + descr.stageName);
+                
+                LOGGER.info("Adding stage {}", stageName);
+                
+                StageDescr descr = new StageDescr(stageName, className, initArgs, queueThreshold);
                 stages.put(descr.stageName, descr);
             }
         }
@@ -579,12 +560,12 @@ public class SandstormConfig implements Cloneable {
     class ConfigSection {
         private String secname;
         private StreamTokenizer tok;
-        private Vector subsections;
-        private Hashtable vals;
+        private List<ConfigSection> subSections;
+        private Map<String, String> vals;
 
         private ConfigSection() {
-            subsections = new Vector(1);
-            vals = new Hashtable(1);
+            subSections = Lists.newArrayList();
+            vals = Maps.newHashMap();
         }
 
         ConfigSection(Reader in) throws IOException {
@@ -616,8 +597,8 @@ public class SandstormConfig implements Cloneable {
         }
 
         ConfigSection getSubsection(String name) {
-            for (int i = 0; i < subsections.size(); i++) {
-                ConfigSection sec = (ConfigSection) subsections.elementAt(i);
+            for (int i = 0; i < subSections.size(); i++) {
+                ConfigSection sec = subSections.get(i);
                 if (sec.getName().equals(name))
                     return sec;
             }
@@ -625,30 +606,30 @@ public class SandstormConfig implements Cloneable {
         }
 
         void addSubsection(ConfigSection subsec) {
-            subsections.addElement(subsec);
+            subSections.add(subsec);
         }
 
         // Return the string associated with key in this section
         // If not specified, null is returned
         String getVal(String key) {
-            return (String) vals.get(key);
+            return vals.get(key);
         }
 
-        Enumeration getSubsections() {
-            if (subsections == null)
+        Iterator<ConfigSection> getSubsections() {
+            if (subSections == null)
                 return null;
-            return subsections.elements();
+            return subSections.iterator();
         }
 
-        Enumeration getKeys() {
-            return vals.keys();
+        Iterator<String> getKeys() {
+            return vals.keySet().iterator();
         }
 
         int numKeys() {
             return vals.size();
         }
 
-        Hashtable getVals() {
+        Map<String, String> getVals() {
             return vals;
         }
 
@@ -660,7 +641,6 @@ public class SandstormConfig implements Cloneable {
         // end of that section
         private void doRead() throws IOException {
             String word, key, value;
-            boolean read_secname = false;
 
             // Get initial section name
             word = nextWord();
@@ -688,20 +668,16 @@ public class SandstormConfig implements Cloneable {
                             // Found a new section; recurse
                             ConfigSection subsec = new ConfigSection(tok);
                             if (getSubsection(subsec.getName()) != null) {
-                                throw new IOException("subsection "
-                                        + subsec.getName()
-                                        + " redefined at line " + tok.lineno()
-                                        + " of config file");
+                                throw new IOException("subsection " + subsec.getName()
+                                        + " redefined at line " + tok.lineno() + " of config file");
                             }
                             if (vals.get(subsec.getName()) != null) {
-                                throw new IOException("subsection "
-                                        + subsec.getName()
-                                        + " conflicts with key "
-                                        + subsec.getName() + " at line "
+                                throw new IOException("subsection " + subsec.getName()
+                                        + " conflicts with key " + subsec.getName() + " at line "
                                         + tok.lineno() + " of config file");
                             }
 
-                            subsections.addElement(subsec);
+                            subSections.add(subsec);
                         }
                     } else {
                         key = word;
@@ -757,13 +733,11 @@ public class SandstormConfig implements Cloneable {
                     throw new EOFException("EOF in config file");
 
                 case StreamTokenizer.TT_WORD:
-                    if (DEBUG)
-                        System.err.println("nextWord returning " + tok.sval);
+                    LOGGER.debug("nextWord returning {}", tok.sval);
                     return tok.sval;
 
                 case StreamTokenizer.TT_NUMBER:
-                    if (DEBUG)
-                        System.err.println("nextWord returning number");
+                    LOGGER.debug("nextWord returning number");
                     return Double.toString(tok.nval);
 
                 default:
@@ -781,8 +755,7 @@ public class SandstormConfig implements Cloneable {
                 switch (tok.nextToken()) {
 
                 case StreamTokenizer.TT_EOL:
-                    if (DEBUG)
-                        System.err.println("nextLine returning " + line);
+                    LOGGER.debug("nextLine returning {}", line);
                     return line;
 
                 case StreamTokenizer.TT_EOF:
@@ -814,18 +787,18 @@ public class SandstormConfig implements Cloneable {
 
         // Debugging only
         void dump() {
-            System.err.println("<" + secname + ">");
-            Enumeration e = vals.keys();
-            while (e.hasMoreElements()) {
-                String key = (String) e.nextElement();
-                String val = (String) vals.get(key);
-                System.err.println("   " + key + " " + val);
+            LOGGER.debug("<" + secname + ">");
+            
+            Iterator<Map.Entry<String, String>> iterator = vals.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, String> entry = iterator.next();
+                LOGGER.debug("   key={}, value={}", entry.getKey(), entry.getValue());
             }
 
-            for (int i = 0; i < subsections.size(); i++) {
-                ConfigSection sec = (ConfigSection) subsections.elementAt(i);
+            for (ConfigSection sec : subSections) {
                 sec.dump();
             }
+            
             System.err.println("</" + secname + ">");
         }
 
@@ -837,16 +810,15 @@ public class SandstormConfig implements Cloneable {
     /**
      * Internal class to preprocess special directives in the config file.
      */
-    class directiveReader extends Reader {
+    class DirectiveReader extends Reader {
         private Reader under, includedFile, markStream;
         private boolean markIsIncluded = false, closed = false;
         private boolean inComment = false;
 
-        directiveReader(Reader under) throws IOException {
+        DirectiveReader(Reader under) throws IOException {
             this.under = under;
             if (!under.markSupported()) {
-                throw new IOException(
-                        "SandstormConfig: Internal error: directiveReader.under must support mark() -- contact mdw@cs.berkeley.edu");
+                throw new IOException("SandstormConfig: Internal error: directiveReader.under must support mark() -- contact mdw@cs.berkeley.edu");
             }
         }
 
@@ -864,7 +836,6 @@ public class SandstormConfig implements Cloneable {
             boolean done = false;
 
             while (!done) {
-
                 int c = under.read();
 
                 // Ignore special directives inside of comments
@@ -887,31 +858,25 @@ public class SandstormConfig implements Cloneable {
                                 if (c1 == -1)
                                     throw new IOException("End of file");
                             } catch (IOException ioe) {
-                                throw new IOException(
-                                        "SandstormConfig: Unterminated directive "
-                                                + directive.substring(0,
-                                                        Math.min(
-                                                                directive
-                                                                        .length(),
-                                                                10))
-                                                + " in configuration file");
+                                throw new IOException("SandstormConfig: Unterminated directive "
+                                        + directive.substring(0, Math.min(directive.length(), 10)) 
+                                        + " in configuration file");
                             }
                             directive += c1;
                         }
-                        if (DEBUG)
-                            System.err.println(
-                                    "Got special directive: " + directive);
+                        
+                        LOGGER.debug("Got special directive: {}", directive);
 
                         if (directive.startsWith("<!include")) {
                             StringTokenizer st = new StringTokenizer(directive);
-                            String dir = st.nextToken();
+                            //String dir = st.nextToken();
+                            st.nextToken();
                             String fname = st.nextToken();
-                            fname = fname.substring(0, fname.length() - 1)
-                                    .trim();
-                            if (DEBUG)
-                                System.err.println("Including file: " + fname);
-                            includedFile = new directiveReader(
-                                    new BufferedReader(new FileReader(fname)));
+                            fname = fname.substring(0, fname.length() - 1).trim();
+                            
+                            LOGGER.debug("Including file: {}", fname);
+                            
+                            includedFile = new DirectiveReader(new BufferedReader(new FileReader(fname)));
                             int ret = includedFile.read();
                             if (ret == -1) {
                                 includedFile = null;
@@ -920,9 +885,7 @@ public class SandstormConfig implements Cloneable {
                                 return ret;
                             }
                         } else {
-                            throw new IOException(
-                                    "SandstormConfig: Unrecognized directive "
-                                            + directive + " in config file");
+                            throw new IOException("SandstormConfig: Unrecognized directive " + directive + " in config file");
                         }
 
                     } else {
@@ -957,8 +920,7 @@ public class SandstormConfig implements Cloneable {
 
         public long skip(long n) throws IOException {
             if (n < 0)
-                throw new IllegalArgumentException(
-                        "directiveReader.skip: n must be nonzero");
+                throw new IllegalArgumentException("directiveReader.skip: n must be nonzero");
             long skipped = 0;
             for (long l = n; l >= 0; l--) {
                 int c = read();

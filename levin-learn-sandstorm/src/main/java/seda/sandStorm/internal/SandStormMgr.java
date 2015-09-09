@@ -25,11 +25,13 @@
 package seda.sandStorm.internal;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import seda.sandStorm.api.ConfigDataIF;
 import seda.sandStorm.api.EventHandlerIF;
@@ -45,7 +47,7 @@ import seda.sandStorm.api.internal.StageWrapperIF;
 import seda.sandStorm.api.internal.SystemManagerIF;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.lib.aDisk.AFileMgr;
-import seda.sandStorm.lib.aSocket.aSocketMgr;
+import seda.sandStorm.lib.aSocket.SocketMgr;
 import seda.sandStorm.main.SandstormConfig;
 import seda.sandStorm.main.StageDescr;
 
@@ -62,6 +64,7 @@ import seda.sandStorm.main.StageDescr;
  * 
  */
 public class SandStormMgr implements ManagerIF, SystemManagerIF {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SandStormMgr.class);
 
     private ThreadManagerIF defaulttm;
     private Map<String, ThreadManagerIF> tmtbl;
@@ -111,18 +114,18 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
      * Start the manager.
      */
     public void start() {
-        System.err.println("Sandstorm: Initializing stages");
+        LOGGER.info("Sandstorm: Initializing stages");
         initStages();
 
         // Let the threads start
         try {
-            System.err.println("Sandstorm: Waiting for all components to start...");
+            LOGGER.info("Sandstorm: Waiting for all components to start...");
             Thread.sleep(500);
         } catch (InterruptedException ie) {
             // Ignore
         }
 
-        System.err.println("\nSandstorm: Ready.\n");
+        LOGGER.info("Sandstorm: Ready.");
     }
 
     /**
@@ -165,7 +168,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
 
         if (mgrconfig.getBoolean("global.aSocket.enable")) {
             System.err.println("Sandstorm: Starting aSocket layer");
-            aSocketMgr.initialize(this, this);
+            SocketMgr.initialize(this, this);
         }
 
         if (mgrconfig.getBoolean("global.aDisk.enable")) {
@@ -176,11 +179,13 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
 
     // Load stages as specified in the SandstormConfig.
     private void loadInitialStages() throws Exception {
-        Enumeration e = mgrconfig.getStages();
-        if (e == null)
+        Iterator<StageDescr> iterator = mgrconfig.getStages();
+        if (iterator == null) {
             return;
-        while (e.hasMoreElements()) {
-            StageDescr descr = (StageDescr) e.nextElement();
+        }
+        
+        while (iterator.hasNext()) {
+            StageDescr descr = iterator.next();
             loadStage(descr);
         }
     }
@@ -211,12 +216,12 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
         String stagename = descr.stageName;
         String classname = descr.className;
         ConfigData config = new ConfigData(this, descr.initArgs);
-        Class theclass = Class.forName(classname);
+        Class<?> theclass = Class.forName(classname);
         EventHandlerIF evHandler = (EventHandlerIF) theclass.newInstance();
-        System.out.println(
-                "Sandstorm: Loaded " + stagename + " from " + classname);
+        
+        LOGGER.info("Sandstorm: Loaded " + stagename + " from " + classname);
 
-        StageWrapper wrapper = new StageWrapper((ManagerIF) this, stagename,
+        StageWrapper wrapper = new StageWrapper(this, stagename,
                 evHandler, config, defaulttm, descr.queueThreshold);
 
         createStage(wrapper, false);
@@ -290,7 +295,6 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
 
     // Initialize all stages
     private void initStages() {
-
         for (int i = 0; i < stagestoinit.size(); i++) {
             StageWrapperIF wrapper = stagestoinit.get(i);
             try {

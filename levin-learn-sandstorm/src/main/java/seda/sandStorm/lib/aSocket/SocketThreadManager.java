@@ -38,17 +38,17 @@ import seda.sandStorm.internal.ThreadPool;
  * 
  * @author Matt Welsh
  */
-class aSocketThreadManager implements ThreadManagerIF, aSocketConst {
+class SocketThreadManager implements ThreadManagerIF, aSocketConst {
 
     private static final boolean DEBUG = false;
 
     private ManagerIF mgr;
 
-    aSocketThreadManager(ManagerIF mgr) {
+    SocketThreadManager(ManagerIF mgr) {
         this.mgr = mgr;
     }
 
-    protected aSocketThread makeThread(aSocketStageWrapper wrapper) {
+    protected aSocketThread makeThread(SocketStageWrapper wrapper) {
         return new aSocketThread(wrapper);
     }
 
@@ -56,7 +56,7 @@ class aSocketThreadManager implements ThreadManagerIF, aSocketConst {
      * Register a stage with this thread manager.
      */
     public void register(StageWrapperIF thestage) {
-        aSocketStageWrapper stage = (aSocketStageWrapper) thestage;
+        SocketStageWrapper stage = (SocketStageWrapper) thestage;
         aSocketThread at = makeThread(stage);
         ThreadPool tp = new ThreadPool(stage, mgr, at, 1);
         at.registerTP(tp);
@@ -91,7 +91,7 @@ class aSocketThreadManager implements ThreadManagerIF, aSocketConst {
         protected String name;
         protected EventHandlerIF handler;
 
-        protected aSocketThread(aSocketStageWrapper wrapper) {
+        protected aSocketThread(SocketStageWrapper wrapper) {
             if (DEBUG)
                 System.err.println("!!!!!aSocketThread init");
             this.wrapper = wrapper;
@@ -188,15 +188,13 @@ class aSocketThreadManager implements ThreadManagerIF, aSocketConst {
                         }
                     }
 
-                    Thread.currentThread().yield();
-
+                    Thread.yield();
                 } catch (Exception e) {
                     System.err.println(name + ": got exception " + e);
                     e.printStackTrace();
                 }
             }
         }
-
     }
 
 }

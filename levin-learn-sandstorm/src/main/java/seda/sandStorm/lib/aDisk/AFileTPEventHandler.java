@@ -24,12 +24,10 @@
 
 package seda.sandStorm.lib.aDisk;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.core.*;
-
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.EventHandlerIF;
+import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.SinkIF;
 
 /**
  * The event handler used by the AFileTPImpl stage.
@@ -37,9 +35,6 @@ import java.util.*;
  * @author Matt Welsh
  */
 class AFileTPEventHandler implements EventHandlerIF {
-
-  private static final boolean DEBUG = false;
-
   protected SinkIF eventQ;
 
   public void init(ConfigDataIF config) {

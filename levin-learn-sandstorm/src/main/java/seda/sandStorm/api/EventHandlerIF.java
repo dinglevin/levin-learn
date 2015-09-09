@@ -25,58 +25,58 @@
 package seda.sandStorm.api;
 
 /**
- * An EventHandlerIF represents an event handler - the basic unit of
- * computation in SandStorm. This is the basic interface which all
- * application modules implement. 
+ * An EventHandlerIF represents an event handler - the basic unit of computation
+ * in SandStorm. This is the basic interface which all application modules
+ * implement.
  * 
- * @author   Matt Welsh
+ * @author Matt Welsh
  */
 public interface EventHandlerIF {
 
-  /**
-   * Handle the event corresponding to the given QueueElementIF.
-   * This method is invoked by the system when a single event is
-   * pending for the event handler.
-   *
-   * @exception EventHandlerException The application may throw an
-   *   exception to indicate an error condition during event processing.
-   */
-  public void handleEvent(QueueElementIF elem) throws EventHandlerException;
+    /**
+     * Handle the event corresponding to the given QueueElementIF. This method
+     * is invoked by the system when a single event is pending for the event
+     * handler.
+     *
+     * @exception EventHandlerException
+     *                The application may throw an exception to indicate an
+     *                error condition during event processing.
+     */
+    public void handleEvent(QueueElementIF elem) throws EventHandlerException;
 
-  /**
-   * Handle the events corresponding to the given QueueElementIF array.
-   * This method is invoked when multiple events are pending for the
-   * event handler. The application may reorder, filter, or drop
-   * these events if it wishes to do so.
-   *
-   * @exception EventHandlerException The application may throw an
-   *   exception to indicate an error condition during event processing.
-   */
-  public void handleEvents(QueueElementIF elemarr[]) 
-      throws EventHandlerException;
+    /**
+     * Handle the events corresponding to the given QueueElementIF array. This
+     * method is invoked when multiple events are pending for the event handler.
+     * The application may reorder, filter, or drop these events if it wishes to
+     * do so.
+     *
+     * @exception EventHandlerException
+     *                The application may throw an exception to indicate an
+     *                error condition during event processing.
+     */
+    public void handleEvents(QueueElementIF elemarr[]) throws EventHandlerException;
 
-  /**
-   * Called when an event handler is initialized. This method should
-   * perform any initialization operations as required by the application.
-   *
-   * @param config The set of configuration parameters for the stage.
-   *
-   * @exception Exception The EventHandler can indicate an
-   * error to the runtime during initialization by throwing an 
-   * Exception.
-   */
-  public void init(ConfigDataIF config) throws Exception;
+    /**
+     * Called when an event handler is initialized. This method should perform
+     * any initialization operations as required by the application.
+     *
+     * @param config
+     *            The set of configuration parameters for the stage.
+     *
+     * @exception Exception
+     *                The EventHandler can indicate an error to the runtime
+     *                during initialization by throwing an Exception.
+     */
+    public void init(ConfigDataIF config) throws Exception;
 
-  /**
-   * Called when an event handler is destroyed. This method should
-   * perform any cleanup or shutdown operations as required by the
-   * application before the event handler is removed from the system.
-   *
-   * @exception Exception The EventHandler can indicate an
-   * error to the runtime during shutdown by throwing an 
-   * Exception.
-   */
-  public void destroy() throws Exception;
-
+    /**
+     * Called when an event handler is destroyed. This method should perform any
+     * cleanup or shutdown operations as required by the application before the
+     * event handler is removed from the system.
+     *
+     * @exception Exception
+     *                The EventHandler can indicate an error to the runtime
+     *                during shutdown by throwing an Exception.
+     */
+    public void destroy() throws Exception;
 }
-

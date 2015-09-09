@@ -38,7 +38,7 @@ import seda.util.*;
  * 
  * @author   Matt Welsh
  */
-class aSocketRCTMSleep extends aSocketThreadManager implements ThreadManagerIF, aSocketConst {
+class aSocketRCTMSleep extends SocketThreadManager implements ThreadManagerIF, aSocketConst {
 
   private static final boolean DEBUG = false;
   private static final int INITIAL_SLEEPTIME = 1;
@@ -52,17 +52,17 @@ class aSocketRCTMSleep extends aSocketThreadManager implements ThreadManagerIF, 
     System.err.println("aSocketRCTMSleep: Created, target rate "+targetRate);
   }
 
-  protected aSocketThread makeThread(aSocketStageWrapper wrapper) {
+  protected aSocketThread makeThread(SocketStageWrapper wrapper) {
     return new aSocketRCThread(wrapper);
   }
 
   /**
    * Internal class representing a single aSocketTM-managed thread.
    */
-  protected class aSocketRCThread extends aSocketThreadManager.aSocketThread implements Runnable {
+  protected class aSocketRCThread extends SocketThreadManager.aSocketThread implements Runnable {
     private final long MIN_USEFUL_SLEEP = 10;
 
-    protected aSocketRCThread(aSocketStageWrapper wrapper) {
+    protected aSocketRCThread(SocketStageWrapper wrapper) {
       super(wrapper);
     }
 

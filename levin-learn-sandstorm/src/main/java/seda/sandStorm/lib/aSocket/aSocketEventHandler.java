@@ -42,7 +42,7 @@ abstract class aSocketEventHandler implements EventHandlerIF {
   protected SelectSourceIF selsource;
 
   aSocketEventHandler() {
-    this.selsource = aSocketMgr.getFactory().newSelectSource();
+    this.selsource = SocketMgr.getFactory().newSelectSource();
   }
 
   // Used to let ReadStageWrapper get a handle to the selsource

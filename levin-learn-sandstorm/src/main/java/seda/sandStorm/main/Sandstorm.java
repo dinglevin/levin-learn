@@ -69,8 +69,7 @@ public class Sandstorm {
      */
     public Sandstorm(SandstormConfig config) throws Exception {
         if (globalSandstorm != null) {
-            throw new RuntimeException(
-                    "Sandstorm: Error: Only one Sandstorm instance can be running at a given time.");
+            throw new RuntimeException("Sandstorm: Error: Only one Sandstorm instance can be running at a given time.");
         }
         globalSandstorm = this;
         mgr = new SandStormMgr(config);

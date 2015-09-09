@@ -27,54 +27,53 @@ package seda.sandStorm.api.internal;
 import seda.sandStorm.api.*;
 
 /**
- * A StageWrapperIF is the internal representation for an application 
- * stage - an event handler coupled with a set of queues.
+ * A StageWrapperIF is the internal representation for an application stage - an
+ * event handler coupled with a set of queues.
  * 
- * @author   Matt Welsh
+ * @author Matt Welsh
  */
 public interface StageWrapperIF {
 
-  /**
-   * Return the StageIF for this stage.
-   */
-  public StageIF getStage();
+    /**
+     * Return the StageIF for this stage.
+     */
+    public StageIF getStage();
 
-  /**
-   * Return the event handler associated with this stage.
-   */
-  public EventHandlerIF getEventHandler();
+    /**
+     * Return the event handler associated with this stage.
+     */
+    public EventHandlerIF getEventHandler();
 
-  /**
-   * Return the source from which events should be pulled to 
-   * pass to this EventHandlerIF.
-   */
-  public SourceIF getSource();
+    /**
+     * Return the source from which events should be pulled to pass to this
+     * EventHandlerIF.
+     */
+    public SourceIF getSource();
 
-  /**
-   * Return the thread manager which will run this stage.
-   */
-  public ThreadManagerIF getThreadManager();
+    /**
+     * Return the thread manager which will run this stage.
+     */
+    public ThreadManagerIF getThreadManager();
 
-  /**
-   * Return a StageStatsIF interface which records and manages performance
-   * statistics for this stage.
-   */
-  public StageStatsIF getStats();
+    /**
+     * Return a StageStatsIF interface which records and manages performance
+     * statistics for this stage.
+     */
+    public StageStatsIF getStats();
 
-  /**
-   * Return a ResponseTimeControllerIF for this stage.
-   */
-  public ResponseTimeControllerIF getResponseTimeController();
+    /**
+     * Return a ResponseTimeControllerIF for this stage.
+     */
+    public ResponseTimeControllerIF getResponseTimeController();
 
-  /**
-   * Initialize this stage.
-   */
-  public void init() throws Exception;
+    /**
+     * Initialize this stage.
+     */
+    public void init() throws Exception;
 
-  /**
-   * Destroy this stage.
-   */
-  public void destroy() throws Exception;
+    /**
+     * Destroy this stage.
+     */
+    public void destroy() throws Exception;
 
 }
-

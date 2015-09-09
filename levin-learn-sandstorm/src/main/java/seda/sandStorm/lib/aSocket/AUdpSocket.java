@@ -94,8 +94,8 @@ public class AUdpSocket extends SimpleSink {
     // Needed for getFactory() to work. Can't just call init() from
     // getFactory() as initializing aSocketMgr requires a recursive
     // call.
-    aSocketMgr.init();
-    this.sockState = aSocketMgr.getFactory().newDatagramSockState(this, localaddr, localport);
+    SocketMgr.init();
+    this.sockState = SocketMgr.getFactory().newDatagramSockState(this, localaddr, localport);
   }
 
   /**
@@ -128,7 +128,7 @@ public class AUdpSocket extends SimpleSink {
    */
   public void startReader(SinkIF receiveQ, int readClogTries) {
     if (readerstarted) throw new IllegalArgumentException("startReader already called on this socket");
-    aSocketMgr.enqueueRequest(new AUdpStartReadRequest(this, receiveQ, readClogTries));
+    SocketMgr.enqueueRequest(new AUdpStartReadRequest(this, receiveQ, readClogTries));
     readerstarted = true;
   }
 
@@ -139,7 +139,7 @@ public class AUdpSocket extends SimpleSink {
   public void enqueue(QueueElementIF packet) throws SinkException {
     if (closed) throw new SinkClosedException("AUdpSocket closed");
     if (packet == null) throw new BadQueueElementException("AUdpSocket.enqueue got null element", packet);
-    aSocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packet));
+    SocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packet));
   }
 
   /**
@@ -150,7 +150,7 @@ public class AUdpSocket extends SimpleSink {
   public boolean enqueue_lossy(QueueElementIF packet) {
     if (closed) return false;
     if (packet == null) return false;
-    aSocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packet));
+    SocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packet));
       return true;
   }
 
@@ -162,7 +162,7 @@ public class AUdpSocket extends SimpleSink {
     if (closed) throw new SinkClosedException("AUdpSocket closed");
     for (int i = 0; i < packets.length; i++) {
       if (packets[i] == null) throw new BadQueueElementException("AUdpSocket.enqueue_many got null element", packets[i]);
-      aSocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packets[i]));
+      SocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packets[i]));
     }
   }
 
@@ -173,7 +173,7 @@ public class AUdpSocket extends SimpleSink {
   public void close(SinkIF compQ) throws SinkClosedException {
     if (closed) throw new SinkClosedException("AUdpSocket closed");
     closed = true;
-    aSocketMgr.enqueueRequest(new AUdpCloseRequest(this, compQ));
+    SocketMgr.enqueueRequest(new AUdpCloseRequest(this, compQ));
   }
 
   /**
@@ -182,7 +182,7 @@ public class AUdpSocket extends SimpleSink {
    */
   public void flush(SinkIF compQ) throws SinkClosedException {
     if (closed) throw new SinkClosedException("AUdpSocket closed");
-    aSocketMgr.enqueueRequest(new AUdpFlushRequest(this, compQ));
+    SocketMgr.enqueueRequest(new AUdpFlushRequest(this, compQ));
   }
 
   /**
@@ -221,7 +221,7 @@ public class AUdpSocket extends SimpleSink {
    * will be pushed to the user when the connect has completed.
    */
   public void connect(InetAddress addr, int port) {
-    aSocketMgr.enqueueRequest(new AUdpConnectRequest(this, addr, port));
+    SocketMgr.enqueueRequest(new AUdpConnectRequest(this, addr, port));
   }
 
   /**
@@ -231,7 +231,7 @@ public class AUdpSocket extends SimpleSink {
    * then an AUdpDisconnectEvent will be pushed to the user regardless.
    */
   public void disconnect() {
-    aSocketMgr.enqueueRequest(new AUdpDisconnectRequest(this));
+    SocketMgr.enqueueRequest(new AUdpDisconnectRequest(this));
   }
 
   /**

@@ -38,7 +38,7 @@ public abstract class aSocketImplFactory {
   static aSocketImplFactory getFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
     aSocketImplFactory factory;
 
-    if (aSocketMgr.USE_NIO) {
+    if (SocketMgr.USE_NIO) {
       factory = (aSocketImplFactory)Class.forName("seda.sandStorm.lib.aSocket.nio.NIOFactory").newInstance();
     } else {
       factory = (aSocketImplFactory)Class.forName("seda.sandStorm.lib.aSocket.nbio.NBIOFactory").newInstance();

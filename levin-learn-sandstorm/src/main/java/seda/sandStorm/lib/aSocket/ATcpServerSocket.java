@@ -55,7 +55,7 @@ public class ATcpServerSocket {
    */
   public ATcpServerSocket(int serverPort, SinkIF compQ) throws IOException {
     this.serverPort = serverPort;
-    aSocketMgr.enqueueRequest(new ATcpListenRequest(this, serverPort, compQ, -1));
+    SocketMgr.enqueueRequest(new ATcpListenRequest(this, serverPort, compQ, -1));
   }
 
   /**
@@ -73,7 +73,7 @@ public class ATcpServerSocket {
   public ATcpServerSocket(int serverPort, SinkIF compQ, 
     int writeClogThreshold) throws IOException {
     this.serverPort = serverPort;
-    aSocketMgr.enqueueRequest(new ATcpListenRequest(this, serverPort, compQ, writeClogThreshold));
+    SocketMgr.enqueueRequest(new ATcpListenRequest(this, serverPort, compQ, writeClogThreshold));
   }
 
   protected ATcpServerSocket() {
@@ -84,7 +84,7 @@ public class ATcpServerSocket {
    * This request will not take effect immediately.
    */
   public void suspendAccept() {
-    aSocketMgr.enqueueRequest(new ATcpSuspendAcceptRequest(this));
+    SocketMgr.enqueueRequest(new ATcpSuspendAcceptRequest(this));
   }
 
   /**
@@ -92,7 +92,7 @@ public class ATcpServerSocket {
    * This request will not take effect immediately.
    */
   public void resumeAccept() {
-    aSocketMgr.enqueueRequest(new ATcpResumeAcceptRequest(this));
+    SocketMgr.enqueueRequest(new ATcpResumeAcceptRequest(this));
   }
 
   /**
@@ -118,7 +118,7 @@ public class ATcpServerSocket {
    * server socket when the close completes.
    */
   public void close() {
-    aSocketMgr.enqueueRequest(new ATcpCloseServerRequest(this));
+    SocketMgr.enqueueRequest(new ATcpCloseServerRequest(this));
   }
 
 }

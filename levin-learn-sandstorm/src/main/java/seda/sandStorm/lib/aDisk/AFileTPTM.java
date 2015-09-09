@@ -131,7 +131,7 @@ class AFileTPTM extends TPSThreadManager implements ThreadManagerIF, ProfilableI
   /**
    * Internal class representing a single AFileTPTM-managed thread.
    */
-  class AFileTPThread extends TPSThreadManager.stageRunnable implements Runnable {
+  class AFileTPThread extends TPSThreadManager.StageRunnable implements Runnable {
 
     AFileTPThread(AFileTPStageWrapper wrapper) {
       super(wrapper, null);

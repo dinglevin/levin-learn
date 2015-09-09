@@ -24,272 +24,291 @@
 
 package seda.sandStorm.internal;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.api.internal.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.main.*;
-import java.util.*;
+import java.util.Vector;
+
+import seda.sandStorm.api.ManagerIF;
+import seda.sandStorm.api.ProfilableIF;
+import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.main.SandstormConfig;
 
 /**
  * ThreadPool is a generic class which provides a thread pool.
  * 
- * @author   Matt Welsh
+ * @author Matt Welsh
  */
 
 public class ThreadPool implements ProfilableIF {
 
-  private static final boolean DEBUG = false;
+    private static final boolean DEBUG = false;
 
-  private StageWrapperIF stage;
-  private ManagerIF mgr;
-  private String poolname;
-  private ThreadGroup pooltg;
-  private Runnable runnable;
-  private Vector threads, stoppedThreads;
+    private StageWrapperIF stage;
+    private ManagerIF mgr;
+    private String poolname;
+    private ThreadGroup pooltg;
+    private Runnable runnable;
+    private Vector threads, stoppedThreads;
 
-  int minThreads, maxThreads;
+    int minThreads, maxThreads;
 
-  private int maxAggregation;
-  private int blockTime = 1000; 
-  private int idleTimeThreshold;
-  private AggThrottle aggThrottle;
+    private int maxAggregation;
+    private int blockTime = 1000;
+    private int idleTimeThreshold;
+    private AggThrottle aggThrottle;
 
-  /**
-   * Create a thread pool for the given stage, manager and runnable,
-   * with the thread pool controller determining the number of threads
-   * used.
-   */
-  public ThreadPool(StageWrapperIF stage, ManagerIF mgr, Runnable runnable) {
-    this.stage = stage;
-    this.poolname = stage.getStage().getName();
-    this.mgr = mgr;
-    this.runnable = runnable;
+    /**
+     * Create a thread pool for the given stage, manager and runnable, with the
+     * thread pool controller determining the number of threads used.
+     */
+    public ThreadPool(StageWrapperIF stage, ManagerIF mgr, Runnable runnable) {
+        this.stage = stage;
+        this.poolname = stage.getStage().getName();
+        this.mgr = mgr;
+        this.runnable = runnable;
 
-    SandstormConfig config = mgr.getConfig();
-    if (config.getBoolean("global.batchController.enable")) {
-      aggThrottle = new AggThrottle(stage, mgr);
-    } else {
-      this.maxAggregation = config.getInt("global.batchController.maxBatch");
+        SandstormConfig config = mgr.getConfig();
+        if (config.getBoolean("global.batchController.enable")) {
+            aggThrottle = new AggThrottle(stage, mgr);
+        } else {
+            this.maxAggregation = config.getInt("global.batchController.maxBatch");
+        }
+
+        threads = new Vector();
+        stoppedThreads = new Vector();
+
+        // First look for stages.[stageName] options, then global options
+        String tag = "stages." + (stage.getStage().getName()) + ".threadPool.";
+        String globaltag = "global.threadPool.";
+
+        int initialSize = config.getInt(tag + "initialThreads");
+        if (initialSize < 1) {
+            initialSize = config.getInt(globaltag + "initialThreads");
+            if (initialSize < 1)
+                initialSize = 1;
+        }
+        minThreads = config.getInt(tag + "minThreads");
+        if (minThreads < 1) {
+            minThreads = config.getInt(globaltag + "minThreads");
+            if (minThreads < 1)
+                minThreads = 1;
+        }
+        maxThreads = config.getInt(tag + "maxThreads");
+        if (maxThreads < 1) {
+            maxThreads = config.getInt(globaltag + "maxThreads");
+            if (maxThreads < 1)
+                maxThreads = -1; // Infinite
+        }
+
+        this.blockTime = config.getInt(tag + "blockTime",
+                config.getInt(globaltag + "blockTime", blockTime));
+        this.idleTimeThreshold = config
+                .getInt(tag + "sizeController.idleTimeThreshold",
+                        config.getInt(
+                                globaltag + "sizeController.idleTimeThreshold",
+                                blockTime));
+
+        System.err.println("TP <" + poolname + ">: initial " + initialSize
+                + ", min " + minThreads + ", max " + maxThreads + ", blockTime "
+                + blockTime + ", idleTime " + idleTimeThreshold);
+
+        addThreads(initialSize, false);
+        mgr.getProfiler().add("ThreadPool <" + poolname + ">", this);
+        pooltg = new ThreadGroup("TP <" + poolname + ">");
     }
 
-    threads = new Vector();
-    stoppedThreads = new Vector();
+    /**
+     * Create a thread pool with the given name, manager, runnable, and thread
+     * sizing parameters.
+     */
+    public ThreadPool(StageWrapperIF stage, ManagerIF mgr, Runnable runnable,
+            int initialThreads, int minThreads, int maxThreads, int blockTime,
+            int idleTimeThreshold) {
+        this.stage = stage;
+        this.poolname = stage.getStage().getName();
+        this.mgr = mgr;
+        this.runnable = runnable;
 
-    // First look for stages.[stageName] options, then global options
-    String tag = "stages."+(stage.getStage().getName())+".threadPool.";
-    String globaltag = "global.threadPool.";
+        SandstormConfig config = mgr.getConfig();
+        if (config.getBoolean("global.batchController.enable")) {
+            aggThrottle = new AggThrottle(stage, mgr);
+        } else {
+            this.maxAggregation = config
+                    .getInt("global.batchController.maxBatch");
+        }
 
-    int initialSize = config.getInt(tag+"initialThreads");
-    if (initialSize < 1) {
-      initialSize = config.getInt(globaltag+"initialThreads");
-      if (initialSize < 1) initialSize = 1;
-    }
-    minThreads = config.getInt(tag+"minThreads");
-    if (minThreads < 1) {
-      minThreads = config.getInt(globaltag+"minThreads");
-      if (minThreads < 1) minThreads = 1;
-    }
-    maxThreads = config.getInt(tag+"maxThreads");
-    if (maxThreads < 1) {
-      maxThreads = config.getInt(globaltag+"maxThreads");
-      if (maxThreads < 1) maxThreads = -1; // Infinite
-    }
+        threads = new Vector();
+        stoppedThreads = new Vector();
+        if (initialThreads < 1)
+            initialThreads = 1;
+        this.minThreads = minThreads;
+        if (this.minThreads < 1)
+            this.minThreads = 1;
+        this.maxThreads = maxThreads;
+        // if (this.maxThreads < 1) this.maxThreads = initialThreads;
+        this.blockTime = blockTime;
+        this.idleTimeThreshold = idleTimeThreshold;
 
-    this.blockTime = config.getInt(tag+"blockTime",
-	config.getInt(globaltag+"blockTime", blockTime));
-    this.idleTimeThreshold = config.getInt(tag+"sizeController.idleTimeThreshold",
-	config.getInt(globaltag+"sizeController.idleTimeThreshold", blockTime));
-
-    System.err.println("TP <"+poolname+">: initial "+initialSize+", min "+minThreads+", max "+maxThreads+", blockTime "+blockTime+", idleTime "+idleTimeThreshold);
-
-    addThreads(initialSize, false);
-    mgr.getProfiler().add("ThreadPool <"+poolname+">", this);
-    pooltg = new ThreadGroup("TP <"+poolname+">");
-  }
-
-  /**
-   * Create a thread pool with the given name, manager, runnable, 
-   * and thread sizing parameters.
-   */
-  public ThreadPool(StageWrapperIF stage, ManagerIF mgr, Runnable runnable,
-      int initialThreads, int minThreads, int maxThreads, int blockTime, int idleTimeThreshold) {
-    this.stage = stage;
-    this.poolname = stage.getStage().getName();
-    this.mgr = mgr;
-    this.runnable = runnable;
-
-    SandstormConfig config = mgr.getConfig();
-    if (config.getBoolean("global.batchController.enable")) {
-      aggThrottle = new AggThrottle(stage, mgr);
-    } else {
-      this.maxAggregation = config.getInt("global.batchController.maxBatch");
+        addThreads(initialThreads, false);
+        mgr.getProfiler().add("ThreadPool <" + poolname + ">", this);
+        pooltg = new ThreadGroup("TP <" + poolname + ">");
     }
 
-    threads = new Vector();
-    stoppedThreads = new Vector();
-    if (initialThreads < 1) initialThreads = 1;
-    this.minThreads = minThreads;
-    if (this.minThreads < 1) this.minThreads = 1;
-    this.maxThreads = maxThreads;
-    //if (this.maxThreads < 1) this.maxThreads = initialThreads;
-    this.blockTime = blockTime;
-    this.idleTimeThreshold = idleTimeThreshold;
+    /**
+     * Create a thread pool with the given name, manager, runnable, and a fixed
+     * number of threads.
+     */
+    public ThreadPool(StageWrapperIF stage, ManagerIF mgr, Runnable runnable,
+            int numThreads) {
+        this.stage = stage;
+        this.poolname = stage.getStage().getName();
+        this.mgr = mgr;
+        this.runnable = runnable;
 
-    addThreads(initialThreads, false);
-    mgr.getProfiler().add("ThreadPool <"+poolname+">", this);
-    pooltg = new ThreadGroup("TP <"+poolname+">");
-  }
+        SandstormConfig config = mgr.getConfig();
+        if (config.getBoolean("global.batchController.enable")) {
+            aggThrottle = new AggThrottle(stage, mgr);
+        } else {
+            this.maxAggregation = config
+                    .getInt("global.batchController.maxBatch");
+        }
 
-  /**
-   * Create a thread pool with the given name, manager, runnable, 
-   * and a fixed number of threads.
-   */
-  public ThreadPool(StageWrapperIF stage, ManagerIF mgr, Runnable runnable,
-      int numThreads) {
-    this.stage = stage;
-    this.poolname = stage.getStage().getName();
-    this.mgr = mgr;
-    this.runnable = runnable;
-
-    SandstormConfig config = mgr.getConfig();
-    if (config.getBoolean("global.batchController.enable")) {
-      aggThrottle = new AggThrottle(stage, mgr);
-    } else {
-      this.maxAggregation = config.getInt("global.batchController.maxBatch");
+        threads = new Vector();
+        stoppedThreads = new Vector();
+        maxThreads = minThreads = numThreads;
+        addThreads(numThreads, false);
+        mgr.getProfiler().add("ThreadPool <" + poolname + ">", this);
+        pooltg = new ThreadGroup("TP <" + poolname + ">");
     }
 
-    threads = new Vector();
-    stoppedThreads = new Vector();
-    maxThreads = minThreads = numThreads;
-    addThreads(numThreads, false);
-    mgr.getProfiler().add("ThreadPool <"+poolname+">", this);
-    pooltg = new ThreadGroup("TP <"+poolname+">");
-  }
-
-  /**
-   * Start the thread pool.
-   */
-  public void start() {
-    System.err.print("TP <"+poolname+">: Starting "+numThreads()+" threads");
-    if (aggThrottle != null) {
-      System.err.println(", batchController enabled");
-    } else {
-      System.err.println(", maxBatch="+maxAggregation);
+    /**
+     * Start the thread pool.
+     */
+    public void start() {
+        System.err.print(
+                "TP <" + poolname + ">: Starting " + numThreads() + " threads");
+        if (aggThrottle != null) {
+            System.err.println(", batchController enabled");
+        } else {
+            System.err.println(", maxBatch=" + maxAggregation);
+        }
+        for (int i = 0; i < threads.size(); i++) {
+            Thread t = (Thread) threads.elementAt(i);
+            t.start();
+        }
     }
-    for (int i = 0; i < threads.size(); i++) {
-      Thread t = (Thread)threads.elementAt(i);
-      t.start();
+
+    /**
+     * Stop the thread pool.
+     */
+    public void stop() {
+        pooltg.stop();
     }
-  }
 
-  /**
-   * Stop the thread pool.
-   */
-  public void stop() {
-    pooltg.stop();
-  }
-
-  /**
-   * Add threads to this pool.
-   */
-  void addThreads(int num, boolean start) {
-    synchronized (this) {
-      int numToAdd;
-      if (maxThreads < 0) {
-	numToAdd = num;
-      } else {
-	int numTotal = Math.min(maxThreads, numThreads()+num);
-	numToAdd = numTotal - numThreads();
-      }
-      if ((maxThreads < 0) || (numToAdd < maxThreads)) {
-	System.err.println("TP <"+poolname+">: Adding "+numToAdd+" threads to pool, size "+(numThreads()+numToAdd));
-      }
-      for (int i = 0; i < numToAdd; i++) {
-    	String name = "TP-"+numThreads()+" <"+poolname+">";
-	Thread t = new Thread(pooltg, runnable, name);
-	threads.addElement(t);
-	mgr.getProfiler().getGraphProfiler().addThread(t, stage);
-	if (start) t.start();
-      }
+    /**
+     * Add threads to this pool.
+     */
+    void addThreads(int num, boolean start) {
+        synchronized (this) {
+            int numToAdd;
+            if (maxThreads < 0) {
+                numToAdd = num;
+            } else {
+                int numTotal = Math.min(maxThreads, numThreads() + num);
+                numToAdd = numTotal - numThreads();
+            }
+            if ((maxThreads < 0) || (numToAdd < maxThreads)) {
+                System.err.println("TP <" + poolname + ">: Adding " + numToAdd
+                        + " threads to pool, size "
+                        + (numThreads() + numToAdd));
+            }
+            for (int i = 0; i < numToAdd; i++) {
+                String name = "TP-" + numThreads() + " <" + poolname + ">";
+                Thread t = new Thread(pooltg, runnable, name);
+                threads.addElement(t);
+                mgr.getProfiler().getGraphProfiler().addThread(t, stage);
+                if (start)
+                    t.start();
+            }
+        }
     }
-  }
 
-  /**
-   * Remove threads from pool.
-   */
-  void removeThreads(int num) {
-    System.err.print("TP <"+poolname+">: Removing "+num+" threads from pool, ");
-    synchronized (this) {
-      for (int i = 0; (i < num) && (numThreads() > minThreads); i++) {
-	Thread t = (Thread)threads.firstElement();
-	stopThread(t);
-      }
+    /**
+     * Remove threads from pool.
+     */
+    void removeThreads(int num) {
+        System.err.print("TP <" + poolname + ">: Removing " + num
+                + " threads from pool, ");
+        synchronized (this) {
+            for (int i = 0; (i < num) && (numThreads() > minThreads); i++) {
+                Thread t = (Thread) threads.firstElement();
+                stopThread(t);
+            }
+        }
+        System.err.println("size " + numThreads());
     }
-    System.err.println("size "+numThreads());
-  }
 
-  /**
-   * Cause the given thread to stop execution.
-   */
-  void stopThread(Thread t) {
-    synchronized (this) {
-      threads.removeElement(t);
-      stoppedThreads.addElement(t);
+    /**
+     * Cause the given thread to stop execution.
+     */
+    void stopThread(Thread t) {
+        synchronized (this) {
+            threads.removeElement(t);
+            stoppedThreads.addElement(t);
+        }
+        System.err.println(
+                "TP <" + poolname + ">: stopping thread, size " + numThreads());
     }
-    System.err.println("TP <"+poolname+">: stopping thread, size "+numThreads());
-  }
 
-  /**
-   * Return the number of threads in this pool. 
-   */
-  int numThreads() {
-    synchronized (this) {
-      return threads.size();
+    /**
+     * Return the number of threads in this pool.
+     */
+    int numThreads() {
+        synchronized (this) {
+            return threads.size();
+        }
     }
-  }
 
-  /**
-   * Used by a thread to determine its queue block time.
-   */
-  public long getBlockTime() {
-    return blockTime;
-  }
-
-  /**
-   * Used by a thread to request its aggregation target from the pool.
-   */
-  public synchronized int getAggregationTarget() {
-    if (aggThrottle != null) {
-      return aggThrottle.getAggTarget();
-    } else {
-      return maxAggregation;
+    /**
+     * Used by a thread to determine its queue block time.
+     */
+    public long getBlockTime() {
+        return blockTime;
     }
-  }
 
-  /**
-   * Used by a thread to determine whether it should exit.
-   */
-  public boolean timeToStop(long idleTime) {
-    synchronized (this) {
-      if ((idleTime > idleTimeThreshold) && (numThreads() > minThreads)) {
-	stopThread(Thread.currentThread());
-      }
-      if (stoppedThreads.contains(Thread.currentThread())) return true;
-    } 
-    return false;
-  }
+    /**
+     * Used by a thread to request its aggregation target from the pool.
+     */
+    public synchronized int getAggregationTarget() {
+        if (aggThrottle != null) {
+            return aggThrottle.getAggTarget();
+        } else {
+            return maxAggregation;
+        }
+    }
 
-  public String toString() {
-    return "TP (size="+numThreads()+") for <"+poolname+">";
-  }
+    /**
+     * Used by a thread to determine whether it should exit.
+     */
+    public boolean timeToStop(long idleTime) {
+        synchronized (this) {
+            if ((idleTime > idleTimeThreshold) && (numThreads() > minThreads)) {
+                stopThread(Thread.currentThread());
+            }
+            if (stoppedThreads.contains(Thread.currentThread()))
+                return true;
+        }
+        return false;
+    }
 
-  public String getName() {
-    return "ThreadPool <"+poolname+">";
-  }
+    public String toString() {
+        return "TP (size=" + numThreads() + ") for <" + poolname + ">";
+    }
 
-  public int profileSize() {
-    return numThreads();
-  }
+    public String getName() {
+        return "ThreadPool <" + poolname + ">";
+    }
+
+    public int profileSize() {
+        return numThreads();
+    }
 
 }
-

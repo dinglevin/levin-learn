@@ -93,7 +93,7 @@ public class ATcpClientSocket {
   public ATcpClientSocket(InetAddress addr, int port, SinkIF compQ, int writeClogThreshold, int connectClogTries) {
     this.address = addr;
     this.port = port;
-    aSocketMgr.enqueueRequest(new ATcpConnectRequest(this, addr, port, compQ, writeClogThreshold, connectClogTries));
+    SocketMgr.enqueueRequest(new ATcpConnectRequest(this, addr, port, compQ, writeClogThreshold, connectClogTries));
   }
 
   /**
