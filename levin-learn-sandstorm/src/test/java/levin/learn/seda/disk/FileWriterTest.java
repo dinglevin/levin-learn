@@ -1,7 +1,10 @@
 package levin.learn.seda.disk;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
+import seda.sandstorm.api.EventElement;
 import seda.sandstorm.core.BufferEvent;
 import seda.sandstorm.core.EventQueueImpl;
 import seda.sandstorm.lib.disk.AsyncFile;
@@ -15,6 +18,11 @@ public class FileWriterTest {
             BufferEvent bufEvent = new BufferEvent(("Test" + i).getBytes());
             file.write(bufEvent);
         }
+        
+        Thread.sleep(10000);
+        
+        EventElement[] events = eventQueue.blockingDequeueAll(10000);
+        System.out.println("Events: " + Arrays.toString(events));
         
         file.close();
     }

@@ -44,7 +44,7 @@ import seda.sandstorm.api.SinkException;
 import seda.sandstorm.api.SinkFullException;
 
 public class EventQueueImpl implements EventQueue, Profilable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventQueueImpl.class);
+    private final Logger LOGGER;
     
     private final String name;
     private EnqueuePredicate pred;
@@ -62,10 +62,12 @@ public class EventQueueImpl implements EventQueue, Profilable {
         
         this.name = name;
         this.pred = pred;
-        queue = Lists.newLinkedList();
-        queueSize = 0;
-        blocker = new Object();
-        provisionalTbl = Maps.newHashMap();
+        this.LOGGER = LoggerFactory.getLogger(EventQueueImpl.class + "." + name);
+        
+        this.queue = Lists.newLinkedList();
+        this.queueSize = 0;
+        this.blocker = new Object();
+        this.provisionalTbl = Maps.newHashMap();
     }
 
     /**
@@ -88,31 +90,22 @@ public class EventQueueImpl implements EventQueue, Profilable {
     }
 
     public void enqueue(EventElement event) throws SinkFullException {
-        LOGGER.debug("**** ENQUEUE ({}) **** Entered", name);
+        LOGGER.trace("enqueue event {}", event);
         
         synchronized (blocker) {
-
             synchronized (queue) {
-                LOGGER.debug("**** ENQUEUE ({}) **** Checking pred", name);
+                if ((pred != null) && (!pred.accept(event))) {
+                    throw new SinkFullException("EventQueue is full!");
+                }
                 
-                if ((pred != null) && (!pred.accept(event)))
-                    throw new SinkFullException("FiniteQueue is full!");
                 queueSize++;
-                
-                LOGGER.debug("**** ENQUEUE ({}) **** Add to tail", name);
-                
                 queue.offerLast(event); // wake up one blocker
             }
             
-            // XXX MDW: Trying to track down a bug here ...
-            LOGGER.debug("**** ENQUEUE ({}) **** Doing notify", name);
-            
-            blocker.notify();
-            LOGGER.debug("**** ENQUEUE ({}) **** Done with notify", name);
-            // blocker.notifyAll();
+            blocker.notifyAll();
         }
         
-        LOGGER.debug("**** ENQUEUE ({}) **** Exiting", name);
+        LOGGER.trace("enqueued event {}", event);
     }
 
     public boolean enqueueLossy(EventElement event) {
@@ -270,9 +263,7 @@ public class EventQueueImpl implements EventQueue, Profilable {
         }
     }
 
-    public EventElement[] blocking_dequeue(int timeout_millis, int num,
-            boolean mustReturnNum) {
-
+    public EventElement[] blockingDequeue(int timeout_millis, int num, boolean mustReturnNum) {
         EventElement[] rets = null;
         long goal_time;
         int num_spins = 0;
@@ -314,7 +305,7 @@ public class EventQueueImpl implements EventQueue, Profilable {
     }
 
     public EventElement[] blockingDequeue(int timeout_millis, int num) {
-        return blocking_dequeue(timeout_millis, num, false);
+        return blockingDequeue(timeout_millis, num, false);
     }
 
     public EventElement blockingDequeue(int timeout_millis) {
