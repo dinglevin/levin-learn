@@ -22,13 +22,13 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import seda.sandStorm.api.ConfigData;
-import seda.sandStorm.api.EventSink;
-import seda.sandStorm.api.Stage;
-import seda.sandStorm.api.internal.StageWrapper;
-import seda.sandStorm.main.SandstormConfig;
+import seda.sandstorm.api.ConfigData;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.Stage;
+import seda.sandstorm.api.internal.StageWrapper;
+import seda.sandstorm.main.SandstormConfig;
 
 /**
  * A Stage is a basic implementation of StageIF for application-level stages.

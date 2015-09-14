@@ -22,35 +22,27 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
-
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.core.BufferEvent;
 
 /**
  * An httpResponse corresponding to a '503 Service Unavailable' error.
  * 
  * @author Matt Welsh
- * @see httpResponse
+ * @see HttpResponse
  */
-public class httpServiceUnavailableResponse extends httpResponse implements httpConst, EventElement {
-
-  private static final boolean DEBUG = false;
-
+public class HttpServiceUnavailableResponse extends HttpResponse implements HttpConst, EventElement {
   /**
    * Create an httpServiceUnavailableResponse corresponding to the 
    * given request with the given reason.
    */
-  public httpServiceUnavailableResponse(httpRequest request, String reason) {
-    super(httpResponse.RESPONSE_SERVICE_UNAVAILABLE, "text/html");
+  public HttpServiceUnavailableResponse(HttpRequest request, String reason) {
+    super(HttpResponse.RESPONSE_SERVICE_UNAVAILABLE, "text/html");
 
     String str = "<html><head><title>503 Service Unavailable</title></head><body bgcolor=white><font face=\"helvetica\"><big><big><b>503 Service Unavailable</b></big></big><p>The requested service is unavailable. The reason given was:<p><blockquote><tt>"+reason+"</tt></blockquote></body></html>\n";
-    BufferElement mypayload = new BufferElement(str.getBytes());
+    BufferEvent mypayload = new BufferEvent(str.getBytes());
     setPayload(mypayload);
   }
 

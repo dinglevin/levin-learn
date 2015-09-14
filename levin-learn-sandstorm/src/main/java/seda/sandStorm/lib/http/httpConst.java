@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
 /**
  * This interface defines various constants used by the HTTP
@@ -30,7 +30,7 @@ package seda.sandStorm.lib.http;
  * 
  * @author Matt Welsh
  */
-public interface httpConst {
+public interface HttpConst {
 
   /**
    * The default port on which httpServer listens.

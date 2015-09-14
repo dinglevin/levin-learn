@@ -22,9 +22,9 @@
  * 
  */
 
-package seda.sandStorm.api.internal;
+package seda.sandstorm.api.internal;
 
-import seda.sandStorm.api.*;
+import seda.sandstorm.api.*;
 
 /**
  * SystemManagerIF is an internal interface allowing modules to access
@@ -37,17 +37,17 @@ public interface SystemManagerIF {
     /**
      * Get the default thread manager.
      */
-    public ThreadManagerIF getThreadManager();
+    public ThreadManager getThreadManager();
 
     /**
      * Get the thread manager registered under the given name.
      */
-    public ThreadManagerIF getThreadManager(String name);
+    public ThreadManager getThreadManager(String name);
 
     /**
      * Add a thread manager to the system.
      */
-    public void addThreadManager(String name, ThreadManagerIF threadmgr);
+    public void addThreadManager(String name, ThreadManager threadmgr);
 
     /**
      * Create a stage from the given stage wrapper. If 'initialize' is true, the

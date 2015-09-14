@@ -22,12 +22,13 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.api.internal.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.main.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.api.internal.*;
+import seda.sandstorm.core.*;
+import seda.sandstorm.main.*;
+
 import java.util.*;
 
 /**
@@ -81,7 +82,7 @@ public class ResponseTimeControllerDirect extends ResponseTimeController {
 
     // Add profile 
     mgr.getProfiler().add("RTController 90th-percentile RT <"+stage.getStage().getName()+">",
-	new ProfilableIF() {
+	new Profilable() {
 	public int profileSize() {
 	return (int)ninetiethRT;
 	}
@@ -89,7 +90,7 @@ public class ResponseTimeControllerDirect extends ResponseTimeController {
 
     if (ADJUST_THRESHOLD) {
       mgr.getProfiler().add("RTController queueThreshold <"+stage.getStage().getName()+">",
-  	  new ProfilableIF() {
+  	  new Profilable() {
   	  public int profileSize() {
   	  return curThreshold;
   	  }
@@ -104,7 +105,7 @@ public class ResponseTimeControllerDirect extends ResponseTimeController {
 
     } else if (ADJUST_RATE) {
       mgr.getProfiler().add("RTController curRate <"+stage.getStage().getName()+">",
-  	  new ProfilableIF() {
+  	  new Profilable() {
   	  public int profileSize() {
   	  return (int)curRate;
   	  }

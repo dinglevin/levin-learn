@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandstorm.api;
 
 /**
  * This is an empty class used to indicate to the system that the 

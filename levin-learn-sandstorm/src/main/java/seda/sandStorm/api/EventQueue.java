@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandstorm.api;
 
 /**
  * A EventQueue implements a finite-length event queue. In fact EventQueue simply

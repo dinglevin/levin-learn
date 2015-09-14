@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
 import static seda.util.ConfigUtil.stringArrayToMap;
 
@@ -33,10 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import seda.sandStorm.api.ConfigData;
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.Stage;
-import seda.sandStorm.main.SandstormConfig;
+import seda.sandstorm.api.ConfigData;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Stage;
+import seda.sandstorm.main.SandstormConfig;
 
 /**
  * ConfigData is used to pass configuration arguments into various components.

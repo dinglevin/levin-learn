@@ -22,32 +22,26 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
-
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.core.BufferEvent;
 
 /**
  * An httpResponse corresponding to a '200 OK' response.
  * 
  * @author Matt Welsh
  */
-public class httpOKResponse extends httpResponse implements httpConst, EventElement {
-
-  private static final boolean DEBUG = false;
+public class HttpOKResponse extends HttpResponse implements HttpConst, EventElement {
   private String contentType;
 
   /**
    * Create an httpOKResponse with the given payload corresponding
    * to the given request, using the given MIME content-type.
    */
-  public httpOKResponse(String contentType, BufferElement payload) {
-    super(httpResponse.RESPONSE_OK, contentType, payload);
+  public HttpOKResponse(String contentType, BufferEvent payload) {
+    super(HttpResponse.RESPONSE_OK, contentType, payload);
   }
 
   /**
@@ -55,24 +49,24 @@ public class httpOKResponse extends httpResponse implements httpConst, EventElem
    * to the given request, using the given MIME content-type. Use
    * the given content length in the header of the response.
    */
-  public httpOKResponse(String contentType, BufferElement payload, int contentLength) {
-    super(httpResponse.RESPONSE_OK, contentType, payload, contentLength);
+  public HttpOKResponse(String contentType, BufferEvent payload, int contentLength) {
+    super(HttpResponse.RESPONSE_OK, contentType, payload, contentLength);
   }
 
   /**
    * Create an httpOKResponse with a given response payload size and
    * MIME type.
    */
-  public httpOKResponse(String contentType, int payloadSize) {
-    super(httpResponse.RESPONSE_OK, contentType, payloadSize);
+  public HttpOKResponse(String contentType, int payloadSize) {
+    super(HttpResponse.RESPONSE_OK, contentType, payloadSize);
   }
 
   /**
    * Create an httpOKResponse with a given response payload size,
    * MIME type, and completion sink.
    */
-  public httpOKResponse(String contentType, int payloadSize, EventSink compQ) {
-    super(httpResponse.RESPONSE_OK, contentType, payloadSize, compQ);
+  public HttpOKResponse(String contentType, int payloadSize, EventSink compQ) {
+    super(HttpResponse.RESPONSE_OK, contentType, payloadSize, compQ);
   }
 
   protected String getEntityHeader() {

@@ -22,9 +22,9 @@
  * 
  */
 
-package seda.sandStorm.core;
+package seda.sandstorm.core;
 
-import seda.sandStorm.api.*;
+import seda.sandstorm.api.*;
 
 /**
  * This enqueue predicate implements a simple threshold for the

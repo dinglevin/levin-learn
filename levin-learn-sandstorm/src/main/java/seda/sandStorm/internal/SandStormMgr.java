@@ -22,10 +22,8 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,23 +31,26 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import seda.sandStorm.api.ConfigData;
-import seda.sandStorm.api.EventHandler;
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.NoSuchStageException;
-import seda.sandStorm.api.ProfilableIF;
-import seda.sandStorm.api.ProfilerIF;
-import seda.sandStorm.api.SignalMgrIF;
-import seda.sandStorm.api.Stage;
-import seda.sandStorm.api.StageNameAlreadyBoundException;
-import seda.sandStorm.api.StagesInitializedSignal;
-import seda.sandStorm.api.internal.StageWrapper;
-import seda.sandStorm.api.internal.SystemManagerIF;
-import seda.sandStorm.api.internal.ThreadManagerIF;
-import seda.sandStorm.lib.aDisk.AFileMgr;
-import seda.sandStorm.lib.aSocket.SocketMgr;
-import seda.sandStorm.main.SandstormConfig;
-import seda.sandStorm.main.StageDescr;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import seda.sandstorm.api.ConfigData;
+import seda.sandstorm.api.EventHandler;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.NoSuchStageException;
+import seda.sandstorm.api.Profilable;
+import seda.sandstorm.api.Profiler;
+import seda.sandstorm.api.SignalMgrIF;
+import seda.sandstorm.api.Stage;
+import seda.sandstorm.api.StageNameAlreadyBoundException;
+import seda.sandstorm.api.StagesInitializedSignal;
+import seda.sandstorm.api.internal.StageWrapper;
+import seda.sandstorm.api.internal.SystemManagerIF;
+import seda.sandstorm.api.internal.ThreadManager;
+import seda.sandstorm.lib.disk.AsyncFileManager;
+import seda.sandstorm.lib.socket.SocketMgr;
+import seda.sandstorm.main.SandstormConfig;
+import seda.sandstorm.main.StageDescriptor;
 
 /**
  * This class provides management functionality for the Sandstorm runtime
@@ -59,21 +60,21 @@ import seda.sandStorm.main.StageDescr;
  * and SystemManagerIF interfaces; this class should not be used directly.
  *
  * @author Matt Welsh
- * @see seda.sandStorm.api.ManagerIF
- * @see seda.sandStorm.api.internal.SystemManagerIF
+ * @see seda.sandstorm.api.ManagerIF
+ * @see seda.sandstorm.api.internal.SystemManagerIF
  * 
  */
 public class SandStormMgr implements ManagerIF, SystemManagerIF {
     private static final Logger LOGGER = LoggerFactory.getLogger(SandStormMgr.class);
 
-    private ThreadManagerIF defaulttm;
-    private Map<String, ThreadManagerIF> tmtbl;
+    private ThreadManager defaulttm;
+    private Map<String, ThreadManager> tmtbl;
 
     private SandstormConfig mgrconfig;
     private Map<String, StageWrapper> stagetbl;
     private List<StageWrapper> stagestoinit;
     private SandStormProfiler profiler;
-    private SignalMgr signalMgr; 
+    private SignalMgr signalMgr;
 
     /**
      * Create a sandStormMgr which reads its configuration from the given file.
@@ -81,9 +82,9 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
     public SandStormMgr(SandstormConfig mgrconfig) throws Exception {
         this.mgrconfig = mgrconfig;
 
-        stagetbl = new HashMap<>();
-        tmtbl = new HashMap<>();
-        stagestoinit = new ArrayList<>();
+        stagetbl = Maps.newHashMap();
+        tmtbl = Maps.newHashMap();
+        stagestoinit = Lists.newArrayList();
         signalMgr = new SignalMgr();
 
         String dtm = mgrconfig.getString("global.defaultThreadManager");
@@ -132,9 +133,9 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
      * Stop the manager.
      */
     public void stop() {
-        Iterator<Map.Entry<String, ThreadManagerIF>> iterator = tmtbl.entrySet().iterator();
+        Iterator<Map.Entry<String, ThreadManager>> iterator = tmtbl.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<String, ThreadManagerIF> entry = iterator.next();
+            Map.Entry<String, ThreadManager> entry = iterator.next();
             System.err.println("Sandstorm: Stopping ThreadManager " + entry.getKey());
             entry.getValue().deregisterAll();
         }
@@ -173,19 +174,19 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
 
         if (mgrconfig.getBoolean("global.aDisk.enable")) {
             System.err.println("Sandstorm: Starting aDisk layer");
-            AFileMgr.initialize(this, this);
+            AsyncFileManager.initialize(this, this);
         }
     }
 
     // Load stages as specified in the SandstormConfig.
     private void loadInitialStages() throws Exception {
-        Iterator<StageDescr> iterator = mgrconfig.getStages();
+        Iterator<StageDescriptor> iterator = mgrconfig.getStages();
         if (iterator == null) {
             return;
         }
         
         while (iterator.hasNext()) {
-            StageDescr descr = iterator.next();
+            StageDescriptor descr = iterator.next();
             loadStage(descr);
         }
     }
@@ -193,26 +194,26 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
     /**
      * Return the default thread manager.
      */
-    public ThreadManagerIF getThreadManager() {
+    public ThreadManager getThreadManager() {
         return defaulttm;
     }
 
     /**
      * Return the thread manager with the given name.
      */
-    public ThreadManagerIF getThreadManager(String name) {
-        return (ThreadManagerIF) tmtbl.get(name);
+    public ThreadManager getThreadManager(String name) {
+        return (ThreadManager) tmtbl.get(name);
     }
 
     /**
      * Add a thread manager with the given name.
      */
-    public void addThreadManager(String name, ThreadManagerIF tm) {
+    public void addThreadManager(String name, ThreadManager tm) {
         tmtbl.put(name, tm);
     }
 
     // Load a stage from the given classname with the given config.
-    private void loadStage(StageDescr descr) throws Exception {
+    private void loadStage(StageDescriptor descr) throws Exception {
         String stageName = descr.stageName;
         String className = descr.className;
         ConfigDataImpl config = new ConfigDataImpl(this, descr.initArgs);
@@ -256,7 +257,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
 
         if (mgrconfig.getBoolean("global.profile.enable")) {
             profiler.add(wrapper.getStage().getName() + " queueLength",
-                    (ProfilableIF) wrapper.getStage().getSink());
+                    (Profilable) wrapper.getStage().getSink());
         }
 
         if (initialize) {
@@ -270,7 +271,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
     /**
      * Return the system profiler.
      */
-    public ProfilerIF getProfiler() {
+    public Profiler getProfiler() {
         return profiler;
     }
 

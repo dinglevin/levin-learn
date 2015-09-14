@@ -22,8 +22,8 @@
  * 
  */
 
-package seda.sandStorm.core;
-import seda.sandStorm.api.*;
+package seda.sandstorm.core;
+import seda.sandstorm.api.*;
 
 /**
  * A TimeStampedEvent is an abstract superclass for events that wish

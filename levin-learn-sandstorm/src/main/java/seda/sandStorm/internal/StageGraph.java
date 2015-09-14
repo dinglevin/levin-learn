@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,9 +31,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.internal.StageWrapper;
-import seda.sandStorm.main.SandstormConfig;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.internal.StageWrapper;
+import seda.sandstorm.main.SandstormConfig;
 
 /**
  * This class provides an interface allowing operations to be performed on the

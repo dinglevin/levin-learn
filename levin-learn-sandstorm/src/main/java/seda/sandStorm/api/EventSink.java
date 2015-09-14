@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandstorm.api;
 
 /**
  * A SinkIF implements the 'sink' end of a finite-length event queue: it

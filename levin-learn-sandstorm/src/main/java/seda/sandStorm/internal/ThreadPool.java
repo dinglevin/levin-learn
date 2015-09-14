@@ -22,14 +22,14 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
 import java.util.Vector;
 
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.ProfilableIF;
-import seda.sandStorm.api.internal.StageWrapper;
-import seda.sandStorm.main.SandstormConfig;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Profilable;
+import seda.sandstorm.api.internal.StageWrapper;
+import seda.sandstorm.main.SandstormConfig;
 
 /**
  * ThreadPool is a generic class which provides a thread pool.
@@ -37,7 +37,7 @@ import seda.sandStorm.main.SandstormConfig;
  * @author Matt Welsh
  */
 
-public class ThreadPool implements ProfilableIF {
+public class ThreadPool implements Profilable {
 
     private static final boolean DEBUG = false;
 

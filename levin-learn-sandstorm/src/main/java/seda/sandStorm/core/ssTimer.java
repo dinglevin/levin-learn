@@ -22,9 +22,9 @@
  * 
  */
 
-package seda.sandStorm.core;
+package seda.sandstorm.core;
 
-import seda.sandStorm.api.*;
+import seda.sandstorm.api.*;
 import seda.util.*;
 
 /**
@@ -46,7 +46,7 @@ import seda.util.*;
  * @author   Matt Welsh and Steve Gribble
  */
 
-public class ssTimer implements Runnable, ProfilableIF {
+public class ssTimer implements Runnable, Profilable {
 
   private static final boolean DEBUG = false;
   private ssTimerEvent                 head_event = null;

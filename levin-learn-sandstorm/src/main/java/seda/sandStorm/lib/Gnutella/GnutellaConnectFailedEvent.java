@@ -22,10 +22,10 @@
  * 
  */
 
-package seda.sandStorm.lib.Gnutella;
+package seda.sandstorm.lib.gnutella;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.lib.socket.*;
 
 import java.util.*;
 import java.io.*;

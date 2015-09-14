@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
 /**
  * A set of constants used by the Sandstorm implementation.

@@ -22,12 +22,12 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.api.internal.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.main.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.api.internal.*;
+import seda.sandstorm.core.*;
+import seda.sandstorm.main.*;
 import seda.util.*;
 import java.util.*;
 

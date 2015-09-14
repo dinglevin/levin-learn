@@ -22,10 +22,11 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.api.internal.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.api.internal.*;
+
 import java.util.*;
 
 /**
@@ -37,7 +38,7 @@ import java.util.*;
  *
  * @author Matt Welsh
  */
-public class SinkProxy implements EventSink, ProfilableIF {
+public class SinkProxy implements EventSink, Profilable {
 
   private static final boolean DEBUG = false;
 

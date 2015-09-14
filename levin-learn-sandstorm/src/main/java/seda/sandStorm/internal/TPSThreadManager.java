@@ -22,19 +22,19 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.EventElement;
-import seda.sandStorm.api.SingleThreadedEventHandlerIF;
-import seda.sandStorm.api.EventSource;
-import seda.sandStorm.api.internal.ResponseTimeControllerIF;
-import seda.sandStorm.api.internal.StageWrapper;
-import seda.sandStorm.api.internal.ThreadManagerIF;
-import seda.sandStorm.main.SandstormConfig;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventSource;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.SingleThreadedEventHandlerIF;
+import seda.sandstorm.api.internal.ResponseTimeControllerIF;
+import seda.sandstorm.api.internal.StageWrapper;
+import seda.sandstorm.api.internal.ThreadManager;
+import seda.sandstorm.main.SandstormConfig;
 
 /**
  * TPSThreadManager provides a threadpool-per-source-per-stage thread manager
@@ -43,7 +43,7 @@ import seda.sandStorm.main.SandstormConfig;
  * @author Matt Welsh
  */
 
-public class TPSThreadManager implements ThreadManagerIF {
+public class TPSThreadManager implements ThreadManager {
 
     private static final boolean DEBUG = false;
     private static final boolean DEBUG_VERBOSE = false;

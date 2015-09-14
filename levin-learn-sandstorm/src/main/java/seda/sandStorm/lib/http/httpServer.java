@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
 import java.io.IOException;
 import java.util.Map;
@@ -32,21 +32,21 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
-import seda.sandStorm.api.ConfigData;
-import seda.sandStorm.api.EventElement;
-import seda.sandStorm.api.EventHandler;
-import seda.sandStorm.api.EventSink;
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.ProfilerIF;
-import seda.sandStorm.api.SinkCloggedEvent;
-import seda.sandStorm.api.SinkClosedEvent;
-import seda.sandStorm.api.SinkDrainedEvent;
-import seda.sandStorm.lib.aSocket.ATcpConnection;
-import seda.sandStorm.lib.aSocket.ATcpInPacket;
-import seda.sandStorm.lib.aSocket.ATcpListenSuccessEvent;
-import seda.sandStorm.lib.aSocket.ATcpServerSocket;
-import seda.sandStorm.lib.aSocket.aSocketErrorEvent;
-import seda.sandStorm.main.SandstormConfig;
+import seda.sandstorm.api.ConfigData;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventHandler;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Profiler;
+import seda.sandstorm.api.SinkCloggedEvent;
+import seda.sandstorm.api.SinkClosedEvent;
+import seda.sandstorm.api.SinkDrainedEvent;
+import seda.sandstorm.lib.socket.ATcpConnection;
+import seda.sandstorm.lib.socket.ATcpInPacket;
+import seda.sandstorm.lib.socket.ATcpListenSuccessEvent;
+import seda.sandstorm.lib.socket.ATcpServerSocket;
+import seda.sandstorm.lib.socket.aSocketErrorEvent;
+import seda.sandstorm.main.SandstormConfig;
 
 /**
  * An httpServer is a SandStorm stage which accepts incoming HTTP connections.
@@ -57,9 +57,9 @@ import seda.sandStorm.main.SandstormConfig;
  *
  * @author Matt Welsh (mdw@cs.berkeley.edu)
  * @see HttpConnection
- * @see httpRequest
+ * @see HttpRequest
  */
-public class HttpServer implements EventHandler, httpConst {
+public class HttpServer implements EventHandler, HttpConst {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpServer.class);
     
     // These are protected to allow subclasses to use them
@@ -145,7 +145,7 @@ public class HttpServer implements EventHandler, httpConst {
             connTable.put(conn, hc);
 
             // Profile the connection if profiling enabled
-            ProfilerIF profiler = mgr.getProfiler();
+            Profiler profiler = mgr.getProfiler();
             SandstormConfig cfg = mgr.getConfig();
             if ((profiler != null) && cfg.getBoolean("global.profile.sockets"))
                 profiler.add(conn.toString(), conn);

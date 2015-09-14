@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.lib.util;
+package seda.sandstorm.lib.util;
 
 import seda.nbio.*;
 import java.util.*;

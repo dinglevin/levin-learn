@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandstorm.api;
 
 /**
  * A ClassQueueElementIF represents an event with an associated 'class'

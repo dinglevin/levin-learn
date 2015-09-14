@@ -23,10 +23,11 @@
  */
 
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.main.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.main.*;
+
 import java.io.*;
 import java.util.*;
 
@@ -37,10 +38,10 @@ import java.util.*;
  * the profile to a file.
  *
  * @author Matt Welsh
- * @see ProfilerIF
- * @see ProfilableIF
+ * @see Profiler
+ * @see Profilable
  */
-class SandStormProfiler extends Thread implements ProfilerIF {
+class SandStormProfiler extends Thread implements Profiler {
 
   private int delay;
   private PrintWriter pw;
@@ -69,7 +70,7 @@ class SandStormProfiler extends Thread implements ProfilerIF {
   /**
    * Add a class to this profiler.
    */
-  public void add(String name, ProfilableIF pr) {
+  public void add(String name, Profilable pr) {
     if (pr == null) return;
     if (pw == null) return;
     synchronized (profilables) {
@@ -117,9 +118,9 @@ class SandStormProfiler extends Thread implements ProfilerIF {
 
   class profile {
     String name;
-    ProfilableIF pr;
+    Profilable pr;
 
-    profile(String name, ProfilableIF pr) {
+    profile(String name, Profilable pr) {
       this.name = name;
       this.pr = pr;
     }

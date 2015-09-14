@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandstorm.api;
 
 /**
  * This exception is thrown if a stage is created (via ManagerIF.createStage)

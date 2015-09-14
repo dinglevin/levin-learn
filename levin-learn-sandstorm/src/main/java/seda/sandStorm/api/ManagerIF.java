@@ -22,9 +22,9 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandstorm.api;
 
-import seda.sandStorm.main.*;
+import seda.sandstorm.main.*;
 
 /**
  * ManagerIF represents the system manger, which provides various runtime
@@ -74,7 +74,7 @@ public interface ManagerIF {
      *                If an exception occurred during stage creation or
      *                initialization.
      *
-     * @see seda.sandStorm.api.internal.SystemManagerIF
+     * @see seda.sandstorm.api.internal.SystemManagerIF
      * @see ConfigData
      */
     public Stage createStage(String stagename, EventHandler eventHandler, String initargs[]) throws Exception;
@@ -87,7 +87,7 @@ public interface ManagerIF {
     /**
      * Returns a handle to the system profiler.
      */
-    public ProfilerIF getProfiler();
+    public Profiler getProfiler();
 
     /**
      * Returns a copy of the SandstormConfig for this Manager. This contains all

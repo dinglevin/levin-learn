@@ -22,12 +22,12 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.api.internal.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.main.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.api.internal.*;
+import seda.sandstorm.core.*;
+import seda.sandstorm.main.*;
 import seda.util.*;
 import java.util.*;
 
@@ -118,31 +118,31 @@ public class ResponseTimeControllerMM1 extends ResponseTimeController {
 
     // Add profile 
     mgr.getProfiler().add("RTControllerMM1 90th-percentile RT <"+stage.getStage().getName()+">",
-	new ProfilableIF() {
+	new Profilable() {
 	public int profileSize() {
 	return (int)ninetiethRT;
 	}
 	});
     mgr.getProfiler().add("RTControllerMM1 lambda <"+stage.getStage().getName()+">",
-	new ProfilableIF() {
+	new Profilable() {
 	public int profileSize() {
 	return (int)measured_lambda;
 	}
 	});
     mgr.getProfiler().add("RTControllerMM1 mu <"+stage.getStage().getName()+">",
-	new ProfilableIF() {
+	new Profilable() {
 	public int profileSize() {
 	return (int)measured_mu;
 	}
 	});
     mgr.getProfiler().add("RTControllerMM1 est90thRT <"+stage.getStage().getName()+">",
-	new ProfilableIF() {
+	new Profilable() {
 	public int profileSize() {
 	return (int)est_ninetiethRT;
 	}
 	});
     mgr.getProfiler().add("RTControllerMM1 avgNumThreads <"+stage.getStage().getName()+">",
-	new ProfilableIF() {
+	new Profilable() {
 	public int profileSize() {
 	return (int)avgNumThreads;
 	}
@@ -151,7 +151,7 @@ public class ResponseTimeControllerMM1 extends ResponseTimeController {
     if (ADJUST_THRESHOLD) {
       System.err.print("RTControllerMM1 <"+stage.getStage().getName()+">: ADJUST_THRESHOLD enabled, INIT_THRESHOLD="+INIT_THRESHOLD+", ESTIMATION_SIZE="+ESTIMATION_SIZE+", ESTIMATION_TIME="+ESTIMATION_TIME);
       mgr.getProfiler().add("RTControllerMM1 queueThreshold <"+stage.getStage().getName()+">",
-  	  new ProfilableIF() {
+  	  new Profilable() {
   	  public int profileSize() {
   	  return curThreshold;
   	  }
@@ -167,13 +167,13 @@ public class ResponseTimeControllerMM1 extends ResponseTimeController {
       }
 
       mgr.getProfiler().add("RTControllerMM1 queueRate <"+stage.getStage().getName()+">",
-  	  new ProfilableIF() {
+  	  new Profilable() {
   	  public int profileSize() {
   	  return (int)curRate;
   	  }
   	  });
       mgr.getProfiler().add("RTControllerMM1 tokenBucket <"+stage.getStage().getName()+">",
-  	  new ProfilableIF() {
+  	  new Profilable() {
   	  public int profileSize() {
   	  return ((RateLimitingPredicate)pred).getBucketSize();
   	  }

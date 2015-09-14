@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.lib.Gnutella;
+package seda.sandstorm.lib.gnutella;
 
 
 /**

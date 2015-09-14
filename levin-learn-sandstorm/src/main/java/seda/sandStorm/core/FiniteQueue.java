@@ -22,10 +22,10 @@
  * 
  */
 
-package seda.sandStorm.core;
+package seda.sandstorm.core;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.api.internal.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.api.internal.*;
 
 import java.util.Hashtable;
 
@@ -34,10 +34,10 @@ import java.util.Hashtable;
  * using a linked list.
  *
  * @author Matt Welsh
- * @see seda.sandStorm.api.EventQueue
+ * @see seda.sandstorm.api.EventQueue
  */
 
-public class FiniteQueue implements EventQueue, ProfilableIF {
+public class FiniteQueue implements EventQueue, Profilable {
 
     private static final boolean DEBUG = false;
 

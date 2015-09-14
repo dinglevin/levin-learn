@@ -22,33 +22,25 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
-
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.core.BufferEvent;
 
 /**
  * An httpResponse corresponding to a '500 Internal Server Error' 
  * Use httpNotFoundResponse for a '404 Not Found'.
  * 
  * @author Matt Welsh
- * @see httpNotFoundResponse
+ * @see HttpNotFoundResponse
  * 
  */
-public class httpInternalServerErrorResponse extends httpResponse implements httpConst, EventElement {
-
-  private static final boolean DEBUG = false;
-
-  public httpInternalServerErrorResponse(httpRequest request, String reason) {
-    super(httpResponse.RESPONSE_INTERNAL_SERVER_ERROR, "text/html");
+public class HttpInternalServerErrorResponse extends HttpResponse implements HttpConst, EventElement {
+  public HttpInternalServerErrorResponse(HttpRequest request, String reason) {
+    super(HttpResponse.RESPONSE_INTERNAL_SERVER_ERROR, "text/html");
 
     String str = "<html><head><title>500 Internal Server Error</title></head><body bgcolor=white><font face=\"helvetica\"><big><big><b>500 Internal Server Error</b></big></big><p>The URL you requested:<p><blockquote><tt>"+request.getURL()+"</tt></blockquote><p>generated an internal server error. The reason given by the server was:<p><blockquote><tt>"+reason+"</tt></blockquote></body></html>\n";
-    BufferElement mypayload = new BufferElement(str.getBytes());
+    BufferEvent mypayload = new BufferEvent(str.getBytes());
     setPayload(mypayload);
   }
 

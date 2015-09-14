@@ -22,15 +22,11 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
-
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.core.BufferEvent;
 
 /**
  * This is an abstract class corresponding to an HTTP response.
@@ -38,10 +34,10 @@ import java.net.*;
  * to push responses back to the client.
  * 
  * @author Matt Welsh
- * @see httpOKResponse
- * @see httpNotFoundResponse
+ * @see HttpOKResponse
+ * @see HttpNotFoundResponse
  */
-public abstract class httpResponse implements httpConst, EventElement {
+public abstract class HttpResponse implements HttpConst, EventElement {
 
   /** Code corresponding to '200 OK'. */ 
   public static final int RESPONSE_OK = 200;
@@ -67,11 +63,11 @@ public abstract class httpResponse implements httpConst, EventElement {
   protected static String defaultHeader = "Server: Sandstorm (unknown version)"+CRLF;
 
   /** The actual data of the response. */
-  protected BufferElement combinedData;
+  protected BufferEvent combinedData;
   /** The header for the response. */
-  protected BufferElement header;
+  protected BufferEvent header;
   /** The payload for the response. */
-  protected BufferElement payload;
+  protected BufferEvent payload;
   /** The MIME type of the response. */
   protected String contentType;
   /** The content-length header. */
@@ -87,7 +83,7 @@ public abstract class httpResponse implements httpConst, EventElement {
    *  not be CRLF-terminated.
    * @param payload The payload of the response.
    */
-  protected httpResponse(int code, String contentType, BufferElement payload) {
+  protected HttpResponse(int code, String contentType, BufferEvent payload) {
     this.code = code;
     this.contentType = contentType;
     this.contentLength = payload.size;
@@ -95,7 +91,7 @@ public abstract class httpResponse implements httpConst, EventElement {
     this.combinedData = null;
     String hdrString = genHeader();
     byte hdr[] = hdrString.getBytes();
-    this.header = new BufferElement(hdr);
+    this.header = new BufferEvent(hdr);
     this.payload = payload;
   }
 
@@ -110,7 +106,7 @@ public abstract class httpResponse implements httpConst, EventElement {
    * @param payload The payload of the response.
    * @param contentLength The contentLength to place in the header.
    */
-  protected httpResponse(int code, String contentType, BufferElement payload, int contentLength) {
+  protected HttpResponse(int code, String contentType, BufferEvent payload, int contentLength) {
     this.code = code;
     this.contentType = contentType;
     this.contentLength = contentLength;
@@ -118,7 +114,7 @@ public abstract class httpResponse implements httpConst, EventElement {
     this.combinedData = null;
     String hdrString = genHeader();
     byte hdr[] = hdrString.getBytes();
-    this.header = new BufferElement(hdr);
+    this.header = new BufferEvent(hdr);
     this.payload = payload;
   }
 
@@ -132,7 +128,7 @@ public abstract class httpResponse implements httpConst, EventElement {
    *  not be CRLF-terminated.
    * @param payload The payload of the response.
    */
-  protected httpResponse(int code, String contentType) {
+  protected HttpResponse(int code, String contentType) {
     this.code = code;
     this.contentType = contentType;
     this.contentLength = 0; // Don't know it yet
@@ -156,18 +152,18 @@ public abstract class httpResponse implements httpConst, EventElement {
    * @param payloadSize The size of the payload to allocate.
    * @param compQ The completion queue for the payload.
    */
-  protected httpResponse(int code, String contentType, int payloadSize, EventSink compQ) {
+  protected HttpResponse(int code, String contentType, int payloadSize, EventSink compQ) {
     this.code = code;
     this.contentType = contentType;
     this.contentLength = payloadSize;
 
     String hdrString = genHeader();
     byte hdr[] = hdrString.getBytes();
-    this.combinedData = new BufferElement(hdr.length + payloadSize);
+    this.combinedData = new BufferEvent(hdr.length + payloadSize);
     combinedData.compQ = compQ;
-    this.header = new BufferElement(combinedData.data, 0, hdr.length);
+    this.header = new BufferEvent(combinedData.data, 0, hdr.length);
     System.arraycopy(hdr, 0, header.data, 0, hdr.length);
-    this.payload = new BufferElement(combinedData.data, hdr.length, payloadSize);
+    this.payload = new BufferEvent(combinedData.data, hdr.length, payloadSize);
   }
 
   /**
@@ -183,7 +179,7 @@ public abstract class httpResponse implements httpConst, EventElement {
    *  not be CRLF-terminated.
    * @param payloadSize The size of the payload to allocate.
    */
-  protected httpResponse(int code, String contentType, int payloadSize) {
+  protected HttpResponse(int code, String contentType, int payloadSize) {
     this(code, contentType, payloadSize, null);
   }
 
@@ -199,7 +195,7 @@ public abstract class httpResponse implements httpConst, EventElement {
    * by this response (that is, if the payloadSize was specified in the 
    * constructor). 
    */
-  public void setPayload(BufferElement payload) {
+  public void setPayload(BufferEvent payload) {
     this.payload = payload;
     this.contentLength = payload.size;
   }
@@ -207,11 +203,11 @@ public abstract class httpResponse implements httpConst, EventElement {
   /**
    * Returns the header for this response.
    */
-  public BufferElement getHeader() {
+  public BufferEvent getHeader() {
     if (this.header == null) {
       String hdrString = genHeader();
       byte hdr[] = hdrString.getBytes();
-      this.header = new BufferElement(hdr);
+      this.header = new BufferEvent(hdr);
     }
     return this.header;
   }
@@ -219,7 +215,7 @@ public abstract class httpResponse implements httpConst, EventElement {
   /**
    * Returns the payload for this response.
    */
-  public BufferElement getPayload() {
+  public BufferEvent getPayload() {
     return payload;
   }
 
@@ -279,36 +275,36 @@ public abstract class httpResponse implements httpConst, EventElement {
    *
    * @param sendHeader Indicate whether the header should be included.
    */
-  public BufferElement[] getBuffers(boolean sendHeader) {
+  public BufferEvent[] getBuffers(boolean sendHeader) {
     if (DEBUG) System.err.println("httpResponse: getBuffers() called");
 
-    BufferElement bufarr[] = null;
+    BufferEvent bufarr[] = null;
     if (combinedData != null) {
       if (sendHeader) {
 	if (DEBUG) System.err.println("httpResponse: Returning combinedData (len="+combinedData.size+")");
-	bufarr = new BufferElement[1];
+	bufarr = new BufferEvent[1];
 	bufarr[0] = combinedData;
       } else {
 	if (DEBUG) System.err.println("httpResponse: Returning combinedData payload only (len="+payload.size+")");
-	bufarr = new BufferElement[1];
+	bufarr = new BufferEvent[1];
 	bufarr[0] = payload;
       }
     } else if (sendHeader) {
       if (payload != null) {
 	if (DEBUG) System.err.println("httpResponse: Returning header and payload (paylen="+payload.size+")");
-	bufarr = new BufferElement[2];
+	bufarr = new BufferEvent[2];
 	bufarr[0] = getHeader();
 	bufarr[1] = getPayload();
       } else {
 	if (DEBUG) System.err.println("httpResponse: Returning header only (len="+header.size+")");
-	bufarr = new BufferElement[1];
+	bufarr = new BufferEvent[1];
 	bufarr[0] = getHeader();
       }
     } else {
       // Don't send header
       if (payload != null) {
 	if (DEBUG) System.err.println("httpResponse: Returning payload only (paylen="+payload.size+")");
-	bufarr = new BufferElement[1];
+	bufarr = new BufferEvent[1];
 	bufarr[0] = payload;
       } else {
 	if (DEBUG) System.err.println("httpResponse: Nothing to return!");

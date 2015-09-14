@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.api.internal;
+package seda.sandstorm.api.internal;
 
 /**
  * This interface allows various components of the system to record and gather

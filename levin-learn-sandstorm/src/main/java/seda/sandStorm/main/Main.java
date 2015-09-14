@@ -22,12 +22,12 @@
  * 
  */
 
-package seda.sandStorm.main;
+package seda.sandstorm.main;
+
+import static seda.sandstorm.internal.SandStormConst.WELCOME_STRING;
 
 import java.io.IOException;
 import java.util.Date;
-
-import static seda.sandStorm.internal.SandStormConst.WELCOME_STRING;
 
 /**
  * This class is used to start a Sandstorm system from the commandline. The

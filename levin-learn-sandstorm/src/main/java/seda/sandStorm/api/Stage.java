@@ -22,9 +22,9 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandstorm.api;
 
-import seda.sandStorm.api.internal.*;
+import seda.sandstorm.api.internal.*;
 
 /**
  * A StageIF represents a handle to an application stage. Applications

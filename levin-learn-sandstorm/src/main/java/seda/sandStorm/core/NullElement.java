@@ -22,9 +22,9 @@
  * 
  */
 
-package seda.sandStorm.core;
+package seda.sandstorm.core;
 
-import seda.sandStorm.api.*;
+import seda.sandstorm.api.*;
 
 /**
  * This is a 'null' QueueElementIF implementation, which can be used

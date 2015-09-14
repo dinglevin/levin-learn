@@ -22,17 +22,17 @@
  * 
  */
 
-package seda.sandStorm.internal.ATTIC;
+package seda.sandstorm.internal.attic;
 
 import java.util.Enumeration;
 import java.util.Vector;
 
-import seda.sandStorm.api.EventElement;
-import seda.sandStorm.api.EventSink;
-import seda.sandStorm.api.EventSource;
-import seda.sandStorm.api.internal.StageWrapper;
-import seda.sandStorm.api.internal.ThreadManagerIF;
-import seda.sandStorm.main.SandstormConfig;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.EventSource;
+import seda.sandstorm.api.internal.StageWrapper;
+import seda.sandstorm.api.internal.ThreadManager;
+import seda.sandstorm.main.SandstormConfig;
 
 /**
  * AggTPSThreadManager is a refinement of the TPSTM; it attempts to schedule
@@ -44,7 +44,7 @@ import seda.sandStorm.main.SandstormConfig;
  * 
  * @author Matt Welsh
  */
-class AggTPSThreadManager implements ThreadManagerIF {
+class AggTPSThreadManager implements ThreadManager {
 
     private static final boolean DEBUG = true;
     private static final boolean DEBUG_VERBOSE = false;

@@ -22,35 +22,27 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
-
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.core.BufferEvent;
 
 /**
  * An httpResponse corresponding to a '404 Not Found' error.
  * 
  * @author Matt Welsh
- * @see httpResponse
+ * @see HttpResponse
  */
-public class httpNotFoundResponse extends httpResponse implements httpConst, EventElement {
-
-  private static final boolean DEBUG = false;
-
+public class HttpNotFoundResponse extends HttpResponse implements HttpConst, EventElement {
   /**
    * Create an httpNotFoundResponse corresponding to the given request
    * with the given reason.
    */
-  public httpNotFoundResponse(httpRequest request, String reason) {
-    super(httpResponse.RESPONSE_NOT_FOUND, "text/html");
+  public HttpNotFoundResponse(HttpRequest request, String reason) {
+    super(HttpResponse.RESPONSE_NOT_FOUND, "text/html");
 
     String str = "<html><head><title>404 Not Found</title></head><body bgcolor=white><font face=\"helvetica\"><big><big><b>404 Not Found</b></big></big><p>The URL you requested:<p><blockquote><tt>"+request.getURL()+"</tt></blockquote><p>could not be found. The reason given by the server was:<p><blockquote><tt>"+reason+"</tt></blockquote></body></html>\n";
-    BufferElement mypayload = new BufferElement(str.getBytes());
+    BufferEvent mypayload = new BufferEvent(str.getBytes());
     setPayload(mypayload);
   }
 

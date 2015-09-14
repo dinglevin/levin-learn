@@ -22,13 +22,13 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.ProfilableIF;
-import seda.sandStorm.api.internal.StageStats;
-import seda.sandStorm.api.internal.StageWrapper;
-import seda.sandStorm.main.Sandstorm;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Profilable;
+import seda.sandstorm.api.internal.StageStats;
+import seda.sandstorm.api.internal.StageWrapper;
+import seda.sandstorm.main.Sandstorm;
 
 /**
  * This class provides controllers with a view of statistics gathered by the
@@ -95,7 +95,7 @@ public class StageStatsImpl implements StageStats {
                 mgr.getProfiler()
                         .add("StageStats serviceRate <"
                                 + stage.getStage().getName() + ">",
-                        new ProfilableIF() {
+                        new Profilable() {
                             public int profileSize() {
                                 return (int) serviceRate;
                             }

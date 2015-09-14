@@ -22,11 +22,11 @@
  * 
  */
 
-package seda.sandStorm.core;
+package seda.sandstorm.core;
 
-import seda.sandStorm.api.EnqueuePredicateIF;
-import seda.sandStorm.api.EventElement;
-import seda.sandStorm.api.EventSink;
+import seda.sandstorm.api.EnqueuePredicateIF;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventSink;
 import seda.util.StatsGatherer;
 
 /**

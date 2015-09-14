@@ -22,11 +22,12 @@
  * 
  */
 
-package seda.sandStorm.lib.Gnutella;
+package seda.sandstorm.lib.gnutella;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.lib.aSocket.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.core.*;
+import seda.sandstorm.lib.socket.*;
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -105,7 +106,7 @@ public abstract class GnutellaPacket implements GnutellaConst, EventElement {
    * Render the packet as a BufferElement which can be pushed to an
    * aSocket connection.
    */
-  BufferElement getBuffer() {
+  BufferEvent getBuffer() {
     if (DEBUG) System.err.println("GnutellaPacket: doing prepareForSend");
     prepareForSend();
     if (payload == null) 
@@ -121,7 +122,7 @@ public abstract class GnutellaPacket implements GnutellaConst, EventElement {
     writeLEInt(payload_length, data, 19);
     if (payload != null) 
       System.arraycopy(payload, 0, data, PACKET_HEADER_SIZE, payload_length);
-    BufferElement buf = new BufferElement(data);
+    BufferEvent buf = new BufferEvent(data);
     return buf;
   }
 

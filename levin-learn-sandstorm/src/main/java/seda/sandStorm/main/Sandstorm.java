@@ -22,11 +22,11 @@
  * 
  */
 
-package seda.sandStorm.main;
+package seda.sandstorm.main;
 
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.internal.SystemManagerIF;
-import seda.sandStorm.internal.SandStormMgr;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.internal.SystemManagerIF;
+import seda.sandstorm.internal.SandStormMgr;
 
 /**
  * This is the top-level class which acts as the "wrapper" and external

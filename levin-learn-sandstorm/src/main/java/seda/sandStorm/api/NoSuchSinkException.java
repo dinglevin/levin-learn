@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandstorm.api;
 
 /**
  * This exception is thrown if a sink as requested by a call to
@@ -31,7 +31,14 @@ package seda.sandStorm.api;
  * @see Stage
  * @author Matt Welsh
  */
-public class NoSuchSinkException extends Exception { 
-  public NoSuchSinkException() { super(); }
-  public NoSuchSinkException(String s) { super(s); }
+public class NoSuchSinkException extends Exception {
+    private static final long serialVersionUID = 1L;
+
+    public NoSuchSinkException() {
+        super();
+    }
+
+    public NoSuchSinkException(String s) {
+        super(s);
+    }
 }

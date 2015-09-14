@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandstorm.api;
 
 /**
  * This exception is thrown if a stage as requested by a call to
@@ -32,6 +32,13 @@ package seda.sandStorm.api;
  * @author Matt Welsh
  */
 public class NoSuchStageException extends Exception {
-  public NoSuchStageException() { super(); }
-  public NoSuchStageException(String s) { super(s); }
+    private static final long serialVersionUID = 1L;
+
+    public NoSuchStageException() {
+        super();
+    }
+
+    public NoSuchStageException(String s) {
+        super(s);
+    }
 }

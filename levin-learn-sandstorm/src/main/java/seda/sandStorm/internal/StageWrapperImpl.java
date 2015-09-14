@@ -22,20 +22,20 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import seda.sandStorm.api.ConfigData;
-import seda.sandStorm.api.EventHandler;
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.EventSink;
-import seda.sandStorm.api.EventSource;
-import seda.sandStorm.api.Stage;
-import seda.sandStorm.api.internal.ResponseTimeControllerIF;
-import seda.sandStorm.api.internal.StageStats;
-import seda.sandStorm.api.internal.StageWrapper;
-import seda.sandStorm.api.internal.ThreadManagerIF;
-import seda.sandStorm.core.FiniteQueue;
-import seda.sandStorm.core.QueueThresholdPredicate;
+import seda.sandstorm.api.ConfigData;
+import seda.sandstorm.api.EventHandler;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.EventSource;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Stage;
+import seda.sandstorm.api.internal.ResponseTimeControllerIF;
+import seda.sandstorm.api.internal.StageStats;
+import seda.sandstorm.api.internal.StageWrapper;
+import seda.sandstorm.api.internal.ThreadManager;
+import seda.sandstorm.core.FiniteQueue;
+import seda.sandstorm.core.QueueThresholdPredicate;
 
 /**
  * A StageWrapper is a basic implementation of StageWrapperIF for
@@ -50,7 +50,7 @@ class StageWrapperImpl implements StageWrapper {
     private EventHandler handler;
     private ConfigData config;
     private FiniteQueue eventQ;
-    private ThreadManagerIF threadmgr;
+    private ThreadManager threadmgr;
     private StageStats stats;
     private ResponseTimeControllerIF rtcon;
 
@@ -59,7 +59,7 @@ class StageWrapperImpl implements StageWrapper {
      * thread manager.
      */
     StageWrapperImpl(ManagerIF mgr, String name, EventHandler handler,
-            ConfigData config, ThreadManagerIF threadmgr) {
+            ConfigData config, ThreadManager threadmgr) {
         this.name = name;
         this.handler = handler;
         this.config = config;
@@ -76,7 +76,7 @@ class StageWrapperImpl implements StageWrapper {
      * manager, and queue threshold.
      */
     StageWrapperImpl(ManagerIF mgr, String name, EventHandler handler,
-            ConfigData config, ThreadManagerIF threadmgr,
+            ConfigData config, ThreadManager threadmgr,
             int queueThreshold) {
         this.name = name;
         this.handler = handler;
@@ -162,7 +162,7 @@ class StageWrapperImpl implements StageWrapper {
     /**
      * Return the thread manager which will run this stage.
      */
-    public ThreadManagerIF getThreadManager() {
+    public ThreadManager getThreadManager() {
         return threadmgr;
     }
 

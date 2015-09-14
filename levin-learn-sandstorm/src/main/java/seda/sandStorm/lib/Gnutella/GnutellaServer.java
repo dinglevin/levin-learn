@@ -22,12 +22,12 @@
  * 
  */
 
-package seda.sandStorm.lib.Gnutella;
+package seda.sandstorm.lib.gnutella;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.main.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.core.*;
+import seda.sandstorm.lib.socket.*;
+import seda.sandstorm.main.*;
 
 import java.util.*;
 import java.io.*;
@@ -295,7 +295,7 @@ public class GnutellaServer implements EventHandler, GnutellaConst {
         }
 
         // Profile the connection if profiling enabled
-        ProfilerIF profiler = mgr.getProfiler();
+        Profiler profiler = mgr.getProfiler();
         SandstormConfig cfg = mgr.getConfig();
         if ((profiler != null) && (cfg.getBoolean("global.profile.sockets")))
             profiler.add(conn.toString(), conn);
@@ -382,7 +382,7 @@ public class GnutellaServer implements EventHandler, GnutellaConst {
     }
 
     private void sendBytes(EventSink sink, byte msg[]) {
-        BufferElement buf = new BufferElement(msg);
+        BufferEvent buf = new BufferEvent(msg);
         try {
             sink.enqueue(buf);
         } catch (SinkFullException sfe) {

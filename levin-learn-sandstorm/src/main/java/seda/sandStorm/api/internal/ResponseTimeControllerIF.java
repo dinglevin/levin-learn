@@ -22,9 +22,9 @@
  * 
  */
 
-package seda.sandStorm.api.internal;
+package seda.sandstorm.api.internal;
 
-import seda.sandStorm.api.*;
+import seda.sandstorm.api.*;
 
 /**
  * This interface represents a response time controller, invoked by the

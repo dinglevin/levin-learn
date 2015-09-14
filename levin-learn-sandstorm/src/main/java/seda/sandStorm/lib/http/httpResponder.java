@@ -22,27 +22,21 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
-
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import seda.sandstorm.api.EventElement;
 
 /**
  * This class is used to wrap an HTTP response along with the 
  * connection which it is destined for. 
  *
  * @author Matt Welsh
- * @see httpResponse
+ * @see HttpResponse
  * @see HttpConnection
  */
-public class httpResponder implements httpConst, EventElement {
+public class HttpResponder implements HttpConst, EventElement {
 
-  private httpResponse resp;
+  private HttpResponse resp;
   private HttpConnection conn;
   private boolean closeConnection;
   private boolean sendHeader;
@@ -54,7 +48,7 @@ public class httpResponder implements httpConst, EventElement {
    * @param sendHeader Indicate that the header of the response should
    *   be sent along with the payload.
    */
-  public httpResponder(httpResponse resp, HttpConnection conn,
+  public HttpResponder(HttpResponse resp, HttpConnection conn,
       boolean closeConnection, boolean sendHeader) {
     this.resp = resp;
     this.conn = conn;
@@ -67,7 +61,7 @@ public class httpResponder implements httpConst, EventElement {
    * @param closeConnection Indicate that the connection should be
    *   closed after sending this response.
    */
-  public httpResponder(httpResponse resp, HttpConnection conn,
+  public HttpResponder(HttpResponse resp, HttpConnection conn,
       boolean closeConnection) {
     this.resp = resp;
     this.conn = conn;
@@ -78,7 +72,7 @@ public class httpResponder implements httpConst, EventElement {
   /**
    * Create an httpResponder with the given response and connection.
    */
-  public httpResponder(httpResponse resp, HttpConnection conn) {
+  public HttpResponder(HttpResponse resp, HttpConnection conn) {
     this(resp, conn, false, true);
   }
 
@@ -90,7 +84,7 @@ public class httpResponder implements httpConst, EventElement {
    * @param sendHeader Indicate that the header of the response should
    *   be sent along with the payload.
    */
-  public httpResponder(httpResponse resp, httpRequest req,
+  public HttpResponder(HttpResponse resp, HttpRequest req,
       boolean closeConnection, boolean sendHeader) {
     this(resp, req.getConnection(), closeConnection, sendHeader);
   }
@@ -101,7 +95,7 @@ public class httpResponder implements httpConst, EventElement {
    * @param closeConnection Indicate that the connection should be
    *   closed after sending this response.
    */
-  public httpResponder(httpResponse resp, httpRequest req,
+  public HttpResponder(HttpResponse resp, HttpRequest req,
       boolean closeConnection) {
     this(resp, req.getConnection(), closeConnection);
   }
@@ -110,9 +104,9 @@ public class httpResponder implements httpConst, EventElement {
    * Create an httpResponder with the given response, with the
    * connection being derived from the given request.
    */
-  public httpResponder(httpResponse resp, httpRequest req) {
+  public HttpResponder(HttpResponse resp, HttpRequest req) {
     this(resp, req.getConnection(), 
-	((req.getHttpVer() < httpRequest.HTTPVER_11)?(true):(false)));
+	((req.getHttpVer() < HttpRequest.HTTPVER_11)?(true):(false)));
   }
 
   /**
@@ -125,7 +119,7 @@ public class httpResponder implements httpConst, EventElement {
   /**
    * Return the response for this responder. 
    */
-  public httpResponse getResponse() {
+  public HttpResponse getResponse() {
     return resp;
   }
 

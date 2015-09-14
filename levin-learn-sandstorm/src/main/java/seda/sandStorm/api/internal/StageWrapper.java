@@ -22,9 +22,9 @@
  * 
  */
 
-package seda.sandStorm.api.internal;
+package seda.sandstorm.api.internal;
 
-import seda.sandStorm.api.*;
+import seda.sandstorm.api.*;
 
 /**
  * A StageWrapperIF is the internal representation for an application stage - an
@@ -53,7 +53,7 @@ public interface StageWrapper {
     /**
      * Return the thread manager which will run this stage.
      */
-    public ThreadManagerIF getThreadManager();
+    public ThreadManager getThreadManager();
 
     /**
      * Return a StageStatsIF interface which records and manages performance

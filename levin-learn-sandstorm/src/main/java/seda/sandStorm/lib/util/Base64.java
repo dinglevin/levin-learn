@@ -20,10 +20,11 @@
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package seda.sandStorm.lib.util;
+package seda.sandstorm.lib.util;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.core.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.core.*;
+
 import java.util.*;
 
 /**
@@ -39,7 +40,7 @@ public abstract class Base64 {
    * @param data Data to be encoded.
    * @return A BufferElement with the data encoded in Base64.
    */
-  public static BufferElement encode(BufferElement data) {
+  public static BufferEvent encode(BufferEvent data) {
 
     byte input[] = data.getBytes();
     int offset = data.getOffset();
@@ -83,7 +84,7 @@ public abstract class Base64 {
 	output[outoffset] = '=';
       }
     }
-    return new BufferElement(output);
+    return new BufferEvent(output);
   }
 
   /**
@@ -92,7 +93,7 @@ public abstract class Base64 {
    * @param data Base64 encoded data.
    * @return A BufferElement containing the decoded data.
    */
-  public static BufferElement decode(BufferElement data) {
+  public static BufferEvent decode(BufferEvent data) {
 
     byte input[] = data.getBytes();
     int offset = data.getOffset();
@@ -176,7 +177,7 @@ public abstract class Base64 {
 	output[outoffset++] = (byte)(((b2 << 4) & 0xFF) | ((b3 >>> 2) & 0x0F));
       }
     }
-    return new BufferElement(output);
+    return new BufferEvent(output);
   }
 
   /**

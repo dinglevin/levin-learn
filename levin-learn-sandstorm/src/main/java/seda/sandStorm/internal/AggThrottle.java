@@ -22,12 +22,13 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.api.internal.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.main.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.api.internal.*;
+import seda.sandstorm.core.*;
+import seda.sandstorm.main.*;
+
 import java.util.*;
 import seda.util.*;
 
@@ -100,21 +101,21 @@ class AggThrottle {
     measurementCount = adjustCount = 0;
 
     mgr.getProfiler().add("AggThrottle throughput for <"+name+">",
-	new ProfilableIF() {
+	new Profilable() {
 	public int profileSize() {
 	//int foo = getAggTarget(); // Recalculate
 	return (int)lastThroughput;
 	}
 	});
     mgr.getProfiler().add("AggThrottle bestThroughput for <"+name+">",
-	new ProfilableIF() {
+	new Profilable() {
 	public int profileSize() {
 	//int foo = getAggTarget(); // Recalculate
 	return (int)bestThroughput;
 	}
 	});
     mgr.getProfiler().add("AggThrottle aggTarget for <"+name+">",
-	new ProfilableIF() {
+	new Profilable() {
 	public int profileSize() {
 	//int foo = getAggTarget(); // Recalculate
 	return aggregationTarget;

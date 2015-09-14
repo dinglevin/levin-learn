@@ -22,24 +22,17 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
-
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.core.BufferEvent;
 
 /**
  * An httpResponse corresponding to a '301 Moved Permanently' response.
  * 
  * @author Matt Welsh
  */
-public class httpRedirectResponse extends httpResponse implements httpConst, EventElement {
-
-  private static final boolean DEBUG = false;
+public class HttpRedirectResponse extends HttpResponse implements HttpConst, EventElement {
   private String oldURL;
   private String newURL;
 
@@ -47,13 +40,13 @@ public class httpRedirectResponse extends httpResponse implements httpConst, Eve
    * Create a redirect response corresponding to the given request with 
    * the given new URL.
    */
-  public httpRedirectResponse(httpRequest request, String newURL) {
-    super(httpResponse.RESPONSE_REDIRECT, "text/html");
+  public HttpRedirectResponse(HttpRequest request, String newURL) {
+    super(HttpResponse.RESPONSE_REDIRECT, "text/html");
     this.oldURL = request.getURL();
     this.newURL = newURL;
 
     String str = "<html><head><title>301 Moved Permanently</title></head><body bgcolor=white><font face=\"helvetica\"><big><big><b>301 Moved Permanently</b></big></big><p>The URL you requested:<p><blockquote><tt>"+oldURL+"</tt></blockquote><p>has moved permanently to:<p><blockquote><tt><a href=\""+newURL+"\">"+newURL+"</a></tt></blockquote></body></html>\n";
-    BufferElement mypayload = new BufferElement(str.getBytes());
+    BufferEvent mypayload = new BufferEvent(str.getBytes());
     setPayload(mypayload);
   }
 

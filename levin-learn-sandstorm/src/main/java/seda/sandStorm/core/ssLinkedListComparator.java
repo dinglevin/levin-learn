@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.core;
+package seda.sandstorm.core;
 
 /**
  * The ssLinkedListComparator interface allows you to search for elements

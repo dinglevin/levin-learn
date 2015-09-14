@@ -22,15 +22,15 @@
  * 
  */
 
-package seda.sandStorm.internal;
+package seda.sandstorm.internal;
 
 import java.util.Random;
 import java.util.Vector;
 
-import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.ProfilableIF;
-import seda.sandStorm.api.internal.StageWrapper;
-import seda.sandStorm.main.SandstormConfig;
+import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Profilable;
+import seda.sandstorm.api.internal.StageWrapper;
+import seda.sandstorm.main.SandstormConfig;
 
 /**
  * The ThreadPoolController is responsible for dynamically adusting the 
@@ -107,7 +107,7 @@ public class ThreadPoolController {
    * Register a thread pool with this controller, using the queue threshold
    * specified by the system configuration.
    */
-  public void register(StageWrapper stage, ThreadPool tp, ProfilableIF metric) {
+  public void register(StageWrapper stage, ThreadPool tp, Profilable metric) {
     tpvec.addElement(new tpcClient(stage, tp, metric, controllerThreshold));
   }
 
@@ -124,20 +124,20 @@ public class ThreadPoolController {
     private StageWrapper stage;
     private ThreadPool tp;
     private int threshold;
-    private ProfilableIF metric;
+    private Profilable metric;
 
     int savedThreads, avgThreads;
     long savedTotalEvents;
     double savedThroughput, avgThroughput;
     long last_time, reset_time;
 
-    tpcClient(final StageWrapper stage, ThreadPool tp, ProfilableIF metric, int threshold) {
+    tpcClient(final StageWrapper stage, ThreadPool tp, Profilable metric, int threshold) {
       this.stage = stage;
       this.tp = tp;
       this.threshold = threshold;
       this.metric = metric;
       if (this.metric == null) {
-	this.metric = new ProfilableIF() {
+	this.metric = new Profilable() {
 	  public int profileSize() {
 	    return stage.getSource().size();
 	  }
@@ -148,28 +148,28 @@ public class ThreadPoolController {
       reset_time = last_time = System.currentTimeMillis();
 
       mgr.getProfiler().add("TPController savedThreads <"+stage.getStage().getName()+">",
-	  new ProfilableIF() {
+	  new Profilable() {
 	  public int profileSize() {
   	  return (int)savedThreads;
 	  }
 	  });
 
       mgr.getProfiler().add("TPController avgThreads <"+stage.getStage().getName()+">",
-	  new ProfilableIF() {
+	  new Profilable() {
 	  public int profileSize() {
   	  return (int)avgThreads;
 	  }
 	  });
 
       mgr.getProfiler().add("TPController savedThroughput <"+stage.getStage().getName()+">",
-	  new ProfilableIF() {
+	  new Profilable() {
 	  public int profileSize() {
   	  return (int)savedThroughput;
 	  }
 	  });
 
       mgr.getProfiler().add("TPController avgThroughput <"+stage.getStage().getName()+">",
-	  new ProfilableIF() {
+	  new Profilable() {
 	  public int profileSize() {
   	  return (int)avgThroughput;
 	  }

@@ -22,11 +22,12 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.lib.util.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.lib.socket.*;
+import seda.sandstorm.lib.util.*;
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -40,7 +41,7 @@ import java.net.*;
  * 
  * @author Matt Welsh
  */
-class httpPacketReader implements httpConst {
+class HttpPacketReader implements HttpConst {
 
   private static final boolean DEBUG = false;
 
@@ -63,7 +64,7 @@ class httpPacketReader implements httpConst {
    * Create an httpPacketReader with the given httpConnection
    * and completion queue.
    */
-  httpPacketReader(HttpConnection conn, EventSink compQ) {
+  HttpPacketReader(HttpConnection conn, EventSink compQ) {
     this.conn = conn;
     this.compQ = compQ;
     this.ais = new aSocketInputStream();
@@ -137,18 +138,18 @@ class httpPacketReader implements httpConst {
     } else {
       request = req;
       if (ver.equals("HTTP/1.0")) {
-	httpver = httpRequest.HTTPVER_10;
+	httpver = HttpRequest.HTTPVER_10;
         String tmp = nextWord(); // Throw away EOL
 	return STATE_HEADER;
       } else if (ver.equals("HTTP/1.1")) {
-	httpver = httpRequest.HTTPVER_11;
+	httpver = HttpRequest.HTTPVER_11;
         String tmp = nextWord(); // Throw away EOL
 	return STATE_HEADER;
       } else {
 	if (!ver.equals(CRLF)) {
 	  throw new IOException("Unknown HTTP version in request: "+httpver);
 	}
-	httpver = httpRequest.HTTPVER_09;
+	httpver = HttpRequest.HTTPVER_09;
         return STATE_DONE;
       }
     }
@@ -181,7 +182,7 @@ class httpPacketReader implements httpConst {
    * Process the header, possibly pushing an httpRequest to the user.
    */
   private void processHeader() throws IOException {
-    httpRequest req = new httpRequest(conn,request,url,httpver,header);
+    HttpRequest req = new HttpRequest(conn,request,url,httpver,header);
     if (DEBUG) System.err.println("httpPacketReader: Pushing req to user");
     if (!compQ.enqueueLossy(req)) {
       System.err.println("httpPacketReader: WARNING: Could not enqueue_lossy to user: "+req);

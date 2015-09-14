@@ -22,11 +22,11 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.core.*;
+import seda.sandstorm.lib.socket.*;
 
 import java.util.*;
 import java.io.*;
@@ -39,17 +39,17 @@ import java.net.*;
  * object on the corresponding httpConnection.
  *
  * @author Matt Welsh
- * @see httpRequest
- * @see httpResponse
+ * @see HttpRequest
+ * @see HttpResponse
  */
-public class HttpConnection extends SimpleSink implements httpConst, EventElement {
+public class HttpConnection extends SimpleSink implements HttpConst, EventElement {
 
   private static final boolean DEBUG = false;
 
   private ATcpConnection tcpconn;
   private HttpServer hs;
   private EventSink compQ;
-  private httpPacketReader hpr;
+  private HttpPacketReader hpr;
 
   /** 
    * Can be used by applications to associate an arbitrary data object 
@@ -65,7 +65,7 @@ public class HttpConnection extends SimpleSink implements httpConst, EventElemen
     this.tcpconn = tcpconn;
     this.hs = hs;
     this.compQ = compQ;
-    this.hpr = new httpPacketReader(this, compQ);
+    this.hpr = new HttpPacketReader(this, compQ);
 
     // Push myself to user
     compQ.enqueueLossy(this);
@@ -97,9 +97,9 @@ public class HttpConnection extends SimpleSink implements httpConst, EventElemen
    */
   public void enqueue(EventElement element) throws SinkException {
     if (DEBUG) System.err.println("httpConnection.enqueue: "+element);
-    httpResponder resp = (httpResponder)element;
-    httpResponse packet = resp.getResponse();
-    BufferElement bufarr[] = packet.getBuffers(resp.sendHeader());
+    HttpResponder resp = (HttpResponder)element;
+    HttpResponse packet = resp.getResponse();
+    BufferEvent bufarr[] = packet.getBuffers(resp.sendHeader());
     tcpconn.enqueueMany(bufarr);
   }
 
@@ -109,9 +109,9 @@ public class HttpConnection extends SimpleSink implements httpConst, EventElemen
    */
   public boolean enqueueLossy(EventElement element) {
     if (DEBUG) System.err.println("httpConnection.enqueue_lossy: "+element);
-    httpResponder resp = (httpResponder)element;
-    httpResponse packet = resp.getResponse();
-    BufferElement bufarr[] = packet.getBuffers(resp.sendHeader());
+    HttpResponder resp = (HttpResponder)element;
+    HttpResponse packet = resp.getResponse();
+    BufferEvent bufarr[] = packet.getBuffers(resp.sendHeader());
     try {
       tcpconn.enqueueMany(bufarr);
     } catch (SinkException se) {

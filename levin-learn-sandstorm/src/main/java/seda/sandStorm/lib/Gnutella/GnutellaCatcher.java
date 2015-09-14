@@ -32,11 +32,12 @@
  * @author Matt Welsh
  */ 
 
-package seda.sandStorm.lib.Gnutella;
+package seda.sandstorm.lib.gnutella;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.lib.aSocket.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.core.*;
+import seda.sandstorm.lib.socket.*;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;

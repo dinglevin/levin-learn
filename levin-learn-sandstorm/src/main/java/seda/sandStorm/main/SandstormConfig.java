@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.main;
+package seda.sandstorm.main;
 
 import static seda.util.ConfigUtil.stringArrayToMap;
 
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import seda.sandStorm.api.StageNameAlreadyBoundException;
+import seda.sandstorm.api.StageNameAlreadyBoundException;
 
 /**
  * This class is used to pass configuration parameters into Sandstorm at startup
@@ -92,7 +92,7 @@ public class SandstormConfig implements Cloneable {
     }
     
     private ConfigSection root;
-    private Map<String, StageDescr> stages;
+    private Map<String, StageDescriptor> stages;
     private Map<String, String> cmdLineArgs;
     /** Default initialization arguments passed to every stage. */
     public Map<String, String> defaultInitArgs;
@@ -429,14 +429,14 @@ public class SandstormConfig implements Cloneable {
             throw new StageNameAlreadyBoundException("Stage " + stageName + " already registered in SandstormConfig");
         }
 
-        StageDescr descr = new StageDescr(stageName, className, stringArrayToMap(initArgs));
+        StageDescriptor descr = new StageDescriptor(stageName, className, stringArrayToMap(initArgs));
         stages.put(stageName, descr);
     }
 
     /**
      * Return an Enumeration of the stages specified by this SandstormConfig.
      */
-    public Iterator<StageDescr> getStages() {
+    public Iterator<StageDescriptor> getStages() {
         return stages.values().iterator();
     }
 
@@ -539,7 +539,7 @@ public class SandstormConfig implements Cloneable {
                 
                 LOGGER.info("Adding stage {}", stageName);
                 
-                StageDescr descr = new StageDescr(stageName, className, initArgs, queueThreshold);
+                StageDescriptor descr = new StageDescriptor(stageName, className, initArgs, queueThreshold);
                 stages.put(descr.stageName, descr);
             }
         }

@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.core;
+package seda.sandstorm.core;
 
 /**
  * This class provides a default comparator for matching objects on

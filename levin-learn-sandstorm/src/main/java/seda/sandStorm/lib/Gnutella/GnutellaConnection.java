@@ -22,11 +22,12 @@
  * 
  */
 
-package seda.sandStorm.lib.Gnutella;
+package seda.sandstorm.lib.gnutella;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.lib.aSocket.*;
+import seda.sandstorm.api.*;
+import seda.sandstorm.core.*;
+import seda.sandstorm.lib.socket.*;
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -104,14 +105,14 @@ public class GnutellaConnection extends SimpleSink implements EventElement, Gnut
 
   public void enqueue(EventElement element) throws SinkException {
     GnutellaPacket packet = (GnutellaPacket)element;
-    BufferElement buf = packet.getBuffer();
+    BufferEvent buf = packet.getBuffer();
     buf.compQ = gs.getSink();
     conn.enqueue(buf);
   }
 
   public boolean enqueueLossy(EventElement element) {
     GnutellaPacket packet = (GnutellaPacket)element;
-    BufferElement buf = packet.getBuffer();
+    BufferEvent buf = packet.getBuffer();
     buf.compQ = gs.getSink();
     return conn.enqueueLossy(buf);
   }

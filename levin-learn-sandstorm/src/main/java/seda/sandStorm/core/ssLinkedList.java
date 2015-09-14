@@ -22,7 +22,7 @@
  * 
  */
 
-package seda.sandStorm.core;
+package seda.sandstorm.core;
 
 /**
  * The ssLinkedList class is just that - a linked list abstraction that

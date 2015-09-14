@@ -23,23 +23,24 @@
  * 
  */
 
-package seda.sandStorm.lib.http;
+package seda.sandstorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import seda.sandstorm.api.ClassQueueElementIF;
+import seda.sandstorm.core.TimeStampedEvent;
 
 /**
  * This class represents a single HTTP client request.
  * 
  * @author Matt Welsh
  */
-public class httpRequest extends TimeStampedEvent 
-  implements httpConst, ClassQueueElementIF {
+public class HttpRequest extends TimeStampedEvent 
+  implements HttpConst, ClassQueueElementIF {
 
   private static final boolean DEBUG = false;
 
@@ -72,7 +73,7 @@ public class httpRequest extends TimeStampedEvent
    * Package-internal: Create an httpRequest from the given connection,
    * request string, URL, HTTP version, and header.
    */
-  httpRequest(HttpConnection conn, String requestStr, String url, 
+  HttpRequest(HttpConnection conn, String requestStr, String url, 
       int httpver, Vector header) throws IOException {
     this.conn = conn;
     this.httpver = httpver;
@@ -244,7 +245,7 @@ public class httpRequest extends TimeStampedEvent
    * in the response (that is, whether this is HTTP/1.0 or later).
    */
   public boolean headerNeeded() {
-    if (getHttpVer() > httpRequest.HTTPVER_09) {
+    if (getHttpVer() > HttpRequest.HTTPVER_09) {
       return true;
     } else {
       return false;
