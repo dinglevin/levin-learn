@@ -197,7 +197,7 @@ class AggTPSThreadManager implements ThreadManager {
                                         + " elements in queue, dispatching");
                             EventElement fetched[];
                             if (maxAggregation == -1) {
-                                fetched = source.dequeue_all();
+                                fetched = source.dequeueAll();
                             } else {
                                 fetched = source.dequeue(maxAggregation);
                             }
@@ -276,9 +276,9 @@ class AggTPSThreadManager implements ThreadManager {
                             System.err.println(name + ": Blocking dequeue");
                         EventElement fetched[];
                         if (maxAggregation == -1) {
-                            fetched = source.blocking_dequeue_all(-1);
+                            fetched = source.blockingDequeueAll(-1);
                         } else {
-                            fetched = source.blocking_dequeue(-1,
+                            fetched = source.blockingDequeue(-1,
                                     maxAggregation);
                         }
                         if (DEBUG_VERBOSE)

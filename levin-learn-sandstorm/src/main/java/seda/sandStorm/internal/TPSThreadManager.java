@@ -27,6 +27,9 @@ package seda.sandstorm.internal;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventSource;
 import seda.sandstorm.api.ManagerIF;
@@ -44,10 +47,8 @@ import seda.sandstorm.main.SandstormConfig;
  */
 
 public class TPSThreadManager implements ThreadManager {
-
-    private static final boolean DEBUG = false;
-    private static final boolean DEBUG_VERBOSE = false;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(TPSThreadManager.class);
+    
     protected ManagerIF mgr;
     protected SandstormConfig config;
     protected Hashtable srTbl;
@@ -177,8 +178,7 @@ public class TPSThreadManager implements ThreadManager {
             long tstart = 0, tend = 0;
             boolean isFirst = false;
 
-            if (DEBUG)
-                System.err.println(name + ": starting, source is " + source);
+            LOGGER.debug("{}: starting, source is {}", name, source);
 
             t1 = System.currentTimeMillis();
 
@@ -195,29 +195,21 @@ public class TPSThreadManager implements ThreadManager {
                     blockTime = (int) tp.getBlockTime();
                     aggTarget = tp.getAggregationTarget();
 
-                    if (DEBUG_VERBOSE)
-                        System.err.println(name
-                                + ": Doing blocking dequeue for " + wrapper);
+                    LOGGER.trace("{}: Doing blocking dequeue for {}", name, wrapper);
 
                     EventElement fetched[];
                     if (aggTarget == -1) {
-                        if (DEBUG_VERBOSE)
-                            System.err.println("TPSTM <" + this.name
-                                    + "> dequeue (aggTarget -1)");
-                        fetched = source.blocking_dequeue_all(blockTime);
+                        LOGGER.trace("TPSTM <{}> dequeue (aggTarget -1)", this.name);
+                        fetched = source.blockingDequeueAll(blockTime);
                     } else {
-                        if (DEBUG_VERBOSE)
-                            System.err.println("TPSTM <" + this.name
-                                    + "> dequeue (aggTarget " + aggTarget
-                                    + ")");
-                        fetched = source.blocking_dequeue(blockTime, aggTarget);
+                        LOGGER.trace("TPSTM <{}> dequeue (aggTarget {})", this.name, aggTarget);
+                        fetched = source.blockingDequeue(blockTime, aggTarget);
                     }
 
                     if (fetched == null) {
                         t2 = System.currentTimeMillis();
                         if (tp.timeToStop(t2 - t1)) {
-                            if (DEBUG)
-                                System.err.println(name + ": Exiting");
+                            LOGGER.debug("{}: Exiting", name);
                             if (isFirst) {
                                 synchronized (this) {
                                     firstToken = false;
@@ -230,9 +222,7 @@ public class TPSThreadManager implements ThreadManager {
 
                     t1 = System.currentTimeMillis();
 
-                    if (DEBUG_VERBOSE)
-                        System.err.println(name + ": Got " + fetched.length
-                                + " elements for " + wrapper);
+                    LOGGER.debug("{}: Got {} elements for {}", name, fetched.length, wrapper);
 
                     /* Process events */
                     tstart = System.currentTimeMillis();
@@ -240,8 +230,7 @@ public class TPSThreadManager implements ThreadManager {
                     tend = System.currentTimeMillis();
 
                     /* Record service rate */
-                    ((StageWrapperImpl) wrapper).getStats()
-                            .recordServiceRate(fetched.length, tend - tstart);
+                    ((StageWrapperImpl) wrapper).getStats().recordServiceRate(fetched.length, tend - tstart);
 
                     /* Run response time controller controller */
                     if (rtController != null) {
@@ -256,8 +245,7 @@ public class TPSThreadManager implements ThreadManager {
                     }
 
                     if (tp.timeToStop(0)) {
-                        if (DEBUG)
-                            System.err.println(name + ": Exiting");
+                        LOGGER.debug("{}: Exiting", name);
                         if (isFirst) {
                             synchronized (this) {
                                 firstToken = false;
@@ -268,12 +256,9 @@ public class TPSThreadManager implements ThreadManager {
 
                     Thread.yield();
                 } catch (Exception e) {
-                    System.err.println("TPSThreadManager: appThread [" + name
-                            + "] got exception " + e);
-                    e.printStackTrace();
+                    LOGGER.error("TPSThreadManager: appThread [" + name + "] got exception ", e);
                 }
             }
         }
     }
-
 }

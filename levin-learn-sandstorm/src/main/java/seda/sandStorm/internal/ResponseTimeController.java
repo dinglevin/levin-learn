@@ -45,7 +45,7 @@ public abstract class ResponseTimeController implements ResponseTimeControllerIF
   protected final static int MAX_THRESHOLD = 1024;
 
   protected StageWrapper stage;
-  protected EnqueuePredicateIF pred;
+  protected EnqueuePredicate pred;
   protected double targetRT;
 
   protected ResponseTimeController(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {

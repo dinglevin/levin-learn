@@ -25,11 +25,11 @@
 package seda.sandstorm.lib.socket;
 
 import java.net.Socket;
+import java.util.Deque;
 
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventSink;
 import seda.sandstorm.api.SinkClosedException;
-import seda.sandstorm.core.ssLinkedList;
 
 /**
  * Internal class used to represent state of an active socket connection.
@@ -46,7 +46,7 @@ public abstract class SockState implements aSocketConst {
     protected long seqNum = 1;
 
     protected int outstanding_writes, numEmptyWrites;
-    protected ssLinkedList writeReqList;
+    protected Deque writeReqList;
     protected ATcpWriteRequest cur_write_req;
     protected int cur_offset, cur_length_target;
     protected byte writeBuf[];

@@ -95,7 +95,7 @@ public abstract class SimpleSink implements EventSink, Profilable {
     /**
      * Not supported; throws an IllegalArgumentException.
      */
-    public void setEnqueuePredicate(EnqueuePredicateIF pred) {
+    public void setEnqueuePredicate(EnqueuePredicate pred) {
         throw new IllegalArgumentException(
                 "setEnqueuePredicate not supported on SimpleSink objects");
     }
@@ -103,7 +103,7 @@ public abstract class SimpleSink implements EventSink, Profilable {
     /**
      * Returns null.
      */
-    public EnqueuePredicateIF getEnqueuePredicate() {
+    public EnqueuePredicate getEnqueuePredicate() {
         return null;
     }
 

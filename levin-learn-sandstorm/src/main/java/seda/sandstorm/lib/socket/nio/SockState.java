@@ -60,7 +60,7 @@ public class SockState extends seda.sandstorm.lib.socket.SockState {
     if (DEBUG) System.err.println("SockState "+nbsock+": Setting flags");
     outstanding_writes = 0;
     numEmptyWrites = 0;
-    writeReqList = new ssLinkedList();
+    writeReqList = new LinkedList();
 
     clogged_qel = null;
     clogged_numtries = 0;
@@ -215,7 +215,7 @@ public class SockState extends seda.sandstorm.lib.socket.SockState {
     }
 
     if (DEBUG) System.err.println("SockState: Adding writeReq to tail");
-    writeReqList.add_to_tail(req);
+    writeReqList.offerLast(req);
     this.outstanding_writes++;
     if (DEBUG) System.err.println("SockState: " + this.outstanding_writes + " outstanding writes");
     return true;

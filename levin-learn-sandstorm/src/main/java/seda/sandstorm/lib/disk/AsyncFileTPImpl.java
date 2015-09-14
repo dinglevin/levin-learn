@@ -24,10 +24,18 @@
 
 package seda.sandstorm.lib.disk;
 
-import seda.sandstorm.api.*;
-import seda.sandstorm.core.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
-import java.io.*;
+import seda.sandstorm.api.BadEventElementException;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventQueue;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.SinkClosedException;
+import seda.sandstorm.api.SinkException;
+import seda.sandstorm.core.EventQueueImpl;
 
 /**
  * This is an implementation of AFile which uses a pool of threads which perform
@@ -42,8 +50,8 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
     RandomAccessFile raf;
     private AsyncFile afile;
     private AsyncFileTPTM tm;
-    private EventSink compQ;
-    private FiniteQueue eventQ;
+    private EventSink completionQueue;
+    private EventQueueImpl eventQ;
     private boolean readOnly;
     private boolean closed;
 
@@ -51,14 +59,14 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
      * Create an AFileTPIMpl with the given AFile, filename, completion queue,
      * create/readOnly flags, and Thread Manager.
      */
-    AsyncFileTPImpl(AsyncFile afile, String fname, EventSink compQ, boolean create,
+    AsyncFileTPImpl(AsyncFile afile, String fname, EventSink completionQueue, boolean create,
             boolean readOnly, AsyncFileTPTM tm) throws IOException {
         this.afile = afile;
         this.tm = tm;
-        this.compQ = compQ;
+        this.completionQueue = completionQueue;
         this.readOnly = readOnly;
 
-        eventQ = new FiniteQueue();
+        eventQ = new EventQueueImpl("async.file");
 
         f = new File(fname);
         if (!f.exists() && !create) {
@@ -152,7 +160,7 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
      * be posted on the file's completion queue when the close is complete.
      */
     public void close() {
-        enqueueLossy(new AsyncFileCloseRequest(afile, compQ));
+        enqueueLossy(new AsyncFileCloseRequest(afile, completionQueue));
         closed = true;
     }
 
@@ -161,7 +169,7 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
      * when all pending requests have completed.
      */
     public void flush() {
-        enqueueLossy(new AsyncFileFlushRequest(afile, compQ));
+        enqueueLossy(new AsyncFileFlushRequest(afile, completionQueue));
     }
 
     /**

@@ -24,6 +24,9 @@
 
 package seda.sandstorm.lib.disk;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import seda.sandstorm.api.ManagerIF;
 import seda.sandstorm.api.internal.SystemManagerIF;
 import seda.sandstorm.api.internal.ThreadManager;
@@ -38,6 +41,8 @@ import seda.sandstorm.main.SandstormConfig;
  * @author Matt Welsh
  */
 public class AsyncFileManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileManager.class);
+    
     private static ThreadManager aFileTM;
     private static boolean initialized = false;
     private static Object initLock = new Object();
@@ -74,7 +79,7 @@ public class AsyncFileManager {
                 try {
                     initialize(ss.getManager(), ss.getSystemManager());
                 } catch (Exception e) {
-                    System.err.println("Warning: AFileMgr.initialize() got exception: " + e);
+                    LOGGER.error("Warning: AFileMgr.initialize() got exception", e);
                 }
             } else {
                 // No Sandstorm running yet, so create one
@@ -82,10 +87,10 @@ public class AsyncFileManager {
                     SandstormConfig cfg = new SandstormConfig();
                     cfg.putBoolean("global.profile.enable", false);
                     ss = new Sandstorm(cfg);
+                    
+                    initialize(ss.getManager(), ss.getSystemManager());
                 } catch (Exception e) {
-                    System.err.println("AFileMgr: Warning: Initialization failed: " + e);
-                    e.printStackTrace();
-                    return;
+                    LOGGER.error("AFileMgr: Warning: Initialization failed", e);
                 }
             }
         }

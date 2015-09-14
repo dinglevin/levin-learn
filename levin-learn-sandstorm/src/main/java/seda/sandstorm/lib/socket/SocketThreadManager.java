@@ -125,9 +125,9 @@ class SocketThreadManager implements ThreadManager, aSocketConst {
                                     + ": numActive is zero, waiting on event queue");
                         EventElement qelarr[];
                         if (aggTarget == -1) {
-                            qelarr = eventQ.blocking_dequeue_all(EVENT_QUEUE_TIMEOUT);
+                            qelarr = eventQ.blockingDequeueAll(EVENT_QUEUE_TIMEOUT);
                         } else {
-                            qelarr = eventQ.blocking_dequeue(
+                            qelarr = eventQ.blockingDequeue(
                                     EVENT_QUEUE_TIMEOUT, aggTarget);
                         }
 
@@ -148,10 +148,10 @@ class SocketThreadManager implements ThreadManager, aSocketConst {
 
                         if (aggTarget == -1) {
                             ret = (SelectQueueElement[]) selsource
-                                    .blocking_dequeue_all(SELECT_TIMEOUT);
+                                    .blockingDequeueAll(SELECT_TIMEOUT);
                         } else {
                             ret = (SelectQueueElement[]) selsource
-                                    .blocking_dequeue(SELECT_TIMEOUT,
+                                    .blockingDequeue(SELECT_TIMEOUT,
                                             aggTarget);
                         }
 
@@ -174,7 +174,7 @@ class SocketThreadManager implements ThreadManager, aSocketConst {
                     for (int s = 0; s < EVENT_QUEUE_SPIN; s++) {
                         EventElement qelarr[];
                         if (aggTarget == -1) {
-                            qelarr = eventQ.dequeue_all();
+                            qelarr = eventQ.dequeueAll();
                         } else {
                             qelarr = eventQ.dequeue(aggTarget);
                         }

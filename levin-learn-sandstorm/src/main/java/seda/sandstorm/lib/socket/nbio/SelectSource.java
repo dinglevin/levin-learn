@@ -221,7 +221,7 @@ public class SelectSource implements SelectSourceIF {
      * Dequeues all elements which are ready from the SelectSource. Returns null
      * if no entries available.
      */
-    public EventElement[] dequeue_all() {
+    public EventElement[] dequeueAll() {
         if (selset.size() == 0)
             return null;
 
@@ -265,7 +265,7 @@ public class SelectSource implements SelectSourceIF {
      * timeout_millis milliseconds; returns null if no entries available after
      * that time. A timeout of -1 blocks forever.
      */
-    public EventElement blocking_dequeue(int timeout_millis) {
+    public EventElement blockingDequeue(int timeout_millis) {
 
         if (selset.size() == 0) {
             if (timeout_millis == 0)
@@ -299,7 +299,7 @@ public class SelectSource implements SelectSourceIF {
      * timeout_millis milliseconds; returns null if no entries available after
      * that time. A timeout of -1 blocks forever.
      */
-    public EventElement[] blocking_dequeue_all(int timeout_millis) {
+    public EventElement[] blockingDequeueAll(int timeout_millis) {
 
         if (selset.size() == 0) {
             if (timeout_millis == 0)
@@ -338,7 +338,7 @@ public class SelectSource implements SelectSourceIF {
      * timeout_millis milliseconds; returns null if no entries available after
      * that time. A timeout of -1 blocks forever.
      */
-    public EventElement[] blocking_dequeue(int timeout_millis, int num) {
+    public EventElement[] blockingDequeue(int timeout_millis, int num) {
 
         if (selset.size() == 0) {
             if (timeout_millis == 0)

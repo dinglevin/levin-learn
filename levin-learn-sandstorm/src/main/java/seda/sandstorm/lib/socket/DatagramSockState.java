@@ -24,20 +24,20 @@
 
 package seda.sandstorm.lib.socket;
 
-import seda.sandstorm.api.*;
-import seda.sandstorm.core.*;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.Deque;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.EventSource;
+import seda.sandstorm.api.SinkClosedException;
+import seda.sandstorm.core.BufferEvent;
 
 /**
  * Internal class used to represent state of an active datagram socket.
  */
 public abstract class DatagramSockState implements aSocketConst {
-
-  private static final boolean DEBUG = false;
-
   protected AUdpSocket udpsock;
   protected EventSink readCompQ;
   protected EventElement clogged_qel;
@@ -50,7 +50,7 @@ public abstract class DatagramSockState implements aSocketConst {
   protected AUdpInPacket pkt;
 
   protected int outstanding_writes, numEmptyWrites;
-  protected ssLinkedList writeReqList;
+  protected Deque writeReqList;
   protected AUdpWriteRequest cur_write_req;
   protected BufferEvent cur_write_buf;
 

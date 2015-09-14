@@ -42,9 +42,9 @@ import java.io.*;
  * @see SinkIF, AFileRequest
  */
 public class AsyncFile extends SimpleSink {
-    private String fname;
+    private String filename;
     private AsyncFileImpl impl;
-    private EventSink compQ;
+    private EventSink completionQueue;
 
     /**
      * Open the file with the given pathname.
@@ -54,7 +54,7 @@ public class AsyncFile extends SimpleSink {
      * @param compQ
      *            The default completion queue on which read and write
      *            completion events will be posted. A completion queue can be
-     *            specified for each individual request by setting the 'compQ'
+     *            specified for each individual request by setting the 'completionQueue'
      *            field in the associated AFileRequest.
      * @param create
      *            If true, creates the file if it does not exist.
@@ -66,8 +66,8 @@ public class AsyncFile extends SimpleSink {
      */
     public AsyncFile(String name, EventSink compQ, boolean create, boolean readOnly) throws IOException {
         AsyncFileManager.initialize();
-        this.compQ = compQ;
-        this.fname = name;
+        this.completionQueue = compQ;
+        this.filename = name;
         AsyncFileTPTM asyncFileThreadMgr = (AsyncFileTPTM) AsyncFileManager.getTM();
         this.impl = new AsyncFileTPImpl(this, name, compQ, create, readOnly, asyncFileThreadMgr);
     }
@@ -99,7 +99,7 @@ public class AsyncFile extends SimpleSink {
      * Enqueues a write request at the current file offset.
      */
     public synchronized void write(BufferEvent buf) throws SinkException {
-        this.enqueue(new AsyncFileWriteRequest(buf, compQ));
+        this.enqueue(new AsyncFileWriteRequest(buf, completionQueue));
     }
 
     /**
@@ -108,14 +108,14 @@ public class AsyncFile extends SimpleSink {
      */
     public synchronized void write(BufferEvent buf, int offset) throws SinkException {
         this.enqueue(new AsyncFileSeekRequest(offset, null));
-        this.enqueue(new AsyncFileWriteRequest(buf, compQ));
+        this.enqueue(new AsyncFileWriteRequest(buf, completionQueue));
     }
 
     /**
      * Enqueues a read request at the current file offset.
      */
     public synchronized void read(BufferEvent buf) throws SinkException {
-        this.enqueue(new AsyncFileReadRequest(buf, compQ));
+        this.enqueue(new AsyncFileReadRequest(buf, completionQueue));
     }
 
     /**
@@ -124,7 +124,7 @@ public class AsyncFile extends SimpleSink {
      */
     public synchronized void read(BufferEvent buf, int offset) throws SinkException {
         this.enqueue(new AsyncFileSeekRequest(offset, null));
-        this.enqueue(new AsyncFileReadRequest(buf, compQ));
+        this.enqueue(new AsyncFileReadRequest(buf, completionQueue));
     }
 
     /**
@@ -133,7 +133,7 @@ public class AsyncFile extends SimpleSink {
      * enqueued after the seek operation will use the new file offset.
      */
     public synchronized void seek(int offset) throws SinkException {
-        this.enqueue(new AsyncFileSeekRequest(offset, compQ));
+        this.enqueue(new AsyncFileSeekRequest(offset, completionQueue));
     }
 
     /**
@@ -144,7 +144,7 @@ public class AsyncFile extends SimpleSink {
     }
 
     public String getFilename() {
-        return fname;
+        return filename;
     }
 
     /**
@@ -173,6 +173,6 @@ public class AsyncFile extends SimpleSink {
     }
 
     public String toString() {
-        return "AsyncFile [fname=" + fname + "]";
+        return "AsyncFile [fname=" + filename + "]";
     }
 }

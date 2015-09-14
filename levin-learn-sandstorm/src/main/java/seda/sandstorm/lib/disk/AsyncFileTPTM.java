@@ -39,7 +39,7 @@ import seda.sandstorm.api.internal.StageWrapper;
 import seda.sandstorm.api.internal.SystemManagerIF;
 import seda.sandstorm.api.internal.ThreadManager;
 import seda.sandstorm.core.BufferEvent;
-import seda.sandstorm.core.FiniteQueue;
+import seda.sandstorm.core.EventQueueImpl;
 import seda.sandstorm.internal.ConfigDataImpl;
 import seda.sandstorm.internal.TPSThreadManager;
 import seda.sandstorm.internal.ThreadPool;
@@ -58,7 +58,7 @@ class AsyncFileTPTM extends TPSThreadManager implements ThreadManager, Profilabl
     private static final boolean DEBUG = false;
 
     // Global queue for files with pending entries
-    private FiniteQueue fileQ;
+    private EventQueueImpl fileQ;
     // Count of outstanding file requests, derived from length of
     // queue of each file on fileQ
     private int numOutstandingRequests;
@@ -81,7 +81,7 @@ class AsyncFileTPTM extends TPSThreadManager implements ThreadManager, Profilabl
                             "global.aDisk.threadPool.sizeController.threshold"));
         }
 
-        fileQ = new FiniteQueue();
+        fileQ = new EventQueueImpl("async.file.tps");
         numOutstandingRequests = 0;
         sysmgr.addThreadManager("AFileTPTM", this);
         AsyncFileTPStageWrapper sw = new AsyncFileTPStageWrapper("AFileTPTM Stage",
@@ -176,7 +176,7 @@ class AsyncFileTPTM extends TPSThreadManager implements ThreadManager, Profilabl
 
                     AsyncFileTPImpl impl;
                     fileQueueEntry fqe = (fileQueueEntry) fileQ
-                            .blocking_dequeue(blockTime);
+                            .blockingDequeue(blockTime);
                     if (fqe == null) {
                         t2 = System.currentTimeMillis();
                         if (tp.timeToStop(t2 - t1)) {

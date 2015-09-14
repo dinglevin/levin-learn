@@ -24,56 +24,56 @@
 
 package seda.sandstorm.core;
 
-import seda.sandstorm.api.*;
-import seda.sandstorm.api.internal.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.util.Hashtable;
+import java.util.Deque;
+import java.util.Map;
 
-/**
- * The FiniteQueue class is a simple implementation of the QueueIF interface,
- * using a linked list.
- *
- * @author Matt Welsh
- * @see seda.sandstorm.api.EventQueue
- */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class FiniteQueue implements EventQueue, Profilable {
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
-    private static final boolean DEBUG = false;
+import seda.sandstorm.api.EnqueuePredicate;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventQueue;
+import seda.sandstorm.api.Profilable;
+import seda.sandstorm.api.SinkException;
+import seda.sandstorm.api.SinkFullException;
 
-    private ssLinkedList qlist;
+public class EventQueueImpl implements EventQueue, Profilable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventQueueImpl.class);
+    
+    private final String name;
+    private EnqueuePredicate pred;
+    
+    private Deque<EventElement> queue;
     private int queueSize;
     private Object blocker;
-    private Hashtable provisionalTbl;
-    private EnqueuePredicateIF pred;
-    private String name;
+    private Map<Object, EventElement[]> provisionalTbl;
 
     /**
-     * Create a FiniteQueue with the given enqueue predicate.
+     * Create a EventQueueImpl with the given enqueue predicate.
      */
-    public FiniteQueue(EnqueuePredicateIF pred) {
-        this.name = null;
+    public EventQueueImpl(String name, EnqueuePredicate pred) {
+        checkArgument(isNotBlank(name), "name is blank");
+        
+        this.name = name;
         this.pred = pred;
-        qlist = new ssLinkedList();
+        queue = Lists.newLinkedList();
         queueSize = 0;
         blocker = new Object();
-        provisionalTbl = new Hashtable(1);
-    }
-
-    /**
-     * Create a FiniteQueue with no enqueue predicate.
-     */
-    public FiniteQueue() {
-        this((EnqueuePredicateIF) null);
+        provisionalTbl = Maps.newHashMap();
     }
 
     /**
      * Create a FiniteQueue with no enqueue and the given name. Used for
      * debugging.
      */
-    public FiniteQueue(String name) {
-        this((EnqueuePredicateIF) null);
-        this.name = name;
+    public EventQueueImpl(String name) {
+        this(name, null);
     }
 
     /**
@@ -81,62 +81,57 @@ public class FiniteQueue implements EventQueue, Profilable {
      */
     public int size() {
         synchronized (blocker) {
-            synchronized (qlist) {
+            synchronized (queue) {
                 return queueSize;
             }
         }
     }
 
-    public void enqueue(EventElement enqueueMe) throws SinkFullException {
-
-        if (DEBUG)
-            System.err.println("**** ENQUEUE (" + name + ") **** Entered");
+    public void enqueue(EventElement event) throws SinkFullException {
+        LOGGER.debug("**** ENQUEUE ({}) **** Entered", name);
+        
         synchronized (blocker) {
 
-            synchronized (qlist) {
-                if (DEBUG)
-                    System.err.println(
-                            "**** ENQUEUE (" + name + ") **** Checking pred");
-                if ((pred != null) && (!pred.accept(enqueueMe)))
+            synchronized (queue) {
+                LOGGER.debug("**** ENQUEUE ({}) **** Checking pred", name);
+                
+                if ((pred != null) && (!pred.accept(event)))
                     throw new SinkFullException("FiniteQueue is full!");
                 queueSize++;
-                if (DEBUG)
-                    System.err.println(
-                            "**** ENQUEUE (" + name + ") **** Add to tail");
-                qlist.add_to_tail(enqueueMe); // wake up one blocker
+                
+                LOGGER.debug("**** ENQUEUE ({}) **** Add to tail", name);
+                
+                queue.offerLast(event); // wake up one blocker
             }
+            
             // XXX MDW: Trying to track down a bug here ...
-            if (DEBUG)
-                System.err.println(
-                        "**** ENQUEUE (" + name + ") **** Doing notify");
+            LOGGER.debug("**** ENQUEUE ({}) **** Doing notify", name);
+            
             blocker.notify();
-            if (DEBUG)
-                System.err.println(
-                        "**** ENQUEUE (" + name + ") **** Done with notify");
+            LOGGER.debug("**** ENQUEUE ({}) **** Done with notify", name);
             // blocker.notifyAll();
         }
-        if (DEBUG)
-            System.err.println("**** ENQUEUE (" + name + ") **** Exiting");
+        
+        LOGGER.debug("**** ENQUEUE ({}) **** Exiting", name);
     }
 
-    public boolean enqueueLossy(EventElement enqueueMe) {
+    public boolean enqueueLossy(EventElement event) {
         try {
-            this.enqueue(enqueueMe);
+            this.enqueue(event);
         } catch (Exception e) {
             return false;
         }
         return true;
     }
 
-    public void enqueueMany(EventElement[] enqueueMe)
-            throws SinkFullException {
+    public void enqueueMany(EventElement[] event) throws SinkFullException {
         synchronized (blocker) {
-            int qlen = enqueueMe.length;
+            int qlen = event.length;
 
-            synchronized (qlist) {
+            synchronized (queue) {
                 if (pred != null) {
                     int i = 0;
-                    while ((i < qlen) && (pred.accept(enqueueMe[i])))
+                    while ((i < qlen) && (pred.accept(event[i])))
                         i++;
                     if (i != qlen)
                         throw new SinkFullException("FiniteQueue is full!");
@@ -144,7 +139,7 @@ public class FiniteQueue implements EventQueue, Profilable {
 
                 queueSize += qlen;
                 for (int i = 0; i < qlen; i++) {
-                    qlist.add_to_tail(enqueueMe[i]);
+                    queue.offerLast(event[i]);
                 }
             }
             blocker.notifyAll(); // wake up all sleepers
@@ -152,31 +147,29 @@ public class FiniteQueue implements EventQueue, Profilable {
     }
 
     public EventElement dequeue() {
-
         EventElement el = null;
         synchronized (blocker) {
-            synchronized (qlist) {
-                if (qlist.size() == 0)
+            synchronized (queue) {
+                if (queue.size() == 0)
                     return null;
 
-                el = (EventElement) qlist.remove_head();
+                el = queue.pollFirst();
                 queueSize--;
                 return el;
             }
         }
     }
 
-    public EventElement[] dequeue_all() {
-
+    public EventElement[] dequeueAll() {
         synchronized (blocker) {
-            synchronized (qlist) {
-                int qs = qlist.size();
+            synchronized (queue) {
+                int qs = queue.size();
                 if (qs == 0)
                     return null;
 
                 EventElement[] retIF = new EventElement[qs];
                 for (int i = 0; i < qs; i++)
-                    retIF[i] = (EventElement) qlist.remove_head();
+                    retIF[i] = queue.pollFirst();
                 queueSize -= qs;
                 return retIF;
             }
@@ -184,17 +177,16 @@ public class FiniteQueue implements EventQueue, Profilable {
     }
 
     public EventElement[] dequeue(int num) {
-
         synchronized (blocker) {
-            synchronized (qlist) {
-                int qs = Math.min(qlist.size(), num);
+            synchronized (queue) {
+                int qs = Math.min(queue.size(), num);
 
                 if (qs == 0)
                     return null;
 
                 EventElement[] retIF = new EventElement[qs];
                 for (int i = 0; i < qs; i++)
-                    retIF[i] = (EventElement) qlist.remove_head();
+                    retIF[i] = queue.pollFirst();
                 queueSize -= qs;
                 return retIF;
             }
@@ -202,15 +194,14 @@ public class FiniteQueue implements EventQueue, Profilable {
     }
 
     public EventElement[] dequeue(int num, boolean mustReturnNum) {
-
         synchronized (blocker) {
-            synchronized (qlist) {
+            synchronized (queue) {
                 int qs;
 
                 if (!mustReturnNum) {
-                    qs = Math.min(qlist.size(), num);
+                    qs = Math.min(queue.size(), num);
                 } else {
-                    if (qlist.size() < num)
+                    if (queue.size() < num)
                         return null;
                     qs = num;
                 }
@@ -220,36 +211,30 @@ public class FiniteQueue implements EventQueue, Profilable {
 
                 EventElement[] retIF = new EventElement[qs];
                 for (int i = 0; i < qs; i++)
-                    retIF[i] = (EventElement) qlist.remove_head();
+                    retIF[i] = queue.pollFirst();
                 queueSize -= qs;
                 return retIF;
             }
         }
     }
 
-    public EventElement[] blocking_dequeue_all(int timeout_millis) {
+    public EventElement[] blockingDequeueAll(int timeout_millis) {
         EventElement[] rets = null;
         long goal_time;
         int num_spins = 0;
 
-        if (DEBUG)
-            System.err.println("**** B_DEQUEUE_A (" + name + ") **** Entered");
+        LOGGER.debug("**** B_DEQUEUE_A ({}) **** Entered", name);
 
         goal_time = System.currentTimeMillis() + timeout_millis;
         while (true) {
             synchronized (blocker) {
-
-                if (DEBUG)
-                    System.err.println(
-                            "**** B_DEQUEUE_A (" + name + ") **** Doing D_A");
-                rets = this.dequeue_all();
-                if (DEBUG)
-                    System.err.println("**** B_DEQUEUE_A (" + name
-                            + ") **** RETS IS " + rets);
+                LOGGER.debug("**** B_DEQUEUE_A ({}) **** Doing D_A", name);
+                
+                rets = this.dequeueAll();
+                LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETS IS {}", name, rets);
+                
                 if ((rets != null) || (timeout_millis == 0)) {
-                    if (DEBUG)
-                        System.err.println("**** B_DEQUEUE_A (" + name
-                                + ") **** RETURNING (1)");
+                    LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETURNING (1)", name);
                     return rets;
                 }
 
@@ -260,33 +245,24 @@ public class FiniteQueue implements EventQueue, Profilable {
                     }
                 } else {
                     try {
-                        if (DEBUG)
-                            System.err.println("**** B_DEQUEUE_A (" + name
-                                    + ") **** WAITING ON BLOCKER");
+                        LOGGER.debug("**** B_DEQUEUE_A ({}) **** WAITING ON BLOCKER", name);
                         blocker.wait(timeout_millis);
                     } catch (InterruptedException ie) {
                     }
                 }
 
-                if (DEBUG)
-                    System.err.println("**** B_DEQUEUE_A (" + name
-                            + ") **** Doing D_A (2)");
-                rets = this.dequeue_all();
-                if (DEBUG)
-                    System.err.println("**** B_DEQUEUE_A (" + name
-                            + ") **** RETS(2) IS " + rets);
+                LOGGER.debug("**** B_DEQUEUE_A ({}) **** Doing D_A (2)", name);
+                
+                rets = this.dequeueAll();
+                LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETS(2) IS {}", name, rets);
                 if (rets != null) {
-                    if (DEBUG)
-                        System.err.println("**** B_DEQUEUE_A (" + name
-                                + ") **** RETURNING(2)");
+                    LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETURNING(2)", name);
                     return rets;
                 }
 
                 if (timeout_millis != -1) {
                     if (System.currentTimeMillis() >= goal_time) {
-                        if (DEBUG)
-                            System.err.println("**** B_DEQUEUE_A (" + name
-                                    + ") **** RETURNING(3)");
+                        LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETURNING(3)", name);
                         return null;
                     }
                 }
@@ -337,11 +313,11 @@ public class FiniteQueue implements EventQueue, Profilable {
         }
     }
 
-    public EventElement[] blocking_dequeue(int timeout_millis, int num) {
+    public EventElement[] blockingDequeue(int timeout_millis, int num) {
         return blocking_dequeue(timeout_millis, num, false);
     }
 
-    public EventElement blocking_dequeue(int timeout_millis) {
+    public EventElement blockingDequeue(int timeout_millis) {
         EventElement rets = null;
         long goal_time;
         int num_spins = 0;
@@ -394,7 +370,7 @@ public class FiniteQueue implements EventQueue, Profilable {
             throws SinkException {
         int qlen = enqueueMe.length;
         synchronized (blocker) {
-            synchronized (qlist) {
+            synchronized (queue) {
                 if (pred != null) {
                     int i = 0;
                     while ((i < qlen) && (pred.accept(enqueueMe[i])))
@@ -415,14 +391,14 @@ public class FiniteQueue implements EventQueue, Profilable {
      */
     public void enqueueCommit(Object key) {
         synchronized (blocker) {
-            synchronized (qlist) {
+            synchronized (queue) {
                 EventElement elements[] = (EventElement[]) provisionalTbl
                         .remove(key);
                 if (elements == null)
                     throw new IllegalArgumentException(
                             "Unknown enqueue key " + key);
                 for (int i = 0; i < elements.length; i++) {
-                    qlist.add_to_tail(elements[i]);
+                    queue.offerLast(elements[i]);
                 }
             }
             blocker.notifyAll();
@@ -434,7 +410,7 @@ public class FiniteQueue implements EventQueue, Profilable {
      */
     public void enqueueAbort(Object key) {
         synchronized (blocker) {
-            synchronized (qlist) {
+            synchronized (queue) {
                 EventElement elements[] = (EventElement[]) provisionalTbl
                         .remove(key);
                 if (elements == null)
@@ -448,19 +424,18 @@ public class FiniteQueue implements EventQueue, Profilable {
     /**
      * Set the enqueue predicate for this sink.
      */
-    public void setEnqueuePredicate(EnqueuePredicateIF pred) {
+    public void setEnqueuePredicate(EnqueuePredicate pred) {
         this.pred = pred;
     }
 
     /**
      * Return the enqueue predicate for this sink.
      */
-    public EnqueuePredicateIF getEnqueuePredicate() {
+    public EnqueuePredicate getEnqueuePredicate() {
         return pred;
     }
 
     public String toString() {
-        return "FiniteQueue <" + name + ">";
+        return "EventQueueImpl <" + name + ">";
     }
-
 }

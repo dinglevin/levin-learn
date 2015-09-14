@@ -33,7 +33,7 @@ import seda.sandstorm.api.internal.ResponseTimeControllerIF;
 import seda.sandstorm.api.internal.StageStats;
 import seda.sandstorm.api.internal.StageWrapper;
 import seda.sandstorm.api.internal.ThreadManager;
-import seda.sandstorm.core.FiniteQueue;
+import seda.sandstorm.core.EventQueueImpl;
 import seda.sandstorm.core.QueueThresholdPredicate;
 import seda.sandstorm.internal.StageImpl;
 import seda.sandstorm.internal.StageStatsImpl;
@@ -46,7 +46,7 @@ class SocketStageWrapper implements StageWrapper {
     private Stage stage;
     private EventHandler handler;
     private ConfigData config;
-    private FiniteQueue eventQ;
+    private EventQueueImpl eventQ;
     private SelectSourceIF selsource;
     private ThreadManager tm;
     private StageStats stats;
@@ -61,9 +61,9 @@ class SocketStageWrapper implements StageWrapper {
 
         int queuelen = config.getInt("_queuelength");
         if (queuelen <= 0) {
-            eventQ = new FiniteQueue();
+            eventQ = new EventQueueImpl("async.socket");
         } else {
-            eventQ = new FiniteQueue();
+            eventQ = new EventQueueImpl("async.socket");
             QueueThresholdPredicate pred = new QueueThresholdPredicate(eventQ, queuelen);
             eventQ.setEnqueuePredicate(pred);
         }

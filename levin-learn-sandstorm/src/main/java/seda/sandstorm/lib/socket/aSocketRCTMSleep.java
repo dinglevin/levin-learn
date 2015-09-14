@@ -88,9 +88,9 @@ class aSocketRCTMSleep extends SocketThreadManager implements ThreadManager, aSo
 	    if (DEBUG) System.err.println(name+": numActive is zero, waiting on event queue");
 	    EventElement qelarr[];
 	    if (aggTarget == -1) {
-	      qelarr = eventQ.blocking_dequeue_all(EVENT_QUEUE_TIMEOUT);
+	      qelarr = eventQ.blockingDequeueAll(EVENT_QUEUE_TIMEOUT);
 	    } else {
-	      qelarr = eventQ.blocking_dequeue(EVENT_QUEUE_TIMEOUT, aggTarget);
+	      qelarr = eventQ.blockingDequeue(EVENT_QUEUE_TIMEOUT, aggTarget);
 	    }
 	    if (qelarr != null) {
 	      if (DEBUG) System.err.println(name+": got "+qelarr.length+" new requests");
@@ -103,9 +103,9 @@ class aSocketRCTMSleep extends SocketThreadManager implements ThreadManager, aSo
 	    if (DEBUG) System.err.println(name+": doing select, numActive "+selsource.numActive());
 	    SelectQueueElement ret[];
 	    if (aggTarget == -1) {
-	      ret = (SelectQueueElement[])selsource.blocking_dequeue_all(SELECT_TIMEOUT);
+	      ret = (SelectQueueElement[])selsource.blockingDequeueAll(SELECT_TIMEOUT);
 	    } else {
-	      ret = (SelectQueueElement[])selsource.blocking_dequeue(SELECT_TIMEOUT, aggTarget);
+	      ret = (SelectQueueElement[])selsource.blockingDequeue(SELECT_TIMEOUT, aggTarget);
 	    }
 	    if (ret != null) {
 	      if (DEBUG) System.err.println(name+": select got "+ret.length+" elements");
@@ -118,7 +118,7 @@ class aSocketRCTMSleep extends SocketThreadManager implements ThreadManager, aSo
 	  for (int s = 0; s < EVENT_QUEUE_SPIN; s++) {
 	    EventElement qelarr[];
 	    if (aggTarget == -1) {
-	      qelarr = eventQ.dequeue_all();
+	      qelarr = eventQ.dequeueAll();
 	    } else {
 	      qelarr = eventQ.dequeue(aggTarget);
 	    }

@@ -30,7 +30,7 @@ import seda.sandstorm.api.*;
  * This enqueue predicate implements a simple threshold for the
  * size of the queue.
  */
-public class QueueThresholdPredicate implements EnqueuePredicateIF {
+public class QueueThresholdPredicate implements EnqueuePredicate {
 
   private static final boolean DEBUG = false;
 

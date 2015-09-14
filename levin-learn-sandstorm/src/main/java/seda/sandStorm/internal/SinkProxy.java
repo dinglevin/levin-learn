@@ -144,11 +144,11 @@ public class SinkProxy implements EventSink, Profilable {
     thesink.enqueueAbort(key);
   }
 
-  public void setEnqueuePredicate(EnqueuePredicateIF pred) {
+  public void setEnqueuePredicate(EnqueuePredicate pred) {
     thesink.setEnqueuePredicate(pred);
   }
 
-  public EnqueuePredicateIF getEnqueuePredicate() {
+  public EnqueuePredicate getEnqueuePredicate() {
     return thesink.getEnqueuePredicate();
   }
 

@@ -30,7 +30,7 @@ import seda.util.*;
 /**
  * This enqueue predicate implements multiclass input rate policing.
  */
-public class MulticlassRateLimitingPredicate implements EnqueuePredicateIF {
+public class MulticlassRateLimitingPredicate implements EnqueuePredicate {
 
   private static final boolean DEBUG = false;
 

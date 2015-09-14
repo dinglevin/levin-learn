@@ -170,12 +170,12 @@ public interface EventSink {
      * queue-thresholding policies, such as simple count threshold, credit-based
      * mechanisms, and more.
      */
-    public void setEnqueuePredicate(EnqueuePredicateIF pred);
+    public void setEnqueuePredicate(EnqueuePredicate pred);
 
     /**
      * Return the enqueue predicate for this sink.
      */
-    public EnqueuePredicateIF getEnqueuePredicate();
+    public EnqueuePredicate getEnqueuePredicate();
 
     /**
      * Return the number of elements in this sink.

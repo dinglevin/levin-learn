@@ -24,7 +24,7 @@
 
 package seda.sandstorm.core;
 
-import seda.sandstorm.api.EnqueuePredicateIF;
+import seda.sandstorm.api.EnqueuePredicate;
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventSink;
 import seda.util.StatsGatherer;
@@ -32,109 +32,117 @@ import seda.util.StatsGatherer;
 /**
  * This enqueue predicate implements input rate policing.
  */
-public class RateLimitingPredicate implements EnqueuePredicateIF {
-  private EventSink thesink;
-  private double targetRate;
-  private int depth;
-  private double tokenCount;
-  private double regenTimeMS;
-  private long lasttime;
+public class RateLimitingPredicate implements EnqueuePredicate {
+    private EventSink thesink;
+    private double targetRate;
+    private int depth;
+    private double tokenCount;
+    private double regenTimeMS;
+    private long lasttime;
 
-  // Number of milliseconds between regenerations
-  private long MIN_REGEN_TIME = 0;
+    // Number of milliseconds between regenerations
+    private long MIN_REGEN_TIME = 0;
 
-  private static final boolean PROFILE = true;
-  private StatsGatherer interArrivalStats;
-  private StatsGatherer acceptArrivalStats;
-  
-  /**
-   * Create a new RateLimitingPredicate for the given sink,
-   * targetRate, and token bucket depth. A rate of -1.0 indicates no rate limit.
-   */
-  public RateLimitingPredicate(EventSink sink, double targetRate, int depth) {
-    this.thesink = sink;
-    this.targetRate = targetRate;
-    this.regenTimeMS = (1.0 / targetRate) * 1.0e3;
-    if (this.regenTimeMS < 1) this.regenTimeMS = 1;
-    this.depth = depth; this.tokenCount = depth*1.0;
-    this.lasttime = System.currentTimeMillis();
+    private static final boolean PROFILE = true;
+    private StatsGatherer interArrivalStats;
+    private StatsGatherer acceptArrivalStats;
 
-    System.err.println("RateLimitingPredicate<"+sink.toString()+">: Created");
+    /**
+     * Create a new RateLimitingPredicate for the given sink, targetRate, and
+     * token bucket depth. A rate of -1.0 indicates no rate limit.
+     */
+    public RateLimitingPredicate(EventSink sink, double targetRate, int depth) {
+        this.thesink = sink;
+        this.targetRate = targetRate;
+        this.regenTimeMS = (1.0 / targetRate) * 1.0e3;
+        if (this.regenTimeMS < 1)
+            this.regenTimeMS = 1;
+        this.depth = depth;
+        this.tokenCount = depth * 1.0;
+        this.lasttime = System.currentTimeMillis();
 
-    if (PROFILE) {
-      interArrivalStats = new StatsGatherer("IA<"+sink.toString()+">", 
-	  "IA<"+sink.toString()+">", 1, 0);
-      acceptArrivalStats = new StatsGatherer("AA<"+sink.toString()+">", 
-	  "AA<"+sink.toString()+">", 1, 0);
-    }
-  }
+        System.err.println(
+                "RateLimitingPredicate<" + sink.toString() + ">: Created");
 
-  /**
-   * Returns true if the given element can be accepted into the queue.
-   */
-  public boolean accept(EventElement qel) {
-    if (targetRate == -1.0) return true;
-
-    // First regenerate tokens
-    long curtime = System.currentTimeMillis();
-    long delay = curtime - lasttime;
-
-    if (PROFILE) {
-      interArrivalStats.add(delay);
+        if (PROFILE) {
+            interArrivalStats = new StatsGatherer("IA<" + sink.toString() + ">",
+                    "IA<" + sink.toString() + ">", 1, 0);
+            acceptArrivalStats = new StatsGatherer(
+                    "AA<" + sink.toString() + ">",
+                    "AA<" + sink.toString() + ">", 1, 0);
+        }
     }
 
-    if (delay >= MIN_REGEN_TIME) {
-      double numTokens = ((double)delay * 1.0) / (regenTimeMS * 1.0);
-      tokenCount += numTokens; if (tokenCount > depth) tokenCount = depth;
-      lasttime = curtime;
+    /**
+     * Returns true if the given element can be accepted into the queue.
+     */
+    public boolean accept(EventElement qel) {
+        if (targetRate == -1.0)
+            return true;
+
+        // First regenerate tokens
+        long curtime = System.currentTimeMillis();
+        long delay = curtime - lasttime;
+
+        if (PROFILE) {
+            interArrivalStats.add(delay);
+        }
+
+        if (delay >= MIN_REGEN_TIME) {
+            double numTokens = ((double) delay * 1.0) / (regenTimeMS * 1.0);
+            tokenCount += numTokens;
+            if (tokenCount > depth)
+                tokenCount = depth;
+            lasttime = curtime;
+        }
+
+        if (tokenCount >= 1.0) {
+            tokenCount -= 1.0;
+            if (PROFILE) {
+                acceptArrivalStats.add(delay);
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    if (tokenCount >= 1.0) {
-      tokenCount -= 1.0;
-      if (PROFILE) {
-       	acceptArrivalStats.add(delay);
-      }
-      return true;
-    } else {
-      return false;
+    /**
+     * Return the current rate limit.
+     */
+    public double getTargetRate() {
+        return targetRate;
     }
-  }
 
-  /**
-   * Return the current rate limit.
-   */
-  public double getTargetRate() {
-    return targetRate;
-  }
+    /**
+     * Return the current depth.
+     */
+    public int getDepth() {
+        return depth;
+    }
 
-  /**
-   * Return the current depth.
-   */
-  public int getDepth() {
-    return depth;
-  }
+    /**
+     * Return the number of tokens currently in the bucket.
+     */
+    public int getBucketSize() {
+        return (int) tokenCount;
+    }
 
-  /**
-   * Return the number of tokens currently in the bucket.
-   */
-  public int getBucketSize() {
-    return (int)tokenCount;
-  }
+    /**
+     * Set the rate limit. A limit of -1.0 indicates no rate limit.
+     */
+    public void setTargetRate(double targetRate) {
+        this.targetRate = targetRate;
+        this.regenTimeMS = (1.0 / targetRate) * 1.0e3;
+        if (regenTimeMS < 1)
+            regenTimeMS = 1;
+    }
 
-  /**
-   * Set the rate limit. A limit of -1.0 indicates no rate limit.
-   */
-  public void setTargetRate(double targetRate) {
-    this.targetRate = targetRate;
-    this.regenTimeMS = (1.0 / targetRate) * 1.0e3;
-    if (regenTimeMS < 1) regenTimeMS = 1;
-  }
-
-  /**
-   * Set the bucket depth.
-   */
-  public void setDepth(int depth) {
-    this.depth = depth;
-  }
+    /**
+     * Set the bucket depth.
+     */
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
 
 }

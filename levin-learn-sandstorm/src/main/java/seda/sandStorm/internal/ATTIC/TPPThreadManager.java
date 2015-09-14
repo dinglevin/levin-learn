@@ -135,7 +135,7 @@ class TPPThreadManager implements ThreadManager {
                         if (DEBUG_VERBOSE)
                             System.err.println(name + ": inspecting " + s);
                         EventSource src = s.getSource();
-                        EventElement qelarr[] = src.dequeue_all();
+                        EventElement qelarr[] = src.dequeueAll();
                         if (qelarr != null) {
                             if (DEBUG)
                                 System.err.println(name + ": dequeued "

@@ -75,7 +75,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandler, aSoc
     // Avoid doing too many things on each socket
     int num_reqs_processed = 0;
     while (ss.writeReqList != null  &&   // JRVB: this can happen if someone closes the socket while we are processing writes.
-           ((req = (aSocketRequest)ss.writeReqList.get_head()) != null) &&
+           ((req = (aSocketRequest)ss.writeReqList.getLast()) != null) &&
 	(++num_reqs_processed < MAX_WRITE_REQS_PER_SOCKET)) {
 
       if (DEBUG) System.err.println("Processing "+req+" ("+num_reqs_processed+")");
@@ -125,7 +125,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandler, aSoc
 
 	  // Clear the request
 	  if (!ss.isClosed()) {
-	    ss.writeReqList.remove_head();
+	    ss.writeReqList.pollFirst();
 	  } else {
 	    return; // Nothing more to do
 	  }
@@ -151,7 +151,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandler, aSoc
 
 	// Clear the request
 	if (!ss.isClosed()) {
-	  ss.writeReqList.remove_head();
+	  ss.writeReqList.pollFirst();
 	  ss.writeReset();
 	} else {
 	  return; // Nothing more to do
@@ -201,7 +201,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandler, aSoc
 
     // Avoid doing too many things on each socket
     int num_reqs_processed = 0;
-    while (((req = (aSocketRequest)ss.writeReqList.get_head()) != null) &&
+    while (((req = (aSocketRequest)ss.writeReqList.getFirst()) != null) &&
 	(++num_reqs_processed < MAX_WRITE_REQS_PER_SOCKET)) {
 
       if (DEBUG) System.err.println("Processing "+req+" ("+num_reqs_processed+")");
@@ -244,7 +244,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandler, aSoc
 
 	  // Clear the request
 	  if (!ss.isClosed()) {
-	    ss.writeReqList.remove_head();
+	    ss.writeReqList.pollFirst();
 	  } else {
 	    return; // Nothing more to do
 	  }
@@ -267,7 +267,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandler, aSoc
 
 	// Clear the request
 	if (!ss.isClosed()) {
-	  ss.writeReqList.remove_head();
+	  ss.writeReqList.pollFirst();
 	} else {
 	  return; // Nothing more to do
 	}

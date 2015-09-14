@@ -34,5 +34,4 @@ package seda.sandstorm.api;
  * @author Matt Welsh
  */
 public interface EventQueue extends EventSource, EventSink {
-    /* No additional methods: Just extends SourceIF and SinkIF */
 }

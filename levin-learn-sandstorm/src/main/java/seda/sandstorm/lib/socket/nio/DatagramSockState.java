@@ -88,7 +88,7 @@ public class DatagramSockState extends seda.sandstorm.lib.socket.DatagramSockSta
     if (DEBUG) System.err.println("DatagramSockState "+nio_dgsock+": Setting flags");
     outstanding_writes = 0;
     numEmptyWrites = 0;
-    writeReqList = new ssLinkedList();
+    writeReqList = new LinkedList();
     clogged_qel = null;
     clogged_numtries = 0;
     if (DEBUG) System.err.println("DatagramSockState "+nio_dgsock+": Const done");
@@ -222,7 +222,7 @@ public class DatagramSockState extends seda.sandstorm.lib.socket.DatagramSockSta
     }
 
     if (DEBUG) System.err.println("DatagramSockState: Adding writeReq to tail");
-    writeReqList.add_to_tail(req);
+    writeReqList.offerLast(req);
     this.outstanding_writes++;
     return true;
   }

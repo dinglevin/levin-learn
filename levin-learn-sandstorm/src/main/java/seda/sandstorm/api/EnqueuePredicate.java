@@ -25,26 +25,24 @@
 package seda.sandstorm.api;
 
 /**
- * Enqueue predicates allow users to specify a method that will
- * 'screen' elements being enqueued onto a sink, either accepting or
- * rejecting them. This mechanism can be used to implement many interesting
- * load-conditioning policies, for example, simple thresholding, rate
- * control, credit-based flow control, and so forth. Note that the enqueue
- * predicate runs in the context of the <b>caller of enqueue()</b>, which
- * means it must be simple and fast.
+ * Enqueue predicates allow users to specify a method that will 'screen'
+ * elements being enqueued onto a sink, either accepting or rejecting them. This
+ * mechanism can be used to implement many interesting load-conditioning
+ * policies, for example, simple thresholding, rate control, credit-based flow
+ * control, and so forth. Note that the enqueue predicate runs in the context of
+ * the <b>caller of enqueue()</b>, which means it must be simple and fast.
  * 
- * @author   Matt Welsh
+ * @author Matt Welsh
  * @see EventSink
  *
  */
-public interface EnqueuePredicateIF {
-
-  /**
-   * Tests the given element for acceptance onto the queue.
-   *
-   * @param element  The <code>QueueElementIF</code> to enqueue
-   * @return True if the sink accepts the element; false otherwise.
-   */
-  public boolean accept(EventElement element);
-
+public interface EnqueuePredicate {
+    /**
+     * Tests the given element for acceptance onto the queue.
+     *
+     * @param element
+     *            The <code>EventElement</code> to enqueue
+     * @return True if the sink accepts the element; false otherwise.
+     */
+    public boolean accept(EventElement element);
 }
