@@ -58,7 +58,7 @@ public class httpRequest extends TimeStampedEvent
   /** Default value for a query key. */
   public static final String QUERY_KEY_SET = "true";
 
-  private httpConnection conn;
+  private HttpConnection conn;
   private int request;
   private String url;
   private int httpver;
@@ -72,7 +72,7 @@ public class httpRequest extends TimeStampedEvent
    * Package-internal: Create an httpRequest from the given connection,
    * request string, URL, HTTP version, and header.
    */
-  httpRequest(httpConnection conn, String requestStr, String url, 
+  httpRequest(HttpConnection conn, String requestStr, String url, 
       int httpver, Vector header) throws IOException {
     this.conn = conn;
     this.httpver = httpver;
@@ -176,7 +176,7 @@ public class httpRequest extends TimeStampedEvent
   /**
    * Return the corresponding HTTP connection.
    */
-  public httpConnection getConnection() {
+  public HttpConnection getConnection() {
     return conn;
   }
 

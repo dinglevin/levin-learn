@@ -30,7 +30,7 @@ package seda.sandStorm.api;
  *
  * @see SinkFullException
  * @see SinkClosedException
- * @see BadQueueElementException
+ * @see BadEventElementException
  * @author Matt Welsh
  */
 public abstract class SinkException extends Exception { 

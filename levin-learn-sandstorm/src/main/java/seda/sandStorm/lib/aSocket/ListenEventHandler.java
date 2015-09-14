@@ -30,9 +30,9 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.EventHandler;
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 
 /**
  * Internal event handler for socket listen events.
@@ -43,7 +43,7 @@ class ListenEventHandler extends SocketEventHandler implements EventHandler {
     ListenEventHandler() {
     }
 
-    public void init(ConfigDataIF config) {
+    public void init(ConfigData config) {
     }
 
     public void destroy() {
@@ -113,7 +113,7 @@ class ListenEventHandler extends SocketEventHandler implements EventHandler {
         }
     }
 
-    public void handleEvent(QueueElementIF qel) {
+    public void handleEvent(EventElement qel) {
         LOGGER.debug("ListenEventHandler: Got QEL: {}", qel);
 
         try {
@@ -133,7 +133,7 @@ class ListenEventHandler extends SocketEventHandler implements EventHandler {
         }
     }
 
-    public void handleEvents(QueueElementIF qelarr[]) {
+    public void handleEvents(EventElement qelarr[]) {
         for (int i = 0; i < qelarr.length; i++) {
             handleEvent(qelarr[i]);
         }

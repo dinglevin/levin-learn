@@ -24,195 +24,205 @@
 
 package seda.sandStorm.lib.http;
 
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import seda.sandStorm.core.*;
-import seda.sandStorm.main.*;
+import java.io.IOException;
+import java.util.Map;
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
+
+import seda.sandStorm.api.ConfigData;
+import seda.sandStorm.api.EventElement;
+import seda.sandStorm.api.EventHandler;
+import seda.sandStorm.api.EventSink;
+import seda.sandStorm.api.ManagerIF;
+import seda.sandStorm.api.ProfilerIF;
+import seda.sandStorm.api.SinkCloggedEvent;
+import seda.sandStorm.api.SinkClosedEvent;
+import seda.sandStorm.api.SinkDrainedEvent;
+import seda.sandStorm.lib.aSocket.ATcpConnection;
+import seda.sandStorm.lib.aSocket.ATcpInPacket;
+import seda.sandStorm.lib.aSocket.ATcpListenSuccessEvent;
+import seda.sandStorm.lib.aSocket.ATcpServerSocket;
+import seda.sandStorm.lib.aSocket.aSocketErrorEvent;
+import seda.sandStorm.main.SandstormConfig;
 
 /**
- * An httpServer is a SandStorm stage which accepts incoming HTTP 
- * connections. The server has a client sink associated with it, onto 
- * which httpConnection and httpRequest events are pushed. When a 
- * connection is closed, a SinkClosedEvent is pushed, with the 
- * sink pointer set to the httpConnection that closed. 
+ * An httpServer is a SandStorm stage which accepts incoming HTTP connections.
+ * The server has a client sink associated with it, onto which httpConnection
+ * and httpRequest events are pushed. When a connection is closed, a
+ * SinkClosedEvent is pushed, with the sink pointer set to the httpConnection
+ * that closed.
  *
  * @author Matt Welsh (mdw@cs.berkeley.edu)
- * @see httpConnection
+ * @see HttpConnection
  * @see httpRequest
  */
-public class httpServer implements EventHandler, httpConst {
+public class HttpServer implements EventHandler, httpConst {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpServer.class);
+    
+    // These are protected to allow subclasses to use them
+    protected int listenPort;
+    protected ATcpServerSocket servsock;
+    protected ManagerIF mgr;
+    protected EventSink mySink, clientSink;
 
-  private static final boolean DEBUG = false;
+    // ATcpConnection -> httpConnection
+    private Map<ATcpConnection, HttpConnection> connTable;
 
-  // These are protected to allow subclasses to use them
-  protected int listenPort;
-  protected ATcpServerSocket servsock;
-  protected ManagerIF mgr;
-  protected EventSink mySink, clientSink;
+    private static int num_svrs = 0;
 
-  // ATcpConnection -> httpConnection
-  private Hashtable connTable; 
-
-  private static int num_svrs = 0;
-
-  /**
-   * Create an HTTP server listening for incoming connections on 
-   * the default port of 8080.
-   */
-  public httpServer(ManagerIF mgr, EventSink clientSink) throws Exception {
-    this(mgr, clientSink, DEFAULT_HTTP_PORT);
-  }
-
-  /** 
-   * Create an HTTP server listening for incoming connections on
-   * the given listenPort. 
-   */
-  public httpServer(ManagerIF mgr, EventSink clientSink, int listenPort) throws Exception {
-    this.mgr = mgr;
-    this.clientSink = clientSink;
-    this.listenPort = listenPort;
-
-    this.connTable = new Hashtable();
-
-    // Create the stage and register it
-    String sname = "httpServer "+num_svrs+" <port "+listenPort+">";
-    // Disable the RT controller for this stage
-    mgr.getConfig().putBoolean("stages."+sname+".rtController.enable", false);
-    mgr.createStage(sname, this, null);
-    num_svrs++;
-  }
-
-  /** 
-   * The Sandstorm stage initialization method.
-   */
-  public void init(ConfigDataIF config) throws Exception {
-    mySink = config.getStage().getSink();
-
-    servsock = new ATcpServerSocket(listenPort, mySink, WRITE_CLOG_THRESHOLD);
-  }
-
-  /** 
-   * The Sandstorm stage destroy method.
-   */
-  public void destroy() {
-  }
-
-  /**
-   * The main event handler.
-   */
-  public void handleEvent(QueueElementIF qel) {
-    if (DEBUG) System.err.println("httpServer got qel: "+qel);
-
-    if (qel instanceof ATcpInPacket) {
-      ATcpInPacket pkt = (ATcpInPacket)qel;
-
-      if (DEBUG) {
-	System.err.println("httpServer got packet: -----------------------");
-	String s = new String(pkt.getBytes());
-	System.err.println(s+"\n----------------------------------");
-      }
-
-      httpConnection hc = (httpConnection)connTable.get(pkt.getConnection());
-      if (hc == null) return; // Connection may have been closed
-
-      try {
-	hc.parsePacket(pkt);
-      } catch (IOException ioe) {
-	System.err.println("httpServer: Got IOException during packet processing for connection "+hc+": "+ioe);
-	ioe.printStackTrace();
-	// XXX Should close connection
-      }
-
-    } else if (qel instanceof ATcpConnection) {
-      ATcpConnection conn = (ATcpConnection)qel;
-      httpConnection hc = new httpConnection(conn, this, clientSink);
-      connTable.put(conn, hc);
-
-      // Profile the connection if profiling enabled
-      ProfilerIF profiler = mgr.getProfiler();
-      SandstormConfig cfg = mgr.getConfig();
-      if ((profiler != null) && cfg.getBoolean("global.profile.sockets")) profiler.add(conn.toString(), conn);
-      conn.startReader(mySink);
-
-    } else if (qel instanceof aSocketErrorEvent) {
-      System.err.println("httpServer got error: "+qel.toString());
-
-    } else if (qel instanceof SinkDrainedEvent) {
-      // Ignore
-
-    } else if (qel instanceof SinkCloggedEvent) {
-      // Some connection is clogged; tell the user 
-      SinkCloggedEvent sce = (SinkCloggedEvent)qel;
-      httpConnection hc = (httpConnection)connTable.get(sce.sink);
-      if (hc != null) clientSink.enqueueLossy(new SinkCloggedEvent(hc, null));
-
-    } else if (qel instanceof SinkClosedEvent) {
-      // Some connection closed; tell the user 
-      SinkClosedEvent sce = (SinkClosedEvent)qel;
-      httpConnection hc = (httpConnection)connTable.get(sce.sink);
-      if (hc != null) {
-	clientSink.enqueueLossy(new SinkClosedEvent(hc));
-        cleanupConnection(hc);
-      }
-
-    } else if (qel instanceof ATcpListenSuccessEvent) {
-      clientSink.enqueueLossy(qel);
+    /**
+     * Create an HTTP server listening for incoming connections on the default
+     * port of 8080.
+     */
+    public HttpServer(ManagerIF mgr, EventSink clientSink) throws Exception {
+        this(mgr, clientSink, DEFAULT_HTTP_PORT);
     }
-  }
 
-  public void handleEvents(QueueElementIF[] qelarr) {
-    for (int i = 0; i < qelarr.length; i++) {
-      handleEvent(qelarr[i]);
+    /**
+     * Create an HTTP server listening for incoming connections on the given
+     * listenPort.
+     */
+    public HttpServer(ManagerIF mgr, EventSink clientSink, int listenPort) throws Exception {
+        this.mgr = mgr;
+        this.clientSink = clientSink;
+        this.listenPort = listenPort;
+
+        this.connTable = Maps.newHashMap();
+
+        // Create the stage and register it
+        String sname = "httpServer " + num_svrs + " <port " + listenPort + ">";
+        // Disable the RT controller for this stage
+        mgr.getConfig().putBoolean("stages." + sname + ".rtController.enable", false);
+        mgr.createStage(sname, this, null);
+        num_svrs++;
     }
-  }
 
-  void cleanupConnection(httpConnection hc) {
-    connTable.remove(hc.getConnection());
-  }
+    /**
+     * The Sandstorm stage initialization method.
+     */
+    public void init(ConfigData config) throws Exception {
+        mySink = config.getStage().getSink();
 
-  public String toString() {
-    return "httpServer [listen="+listenPort+"]";
-  }
+        servsock = new ATcpServerSocket(listenPort, mySink, WRITE_CLOG_THRESHOLD);
+    }
 
-  /** 
-   * Register a sink to receive incoming packets on this
-   * connection.
-   */
-  public void registerSink(EventSink sink) {
-    this.clientSink = sink;
-  }
+    /**
+     * The Sandstorm stage destroy method.
+     */
+    public void destroy() {
+    }
 
-  /** 
-   * Suspend acceptance of new connections on this server.
-   * This request will not be effective immediately.
-   */
-  public void suspendAccept() {
-    servsock.suspendAccept();
-  }
+    /**
+     * The main event handler.
+     */
+    public void handleEvent(EventElement event) {
+        LOGGER.debug("httpServer got event: {}", event);
 
-  /** 
-   * Resume acceptance of new connections on this server.
-   * This request will not be effective immediately.
-   */
-  public void resumeAccept() {
-    servsock.resumeAccept();
-  }
+        if (event instanceof ATcpInPacket) {
+            ATcpInPacket pkt = (ATcpInPacket) event;
 
-  // Return my sink so that httpConnection can redirect
-  // packet completions to it
-  EventSink getSink() {
-    return mySink;
-  }
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("httpServer got packet: -----------------------");
+                LOGGER.trace("{}\n----------------------------------", new String(pkt.getBytes()));
+            }
 
-  /**
-   * Return the server socket being used by this httpServer.
-   */
-  public ATcpServerSocket getServerSocket() {
-    return servsock;
-  }
+            HttpConnection hc = connTable.get(pkt.getConnection());
+            if (hc == null)
+                return; // Connection may have been closed
 
+            try {
+                hc.parsePacket(pkt);
+            } catch (IOException ioe) {
+                LOGGER.error("Error on packet processing for connection " + hc, ioe);
+                // XXX Should close connection
+            }
+        } else if (event instanceof ATcpConnection) {
+            ATcpConnection conn = (ATcpConnection) event;
+            HttpConnection hc = new HttpConnection(conn, this, clientSink);
+            connTable.put(conn, hc);
+
+            // Profile the connection if profiling enabled
+            ProfilerIF profiler = mgr.getProfiler();
+            SandstormConfig cfg = mgr.getConfig();
+            if ((profiler != null) && cfg.getBoolean("global.profile.sockets"))
+                profiler.add(conn.toString(), conn);
+            conn.startReader(mySink);
+        } else if (event instanceof aSocketErrorEvent) {
+            LOGGER.error("httpServer got error: {}", event);
+        } else if (event instanceof SinkDrainedEvent) {
+            // Ignore
+
+        } else if (event instanceof SinkCloggedEvent) {
+            // Some connection is clogged; tell the user
+            SinkCloggedEvent sce = (SinkCloggedEvent) event;
+            HttpConnection hc = (HttpConnection) connTable.get(sce.sink);
+            if (hc != null)
+                clientSink.enqueueLossy(new SinkCloggedEvent(hc, null));
+
+        } else if (event instanceof SinkClosedEvent) {
+            // Some connection closed; tell the user
+            SinkClosedEvent sce = (SinkClosedEvent) event;
+            HttpConnection hc = (HttpConnection) connTable.get(sce.sink);
+            if (hc != null) {
+                clientSink.enqueueLossy(new SinkClosedEvent(hc));
+                cleanupConnection(hc);
+            }
+
+        } else if (event instanceof ATcpListenSuccessEvent) {
+            clientSink.enqueueLossy(event);
+        }
+    }
+
+    public void handleEvents(EventElement[] events) {
+        for (int i = 0; i < events.length; i++) {
+            handleEvent(events[i]);
+        }
+    }
+
+    void cleanupConnection(HttpConnection hc) {
+        connTable.remove(hc.getConnection());
+    }
+
+    public String toString() {
+        return "httpServer [listen=" + listenPort + "]";
+    }
+
+    /**
+     * Register a sink to receive incoming packets on this connection.
+     */
+    public void registerSink(EventSink sink) {
+        this.clientSink = sink;
+    }
+
+    /**
+     * Suspend acceptance of new connections on this server. This request will
+     * not be effective immediately.
+     */
+    public void suspendAccept() {
+        servsock.suspendAccept();
+    }
+
+    /**
+     * Resume acceptance of new connections on this server. This request will
+     * not be effective immediately.
+     */
+    public void resumeAccept() {
+        servsock.resumeAccept();
+    }
+
+    // Return my sink so that httpConnection can redirect
+    // packet completions to it
+    EventSink getSink() {
+        return mySink;
+    }
+
+    /**
+     * Return the server socket being used by this httpServer.
+     */
+    public ATcpServerSocket getServerSocket() {
+        return servsock;
+    }
 }

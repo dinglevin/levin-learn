@@ -24,40 +24,40 @@
 
 package seda.sandStorm.lib.aSocket;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.EventSink;
 import seda.sandStorm.api.EventSource;
-import seda.sandStorm.api.StageIF;
+import seda.sandStorm.api.Stage;
 import seda.sandStorm.api.internal.ResponseTimeControllerIF;
-import seda.sandStorm.api.internal.StageStatsIF;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageStats;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.core.FiniteQueue;
 import seda.sandStorm.core.QueueThresholdPredicate;
-import seda.sandStorm.internal.Stage;
-import seda.sandStorm.internal.StageStats;
+import seda.sandStorm.internal.StageImpl;
+import seda.sandStorm.internal.StageStatsImpl;
 
 /**
  * Internal stage wrapper implementation for aSocket.
  */
-class SocketStageWrapper implements StageWrapperIF {
+class SocketStageWrapper implements StageWrapper {
     private String name;
-    private StageIF stage;
+    private Stage stage;
     private EventHandler handler;
-    private ConfigDataIF config;
+    private ConfigData config;
     private FiniteQueue eventQ;
     private SelectSourceIF selsource;
     private ThreadManagerIF tm;
-    private StageStatsIF stats;
+    private StageStats stats;
 
     SocketStageWrapper(String name, EventHandler handler,
-            ConfigDataIF config, ThreadManagerIF tm) {
+            ConfigData config, ThreadManagerIF tm) {
         this.name = name;
         this.handler = handler;
         this.config = config;
         this.tm = tm;
-        this.stats = new StageStats(this);
+        this.stats = new StageStatsImpl(this);
 
         int queuelen = config.getInt("_queuelength");
         if (queuelen <= 0) {
@@ -68,7 +68,7 @@ class SocketStageWrapper implements StageWrapperIF {
             eventQ.setEnqueuePredicate(pred);
         }
         this.selsource = ((SocketEventHandler) handler).getSelectSource();
-        this.stage = new Stage(name, this, (EventSink) eventQ, config);
+        this.stage = new StageImpl(name, this, (EventSink) eventQ, config);
         this.config.setStage(this.stage);
     }
 
@@ -102,7 +102,7 @@ class SocketStageWrapper implements StageWrapperIF {
     /**
      * Return the stage handle for this stage.
      */
-    public StageIF getStage() {
+    public Stage getStage() {
         return stage;
     }
 
@@ -131,7 +131,7 @@ class SocketStageWrapper implements StageWrapperIF {
         return eventQ;
     }
 
-    public StageStatsIF getStats() {
+    public StageStats getStats() {
         return stats;
     }
 

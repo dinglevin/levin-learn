@@ -29,7 +29,7 @@ package seda.sandStorm.api;
  *
  * @author Matt Welsh
  */
-public class SinkDrainedEvent implements QueueElementIF {
+public class SinkDrainedEvent implements EventElement {
 
   /**
    * The sink which was processed.
@@ -39,12 +39,12 @@ public class SinkDrainedEvent implements QueueElementIF {
   /**
    * The element which was processed.
    */
-  public QueueElementIF element;
+  public EventElement element;
 
   /**
    * Create a new SinkDrainedEvent with the given sink and element.
    */
-  public SinkDrainedEvent(EventSink sink, QueueElementIF element) {
+  public SinkDrainedEvent(EventSink sink, EventElement element) {
     this.sink = sink;
     this.element = element;
   }

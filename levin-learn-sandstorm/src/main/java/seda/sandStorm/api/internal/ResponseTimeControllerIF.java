@@ -46,7 +46,7 @@ public interface ResponseTimeControllerIF {
    * Invoked by the stage's thread manager to adjust admission control
    * parameters.
    */
-  public void adjustThreshold(QueueElementIF fetched[], long serviceTime);
+  public void adjustThreshold(EventElement fetched[], long serviceTime);
 
   /** Enable the response time controller. */
   public void enable();

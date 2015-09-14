@@ -35,14 +35,14 @@ import seda.sandStorm.lib.aSocket.ATcpListenRequest;
 import seda.sandStorm.lib.aSocket.AUdpSocket;
 import seda.sandStorm.lib.aSocket.SelectQueueElement;
 import seda.sandStorm.lib.aSocket.SelectSourceIF;
-import seda.sandStorm.lib.aSocket.aSocketImplFactory;
+import seda.sandStorm.lib.aSocket.SocketImplFactory;
 
 /**
  * The NIO implementation of aSocketImplFactory.
  * 
  * @author Matt Welsh
  */
-public class NIOFactory extends aSocketImplFactory {
+public class NIOFactory extends SocketImplFactory {
   protected SelectSourceIF newSelectSource() {
     return new NIOSelectSource();
   }

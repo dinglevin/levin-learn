@@ -78,7 +78,7 @@ public class AFile extends SimpleSink {
    * Enqueues the given request (which must be an AFileRequest)
    * to the file.
    */
-  public synchronized void enqueue(QueueElementIF req) throws SinkException {
+  public synchronized void enqueue(EventElement req) throws SinkException {
     impl.enqueue(req);
   }
 
@@ -86,7 +86,7 @@ public class AFile extends SimpleSink {
    * Enqueues the given request (which must be an AFileRequest)
    * to the file.
    */
-  public synchronized boolean enqueueLossy(QueueElementIF req) {
+  public synchronized boolean enqueueLossy(EventElement req) {
     return impl.enqueueLossy(req);
   }
 
@@ -94,7 +94,7 @@ public class AFile extends SimpleSink {
    * Enqueues the given requests (which must be AFileRequests)
    * to the file.
    */
-  public synchronized void enqueueMany(QueueElementIF[] elements) throws SinkException {
+  public synchronized void enqueueMany(EventElement[] elements) throws SinkException {
     impl.enqueueMany(elements);
   }
 

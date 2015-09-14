@@ -85,7 +85,7 @@ class aSocketRCTMSleep extends SocketThreadManager implements ThreadManagerIF, a
 
 	  while (selsource.numActive() == 0) {
 	    if (DEBUG) System.err.println(name+": numActive is zero, waiting on event queue");
-	    QueueElementIF qelarr[];
+	    EventElement qelarr[];
 	    if (aggTarget == -1) {
 	      qelarr = eventQ.blocking_dequeue_all(EVENT_QUEUE_TIMEOUT);
 	    } else {
@@ -115,7 +115,7 @@ class aSocketRCTMSleep extends SocketThreadManager implements ThreadManagerIF, a
 
 	  if (DEBUG) System.err.println(name+": Checking request queue");
 	  for (int s = 0; s < EVENT_QUEUE_SPIN; s++) {
-	    QueueElementIF qelarr[];
+	    EventElement qelarr[];
 	    if (aggTarget == -1) {
 	      qelarr = eventQ.dequeue_all();
 	    } else {

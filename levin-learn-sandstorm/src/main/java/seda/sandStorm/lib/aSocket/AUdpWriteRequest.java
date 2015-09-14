@@ -31,7 +31,7 @@ import java.net.*;
 /**
  * Request to write data to a connection.
  */
-public class AUdpWriteRequest extends aSocketRequest implements QueueElementIF {
+public class AUdpWriteRequest extends aSocketRequest implements EventElement {
 
   AUdpSocket sock;
   public BufferElement buf;

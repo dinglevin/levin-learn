@@ -38,7 +38,7 @@ import java.net.*;
  *
  * @author Matt Welsh (mdw@cs.berkeley.edu)
  */
-public class GnutellaConnection extends SimpleSink implements QueueElementIF, GnutellaConst {
+public class GnutellaConnection extends SimpleSink implements EventElement, GnutellaConst {
 
   private static final boolean DEBUG = false;
 
@@ -102,21 +102,21 @@ public class GnutellaConnection extends SimpleSink implements QueueElementIF, Gn
 
   /* SinkIF methods ******************************************************/
 
-  public void enqueue(QueueElementIF element) throws SinkException {
+  public void enqueue(EventElement element) throws SinkException {
     GnutellaPacket packet = (GnutellaPacket)element;
     BufferElement buf = packet.getBuffer();
     buf.compQ = gs.getSink();
     conn.enqueue(buf);
   }
 
-  public boolean enqueueLossy(QueueElementIF element) {
+  public boolean enqueueLossy(EventElement element) {
     GnutellaPacket packet = (GnutellaPacket)element;
     BufferElement buf = packet.getBuffer();
     buf.compQ = gs.getSink();
     return conn.enqueueLossy(buf);
   }
 
-  public void enqueueMany(QueueElementIF elements[]) throws SinkException {
+  public void enqueueMany(EventElement elements[]) throws SinkException {
     for (int i = 0; i < elements.length; i++) {
       enqueue(elements[i]);
     }
@@ -141,7 +141,7 @@ public class GnutellaConnection extends SimpleSink implements QueueElementIF, Gn
     conn.flush(compQ);
   }
 
-  public Object enqueuePrepare(QueueElementIF enqueueMe[]) throws SinkException {
+  public Object enqueuePrepare(EventElement enqueueMe[]) throws SinkException {
     return conn.enqueuePrepare(enqueueMe);
   }
 

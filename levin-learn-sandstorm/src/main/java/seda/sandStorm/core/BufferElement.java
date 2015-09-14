@@ -31,7 +31,7 @@ import seda.sandStorm.api.*;
  *
  * @author Matt Welsh 
  */
-public class BufferElement implements QueueElementIF {
+public class BufferElement implements EventElement {
 
   /** 
    * The data associated with this BufferElement.

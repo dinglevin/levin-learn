@@ -35,7 +35,7 @@ import java.io.*;
  * @see AFileEOFReached
  * @see AFileIOExceptionOccurred
  */
-public abstract class AFileCompletion implements QueueElementIF {
+public abstract class AFileCompletion implements EventElement {
 
   protected AFileRequest req;
 

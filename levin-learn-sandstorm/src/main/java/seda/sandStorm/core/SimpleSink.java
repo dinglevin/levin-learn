@@ -41,12 +41,12 @@ public abstract class SimpleSink implements EventSink, ProfilableIF {
   /**
    * Must be implemented by subclasses. 
    */
-  public abstract void enqueue(QueueElementIF enqueueMe) throws SinkException;
+  public abstract void enqueue(EventElement enqueueMe) throws SinkException;
 
   /**
    * Calls enqueue() and returns false if SinkException occurs.
    */
-  public synchronized boolean enqueueLossy(QueueElementIF enqueueMe) {
+  public synchronized boolean enqueueLossy(EventElement enqueueMe) {
     try {
       enqueue(enqueueMe);
       return true;
@@ -62,7 +62,7 @@ public abstract class SimpleSink implements EventSink, ProfilableIF {
    * reject some items but not others. Don't use SimpleSink if this is
    * going to be a problem.
    */
-  public synchronized void enqueueMany(QueueElementIF[] enqueueMe) throws SinkException {
+  public synchronized void enqueueMany(EventElement[] enqueueMe) throws SinkException {
     for (int i = 0; i < enqueueMe.length; i++) {
       enqueue(enqueueMe[i]);
     }
@@ -71,7 +71,7 @@ public abstract class SimpleSink implements EventSink, ProfilableIF {
   /**
    * Not supported; throws an IllegalArgumentException.
    */
-  public Object enqueuePrepare(QueueElementIF enqueueMe[]) throws SinkException {
+  public Object enqueuePrepare(EventElement enqueueMe[]) throws SinkException {
     throw new IllegalArgumentException("enqueue_prepare not supported on SimpleSink objects");
   }
 

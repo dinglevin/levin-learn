@@ -30,7 +30,7 @@ package seda.sandStorm.api;
  *
  * @author Matt Welsh
  */
-public interface ClassQueueElementIF extends QueueElementIF {
+public interface ClassQueueElementIF extends EventElement {
   public int getRequestClass();
   public void setRequestClass(int theclass);
 }

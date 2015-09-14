@@ -29,7 +29,7 @@ import seda.sandStorm.api.*;
 /**
  * Request to initiate read events on a connection.
  */
-class ATcpStartReadRequest extends aSocketRequest implements QueueElementIF {
+class ATcpStartReadRequest extends aSocketRequest implements EventElement {
   ATcpConnection conn;
   EventSink compQ;
   int readClogTries;

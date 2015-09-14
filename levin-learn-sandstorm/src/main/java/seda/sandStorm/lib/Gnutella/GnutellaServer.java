@@ -126,7 +126,7 @@ public class GnutellaServer implements EventHandler, GnutellaConst {
                 this, null);
     }
 
-    public void init(ConfigDataIF config) throws IOException {
+    public void init(ConfigData config) throws IOException {
         mySink = config.getStage().getSink();
 
         if (connectUpstream) {
@@ -173,7 +173,7 @@ public class GnutellaServer implements EventHandler, GnutellaConst {
     }
 
     // Main event handler
-    public void handleEvent(QueueElementIF qel) {
+    public void handleEvent(EventElement qel) {
         if (DEBUG)
             System.err.println("GnutellaServer got qel: " + qel);
 
@@ -223,7 +223,7 @@ public class GnutellaServer implements EventHandler, GnutellaConst {
         }
     }
 
-    public void handleEvents(QueueElementIF[] qelarr) {
+    public void handleEvents(EventElement[] qelarr) {
         for (int i = 0; i < qelarr.length; i++) {
             handleEvent(qelarr[i]);
         }

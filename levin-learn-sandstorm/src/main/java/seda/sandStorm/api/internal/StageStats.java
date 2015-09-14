@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2001 by Matt Welsh and The Regents of the University of 
+ * Copyright (c) 2002 by Matt Welsh and The Regents of the University of 
  * California. All rights reserved.
  *
  * Permission to use, copy, modify, and distribute this software and its
@@ -22,16 +22,35 @@
  * 
  */
 
-package seda.sandStorm.api;
+package seda.sandStorm.api.internal;
 
 /**
- * A QueueElementIF represents an event which is placed on, or taken
- * off of, an event queue. It is an empty interface which applications
- * should implement instances of to represent different events.
- *
+ * This interface allows various components of the system to record and gather
+ * statistics about the stage during execution.
+ * 
  * @author Matt Welsh
  */
-public interface QueueElementIF {
-  // Empty interface
-}
 
+public interface StageStats {
+
+    /** Reset all statistics. */
+    public void reset();
+
+    /** Record a service rate sample. */
+    public void recordServiceRate(int numEvents, long time);
+
+    /** Get a moving average of the stage's service rate. */
+    public double getServiceRate();
+
+    /** Get a running total of the number of processed events. */
+    public long getTotalEvents();
+
+    /** Record a 90th percentile response time sample in msec. */
+    public void record90thRT(double rt_sample);
+
+    /**
+     * Get a moving average of the stage's 90th percentile response time in
+     * msec.
+     */
+    public double get90thRT();
+}

@@ -38,7 +38,7 @@ import java.io.*;
  * @see AFileFlushRequest
  * @see AFileCloseRequest
  */
-public abstract class AFileRequest implements QueueElementIF {
+public abstract class AFileRequest implements EventElement {
 
   AFile afile;
   EventSink compQ;
@@ -64,7 +64,7 @@ public abstract class AFileRequest implements QueueElementIF {
     return compQ;
   }
 
-  void complete(QueueElementIF comp) {
+  void complete(EventElement comp) {
     if (compQ != null) compQ.enqueueLossy(comp);
   }
 

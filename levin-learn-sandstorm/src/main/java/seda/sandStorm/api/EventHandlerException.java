@@ -25,15 +25,20 @@
 package seda.sandStorm.api;
 
 /**
- * This is a generic exception which an event handler can throw during
- * event processing. It is an abstract class; only subclasses can be
- * instantiated.
+ * This is a generic exception which an event handler can throw during event
+ * processing. It is an abstract class; only subclasses can be instantiated.
  *
  * @see UnknownEventException
  * @author Matt Welsh
  */
-public abstract class EventHandlerException extends Exception { 
-  public EventHandlerException() { super(); }
-  public EventHandlerException(String s) { super(s); }
-}
+public abstract class EventHandlerException extends Exception {
+    private static final long serialVersionUID = 1L;
 
+    public EventHandlerException() {
+        super();
+    }
+
+    public EventHandlerException(String s) {
+        super(s);
+    }
+}

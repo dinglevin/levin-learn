@@ -26,9 +26,9 @@ package seda.sandStorm.lib.aSocket;
 
 import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 import seda.sandStorm.api.EventSource;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.internal.ThreadPool;
 
@@ -55,7 +55,7 @@ class SocketThreadManager implements ThreadManagerIF, aSocketConst {
     /**
      * Register a stage with this thread manager.
      */
-    public void register(StageWrapperIF thestage) {
+    public void register(StageWrapper thestage) {
         SocketStageWrapper stage = (SocketStageWrapper) thestage;
         aSocketThread at = makeThread(stage);
         ThreadPool tp = new ThreadPool(stage, mgr, at, 1);
@@ -66,7 +66,7 @@ class SocketThreadManager implements ThreadManagerIF, aSocketConst {
     /**
      * Deregister a stage with this thread manager.
      */
-    public void deregister(StageWrapperIF stage) {
+    public void deregister(StageWrapper stage) {
         throw new IllegalArgumentException(
                 "aSocketThreadManager: deregister not supported");
     }
@@ -85,7 +85,7 @@ class SocketThreadManager implements ThreadManagerIF, aSocketConst {
     protected class aSocketThread implements Runnable {
 
         protected ThreadPool tp;
-        protected StageWrapperIF wrapper;
+        protected StageWrapper wrapper;
         protected SelectSourceIF selsource;
         protected EventSource eventQ;
         protected String name;
@@ -123,7 +123,7 @@ class SocketThreadManager implements ThreadManagerIF, aSocketConst {
                         if (DEBUG)
                             System.err.println(name
                                     + ": numActive is zero, waiting on event queue");
-                        QueueElementIF qelarr[];
+                        EventElement qelarr[];
                         if (aggTarget == -1) {
                             qelarr = eventQ.blocking_dequeue_all(EVENT_QUEUE_TIMEOUT);
                         } else {
@@ -172,7 +172,7 @@ class SocketThreadManager implements ThreadManagerIF, aSocketConst {
                     if (DEBUG)
                         System.err.println(name + ": Checking request queue");
                     for (int s = 0; s < EVENT_QUEUE_SPIN; s++) {
-                        QueueElementIF qelarr[];
+                        EventElement qelarr[];
                         if (aggTarget == -1) {
                             qelarr = eventQ.dequeue_all();
                         } else {

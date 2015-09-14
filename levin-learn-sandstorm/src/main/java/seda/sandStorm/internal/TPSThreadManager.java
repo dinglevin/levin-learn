@@ -28,11 +28,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 import seda.sandStorm.api.SingleThreadedEventHandlerIF;
 import seda.sandStorm.api.EventSource;
 import seda.sandStorm.api.internal.ResponseTimeControllerIF;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.main.SandstormConfig;
 
@@ -72,7 +72,7 @@ public class TPSThreadManager implements ThreadManagerIF {
     /**
      * Register a stage with this thread manager.
      */
-    public void register(StageWrapperIF stage) {
+    public void register(StageWrapper stage) {
         // Create a threadPool for the stage
         StageRunnable sr = new StageRunnable(stage);
         srTbl.put(sr, stage);
@@ -81,11 +81,11 @@ public class TPSThreadManager implements ThreadManagerIF {
     /**
      * Deregister a stage with this thread manager.
      */
-    public void deregister(StageWrapperIF stage) {
+    public void deregister(StageWrapper stage) {
         Enumeration e = srTbl.keys();
         while (e.hasMoreElements()) {
             StageRunnable sr = (StageRunnable) e.nextElement();
-            StageWrapperIF s = (StageWrapperIF) srTbl.get(sr);
+            StageWrapper s = (StageWrapper) srTbl.get(sr);
             if (s == stage) {
                 sr.tp.stop();
                 srTbl.remove(sr);
@@ -100,7 +100,7 @@ public class TPSThreadManager implements ThreadManagerIF {
         Enumeration e = srTbl.keys();
         while (e.hasMoreElements()) {
             StageRunnable sr = (StageRunnable) e.nextElement();
-            StageWrapperIF s = (StageWrapperIF) srTbl.get(sr);
+            StageWrapper s = (StageWrapper) srTbl.get(sr);
             sr.tp.stop();
             srTbl.remove(sr);
         }
@@ -112,14 +112,14 @@ public class TPSThreadManager implements ThreadManagerIF {
     public class StageRunnable implements Runnable {
 
         protected ThreadPool tp;
-        protected StageWrapperIF wrapper;
+        protected StageWrapper wrapper;
         protected EventSource source;
         protected String name;
         protected ResponseTimeControllerIF rtController = null;
         protected boolean firstToken = false;
         protected int aggTarget = -1;
 
-        protected StageRunnable(StageWrapperIF wrapper, ThreadPool tp) {
+        protected StageRunnable(StageWrapper wrapper, ThreadPool tp) {
             this.wrapper = wrapper;
             this.tp = tp;
             this.source = wrapper.getSource();
@@ -144,7 +144,7 @@ public class TPSThreadManager implements ThreadManagerIF {
                 tp.start();
         }
 
-        protected StageRunnable(StageWrapperIF wrapper) {
+        protected StageRunnable(StageWrapper wrapper) {
             this.wrapper = wrapper;
             this.source = wrapper.getSource();
             this.name = wrapper.getStage().getName();
@@ -199,7 +199,7 @@ public class TPSThreadManager implements ThreadManagerIF {
                         System.err.println(name
                                 + ": Doing blocking dequeue for " + wrapper);
 
-                    QueueElementIF fetched[];
+                    EventElement fetched[];
                     if (aggTarget == -1) {
                         if (DEBUG_VERBOSE)
                             System.err.println("TPSTM <" + this.name
@@ -240,7 +240,7 @@ public class TPSThreadManager implements ThreadManagerIF {
                     tend = System.currentTimeMillis();
 
                     /* Record service rate */
-                    ((StageWrapper) wrapper).getStats()
+                    ((StageWrapperImpl) wrapper).getStats()
                             .recordServiceRate(fetched.length, tend - tstart);
 
                     /* Run response time controller controller */

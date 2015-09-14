@@ -72,7 +72,7 @@ public class ResponseTimeControllerPID extends ResponseTimeController {
   private long adjtime;
   private boolean enabled;
 
-  public ResponseTimeControllerPID(ManagerIF mgr, StageWrapperIF stage) throws IllegalArgumentException {
+  public ResponseTimeControllerPID(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {
     super(mgr, stage);
     this.adjtime = System.currentTimeMillis();
     this.sinkProxy = (SinkProxy)stage.getStage().getSink();
@@ -141,7 +141,7 @@ public class ResponseTimeControllerPID extends ResponseTimeController {
     enabled = false;
   } 
 
-  public synchronized void adjustThreshold(QueueElementIF fetched[], long procTime) {
+  public synchronized void adjustThreshold(EventElement fetched[], long procTime) {
     long curtime = System.currentTimeMillis();
     boolean adjust = false;
 

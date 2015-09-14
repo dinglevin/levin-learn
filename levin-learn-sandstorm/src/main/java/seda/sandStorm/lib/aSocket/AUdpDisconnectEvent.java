@@ -33,7 +33,7 @@ import seda.sandStorm.api.*;
  * @author Matt Welsh
  *
  */
-public class AUdpDisconnectEvent implements QueueElementIF {
+public class AUdpDisconnectEvent implements EventElement {
   public AUdpSocket theSocket;
 
   AUdpDisconnectEvent(AUdpSocket sock) {

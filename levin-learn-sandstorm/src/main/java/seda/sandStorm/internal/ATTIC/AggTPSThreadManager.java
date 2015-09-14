@@ -27,10 +27,10 @@ package seda.sandStorm.internal.ATTIC;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 import seda.sandStorm.api.EventSink;
 import seda.sandStorm.api.EventSource;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.main.SandstormConfig;
 
@@ -81,7 +81,7 @@ class AggTPSThreadManager implements ThreadManagerIF {
     /**
      * Register a stage with this thread manager.
      */
-    public void register(StageWrapperIF stage) {
+    public void register(StageWrapper stage) {
 
         if (useGovernor && (governor == null)) {
             System.err.println("AggTPSThreadManager: Starting thread governor");
@@ -100,7 +100,7 @@ class AggTPSThreadManager implements ThreadManagerIF {
     /**
      * Deregister a stage with this thread manager.
      */
-    public void deregister(StageWrapperIF stage) {
+    public void deregister(StageWrapper stage) {
         System.err.println("AggTPSThreadManager: Deregistering stage " + stage);
         Enumeration e = stages.elements();
         while (e.hasMoreElements()) {
@@ -138,10 +138,10 @@ class AggTPSThreadManager implements ThreadManagerIF {
      * Internal class representing state for a given stage.
      */
     class stageInfo {
-        StageWrapperIF stage;
+        StageWrapper stage;
         threadPool tp;
 
-        stageInfo(StageWrapperIF stage) {
+        stageInfo(StageWrapper stage) {
             this.stage = stage;
             // Create a threadPool for each stage
             tp = new threadPool(stage, stage.getSource());
@@ -161,12 +161,12 @@ class AggTPSThreadManager implements ThreadManagerIF {
      */
     class appThread implements Runnable {
 
-        private StageWrapperIF wrapper;
+        private StageWrapper wrapper;
         private EventSource source;
         private String name;
         private threadPool mytp;
 
-        appThread(StageWrapperIF wrapper, EventSource source, String name,
+        appThread(StageWrapper wrapper, EventSource source, String name,
                 threadPool tp) {
             this.wrapper = wrapper;
             this.source = source;
@@ -195,7 +195,7 @@ class AggTPSThreadManager implements ThreadManagerIF {
                             if (DEBUG_VERBOSE)
                                 System.err.println(name + ": " + source.size()
                                         + " elements in queue, dispatching");
-                            QueueElementIF fetched[];
+                            EventElement fetched[];
                             if (maxAggregation == -1) {
                                 fetched = source.dequeue_all();
                             } else {
@@ -274,7 +274,7 @@ class AggTPSThreadManager implements ThreadManagerIF {
                         // If aggregationTarget is 1, all we can do is block
                         if (DEBUG_VERBOSE)
                             System.err.println(name + ": Blocking dequeue");
-                        QueueElementIF fetched[];
+                        EventElement fetched[];
                         if (maxAggregation == -1) {
                             fetched = source.blocking_dequeue_all(-1);
                         } else {
@@ -298,11 +298,11 @@ class AggTPSThreadManager implements ThreadManagerIF {
 
     class threadPool {
         String stagename;
-        StageWrapperIF wrapper;
+        StageWrapper wrapper;
         EventSource source;
         private Vector threads;
 
-        threadPool(StageWrapperIF wrapper, EventSource source) {
+        threadPool(StageWrapper wrapper, EventSource source) {
             this.wrapper = wrapper;
             this.source = source;
             this.stagename = wrapper.getStage().getName();

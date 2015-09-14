@@ -49,7 +49,7 @@ public class QueueThresholdPredicate implements EnqueuePredicateIF {
   /**
    * Returns true if the given element can be accepted into the queue.
    */
-  public boolean accept(QueueElementIF qel) {
+  public boolean accept(EventElement qel) {
     if (DEBUG) System.err.println("QueueThresholdPredicate.accept ["+thesink+"]: size "+thesink.size()+", thresh "+threshold);
     if (threshold == -1) return true;
     if ((thesink.size() + 1) > threshold) return false;

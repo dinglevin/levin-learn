@@ -24,15 +24,15 @@
 
 package seda.sandStorm.internal;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.ManagerIF;
 import seda.sandStorm.api.EventSink;
 import seda.sandStorm.api.EventSource;
-import seda.sandStorm.api.StageIF;
+import seda.sandStorm.api.Stage;
 import seda.sandStorm.api.internal.ResponseTimeControllerIF;
-import seda.sandStorm.api.internal.StageStatsIF;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageStats;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.core.FiniteQueue;
 import seda.sandStorm.core.QueueThresholdPredicate;
@@ -44,29 +44,29 @@ import seda.sandStorm.core.QueueThresholdPredicate;
  * @author Matt Welsh
  */
 
-class StageWrapper implements StageWrapperIF {
+class StageWrapperImpl implements StageWrapper {
     private String name;
-    private StageIF stage;
+    private Stage stage;
     private EventHandler handler;
-    private ConfigDataIF config;
+    private ConfigData config;
     private FiniteQueue eventQ;
     private ThreadManagerIF threadmgr;
-    private StageStatsIF stats;
+    private StageStats stats;
     private ResponseTimeControllerIF rtcon;
 
     /**
      * Create a StageWrapper with the given name, handler, config data, and
      * thread manager.
      */
-    StageWrapper(ManagerIF mgr, String name, EventHandler handler,
-            ConfigDataIF config, ThreadManagerIF threadmgr) {
+    StageWrapperImpl(ManagerIF mgr, String name, EventHandler handler,
+            ConfigData config, ThreadManagerIF threadmgr) {
         this.name = name;
         this.handler = handler;
         this.config = config;
         this.threadmgr = threadmgr;
         eventQ = new FiniteQueue(name);
-        this.stats = new StageStats(this);
-        this.stage = new Stage(name, this, (EventSink) eventQ, config);
+        this.stats = new StageStatsImpl(this);
+        this.stage = new StageImpl(name, this, (EventSink) eventQ, config);
         config.setStage(this.stage);
         createRTController(mgr);
     }
@@ -75,14 +75,14 @@ class StageWrapper implements StageWrapperIF {
      * Create a StageWrapper with the given name, handler, config data, thread
      * manager, and queue threshold.
      */
-    StageWrapper(ManagerIF mgr, String name, EventHandler handler,
-            ConfigDataIF config, ThreadManagerIF threadmgr,
+    StageWrapperImpl(ManagerIF mgr, String name, EventHandler handler,
+            ConfigData config, ThreadManagerIF threadmgr,
             int queueThreshold) {
         this.name = name;
         this.handler = handler;
         this.config = config;
         this.threadmgr = threadmgr;
-        this.stats = new StageStats(this);
+        this.stats = new StageStatsImpl(this);
         this.rtcon = null;
 
         eventQ = new FiniteQueue(name);
@@ -90,7 +90,7 @@ class StageWrapper implements StageWrapperIF {
                 queueThreshold);
         eventQ.setEnqueuePredicate(pred);
 
-        this.stage = new Stage(name, this, (EventSink) eventQ, config);
+        this.stage = new StageImpl(name, this, (EventSink) eventQ, config);
         config.setStage(this.stage);
         createRTController(mgr);
     }
@@ -147,7 +147,7 @@ class StageWrapper implements StageWrapperIF {
     /**
      * Return the stage handle for this stage.
      */
-    public StageIF getStage() {
+    public Stage getStage() {
         return stage;
     }
 
@@ -169,7 +169,7 @@ class StageWrapper implements StageWrapperIF {
     /**
      * Return execution statistics for this stage.
      */
-    public StageStatsIF getStats() {
+    public StageStats getStats() {
         return stats;
     }
 

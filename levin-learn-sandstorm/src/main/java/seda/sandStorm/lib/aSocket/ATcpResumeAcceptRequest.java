@@ -29,7 +29,7 @@ import seda.sandStorm.api.*;
 /**
  * Request to resume accepting new connections on a server socket.
  */
-class ATcpResumeAcceptRequest extends aSocketRequest implements QueueElementIF {
+class ATcpResumeAcceptRequest extends aSocketRequest implements EventElement {
   ATcpServerSocket servsock;
 
   ATcpResumeAcceptRequest(ATcpServerSocket servsock) {

@@ -29,7 +29,7 @@ import seda.sandStorm.api.*;
 /**
  * Request to close a UDP socket.
  */
-public class AUdpCloseRequest extends aSocketRequest implements QueueElementIF {
+public class AUdpCloseRequest extends aSocketRequest implements EventElement {
 
   AUdpSocket sock;
   public EventSink compQ;

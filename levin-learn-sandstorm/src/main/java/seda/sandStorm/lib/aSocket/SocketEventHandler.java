@@ -24,9 +24,9 @@
 
 package seda.sandStorm.lib.aSocket;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.EventHandler;
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 import seda.sandStorm.api.EventSink;
 
 /**
@@ -45,12 +45,12 @@ abstract class SocketEventHandler implements EventHandler {
         return selsource;
     }
 
-    public abstract void init(ConfigDataIF config);
+    public abstract void init(ConfigData config);
 
     public abstract void destroy();
 
-    public abstract void handleEvent(QueueElementIF qel);
+    public abstract void handleEvent(EventElement qel);
 
-    public abstract void handleEvents(QueueElementIF qelarr[]);
+    public abstract void handleEvents(EventElement qelarr[]);
 
 }

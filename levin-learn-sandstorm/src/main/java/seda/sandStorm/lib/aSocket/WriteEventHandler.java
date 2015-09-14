@@ -41,7 +41,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandler, aSoc
   WriteEventHandler() {
   }
 
-  public void init(ConfigDataIF config) {
+  public void init(ConfigData config) {
   }
 
   public void destroy() {
@@ -393,7 +393,7 @@ class WriteEventHandler extends SocketEventHandler implements EventHandler, aSoc
   }
 
 
-  public void handleEvent(QueueElementIF qel) {
+  public void handleEvent(EventElement qel) {
     if (DEBUG) System.err.println("WriteEventHandler: Got QEL: "+qel);
 
     try {
@@ -427,14 +427,14 @@ class WriteEventHandler extends SocketEventHandler implements EventHandler, aSoc
     }
   }
 
-  public void handleEvents(QueueElementIF qelarr[]) {
+  public void handleEvents(EventElement qelarr[]) {
     int numWrites = 0;
 
     for (int i = 0; i < qelarr.length; i++) {
 
       try {
 
-	QueueElementIF qel = qelarr[i];
+	EventElement qel = qelarr[i];
 
     if (DEBUG) System.err.println("WriteEventHandler: Got QEL: " + qel);
 	if (qel instanceof SelectQueueElement) {

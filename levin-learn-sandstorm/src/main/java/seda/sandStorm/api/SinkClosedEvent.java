@@ -38,7 +38,7 @@ package seda.sandStorm.api;
  * @see SinkClosedException
  * @author Matt Welsh
  */
-public class SinkClosedEvent implements QueueElementIF {
+public class SinkClosedEvent implements EventElement {
 
   /**
    * The sink that closed.

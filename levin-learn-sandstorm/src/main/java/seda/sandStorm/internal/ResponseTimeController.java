@@ -43,11 +43,11 @@ public abstract class ResponseTimeController implements ResponseTimeControllerIF
   protected final static int MIN_THRESHOLD = 1;
   protected final static int MAX_THRESHOLD = 1024;
 
-  protected StageWrapperIF stage;
+  protected StageWrapper stage;
   protected EnqueuePredicateIF pred;
   protected double targetRT;
 
-  protected ResponseTimeController(ManagerIF mgr, StageWrapperIF stage) throws IllegalArgumentException {
+  protected ResponseTimeController(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {
     this.stage = stage;
 
     SandstormConfig config = mgr.getConfig();
@@ -68,7 +68,7 @@ public abstract class ResponseTimeController implements ResponseTimeControllerIF
     return targetRT;
   }
 
-  public abstract void adjustThreshold(QueueElementIF fetched[], long serviceTime);
+  public abstract void adjustThreshold(EventElement fetched[], long serviceTime);
   public abstract void enable();
   public abstract void disable();
 

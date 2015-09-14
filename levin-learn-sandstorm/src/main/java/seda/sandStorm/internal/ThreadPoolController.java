@@ -29,7 +29,7 @@ import java.util.Vector;
 
 import seda.sandStorm.api.ManagerIF;
 import seda.sandStorm.api.ProfilableIF;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.main.SandstormConfig;
 
 /**
@@ -97,7 +97,7 @@ public class ThreadPoolController {
    * Register a thread pool with this controller, using the queue threshold
    * specified by the system configuration.
    */
-  public void register(StageWrapperIF stage, ThreadPool tp) {
+  public void register(StageWrapper stage, ThreadPool tp) {
     SandstormConfig config = mgr.getConfig();
     int thresh = config.getInt("stages."+stage.getStage().getName()+".threadPool.sizeController.threshold", controllerThreshold);
     tpvec.addElement(new tpcClient(stage, tp, null, thresh));
@@ -107,7 +107,7 @@ public class ThreadPoolController {
    * Register a thread pool with this controller, using the queue threshold
    * specified by the system configuration.
    */
-  public void register(StageWrapperIF stage, ThreadPool tp, ProfilableIF metric) {
+  public void register(StageWrapper stage, ThreadPool tp, ProfilableIF metric) {
     tpvec.addElement(new tpcClient(stage, tp, metric, controllerThreshold));
   }
 
@@ -121,7 +121,7 @@ public class ThreadPoolController {
    * Internal class representing a single TPC-controlled thread pool.
    */
   class tpcClient {
-    private StageWrapperIF stage;
+    private StageWrapper stage;
     private ThreadPool tp;
     private int threshold;
     private ProfilableIF metric;
@@ -131,7 +131,7 @@ public class ThreadPoolController {
     double savedThroughput, avgThroughput;
     long last_time, reset_time;
 
-    tpcClient(final StageWrapperIF stage, ThreadPool tp, ProfilableIF metric, int threshold) {
+    tpcClient(final StageWrapper stage, ThreadPool tp, ProfilableIF metric, int threshold) {
       this.stage = stage;
       this.tp = tp;
       this.threshold = threshold;
@@ -232,9 +232,9 @@ public class ThreadPoolController {
 	for (int i = 0; i < tpvec.size(); i++) {
 	  tpcClient tpc = (tpcClient)tpvec.elementAt(i);
 
-	  StageWrapper sw;
+	  StageWrapperImpl sw;
 	  try {
-	    sw = (StageWrapper)tpc.stage;
+	    sw = (StageWrapperImpl)tpc.stage;
 	  } catch (ClassCastException se) {
 	    // Skip this one
 	    continue;

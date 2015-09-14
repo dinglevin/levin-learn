@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2002 by Matt Welsh and The Regents of the University of 
+ * Copyright (c) 2001 by Matt Welsh and The Regents of the University of 
  * California. All rights reserved.
  *
  * Permission to use, copy, modify, and distribute this software and its
@@ -22,37 +22,43 @@
  * 
  */
 
-package seda.sandStorm.api.internal;
+package seda.sandStorm.api;
+
+import seda.sandStorm.api.internal.*;
 
 /**
- * This interface allows various components of the system to record and
- * gather statistics about the stage during execution.
- * 
+ * A StageIF represents a handle to an application stage. Applications
+ * to not implement StageIF directly; rather, they implement EventHandlerIF.
+ * A StageIF is used by an event handler to access other stages and is
+ * obtained by a call to ManagerIF.getStage().
+ *
+ * @see EventHandler
+ * @see ManagerIF
  * @author   Matt Welsh
  */
+public interface Stage {
 
-public interface StageStatsIF {
-
-  /** Reset all statistics. */
-  public void reset();
-
-  /** Record a service rate sample. */
-  public void recordServiceRate(int numEvents, long time);
-
-  /** Get a moving average of the stage's service rate. */
-  public double getServiceRate();
-
-  /** Get a running total of the number of processed events. */
-  public long getTotalEvents();
-
-  /** Record a 90th percentile response time sample in msec. */
-  public void record90thRT(double rt_sample);
-
-  /** 
-   * Get a moving average of the stage's 90th percentile response time
-   * in msec. 
+  /**
+   * Return the name of this stage.
    */
-  public double get90thRT();
+  public String getName();
 
+  /**
+   * Return the event sink for this stage. 
+   */
+  public EventSink getSink();
+
+  /**
+   * Return the stage wrapper associated with this stage.
+   * For internal use.
+   */
+  public StageWrapper getWrapper();
+
+  /**
+   * Destroy the given stage. Removes the stage from the system and 
+   * invokes its event handler's destroy() method. Stage destruction may
+   * be delayed until all pending events for the stage have been processed.
+   */
+  public void destroy();
 }
 

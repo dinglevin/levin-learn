@@ -32,12 +32,12 @@ import seda.sandStorm.api.*;
  * 
  * @author Matt Welsh
  */
-public interface StageWrapperIF {
+public interface StageWrapper {
 
     /**
      * Return the StageIF for this stage.
      */
-    public StageIF getStage();
+    public Stage getStage();
 
     /**
      * Return the event handler associated with this stage.
@@ -59,7 +59,7 @@ public interface StageWrapperIF {
      * Return a StageStatsIF interface which records and manages performance
      * statistics for this stage.
      */
-    public StageStatsIF getStats();
+    public StageStats getStats();
 
     /**
      * Return a ResponseTimeControllerIF for this stage.

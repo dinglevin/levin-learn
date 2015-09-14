@@ -27,9 +27,9 @@ package seda.sandStorm.internal.ATTIC;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 import seda.sandStorm.api.EventSource;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.main.SandstormConfig;
 
@@ -72,7 +72,7 @@ class TPPThreadManager implements ThreadManagerIF {
     /**
      * Register a stage with this thread manager.
      */
-    public void register(StageWrapperIF stage) {
+    public void register(StageWrapper stage) {
         synchronized (stages) {
             stages.addElement(stage);
             stages.notifyAll();
@@ -82,7 +82,7 @@ class TPPThreadManager implements ThreadManagerIF {
     /**
      * Deregister a stage with this thread manager.
      */
-    public void deregister(StageWrapperIF stage) {
+    public void deregister(StageWrapper stage) {
         if (!stages.removeElement(stage))
             throw new IllegalArgumentException(
                     "Stage " + stage + " not registered with this TM");
@@ -94,7 +94,7 @@ class TPPThreadManager implements ThreadManagerIF {
     public void deregisterAll() {
         Enumeration e = stages.elements();
         while (e.hasMoreElements()) {
-            StageWrapperIF stage = (StageWrapperIF) e.nextElement();
+            StageWrapper stage = (StageWrapper) e.nextElement();
             deregister(stage);
         }
         tg.stop();
@@ -131,11 +131,11 @@ class TPPThreadManager implements ThreadManagerIF {
                     }
 
                     for (int i = 0; i < stages.size(); i++) {
-                        StageWrapperIF s = (StageWrapperIF) stages.elementAt(i);
+                        StageWrapper s = (StageWrapper) stages.elementAt(i);
                         if (DEBUG_VERBOSE)
                             System.err.println(name + ": inspecting " + s);
                         EventSource src = s.getSource();
-                        QueueElementIF qelarr[] = src.dequeue_all();
+                        EventElement qelarr[] = src.dequeue_all();
                         if (qelarr != null) {
                             if (DEBUG)
                                 System.err.println(name + ": dequeued "

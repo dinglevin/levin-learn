@@ -40,7 +40,7 @@ public abstract class DatagramSockState implements aSocketConst {
 
   protected AUdpSocket udpsock;
   protected EventSink readCompQ;
-  protected QueueElementIF clogged_qel;
+  protected EventElement clogged_qel;
   protected int clogged_numtries;
   protected int readClogTries, writeClogThreshold, maxPacketSize;
 

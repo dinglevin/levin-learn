@@ -44,7 +44,7 @@ public interface EventSink {
      * @exception SinkClosedException
      *                Indicates that the sink is no longer being serviced.
      */
-    public void enqueue(QueueElementIF element) throws SinkException;
+    public void enqueue(EventElement element) throws SinkException;
 
     /**
      * Enqueues the given element onto the queue.
@@ -59,7 +59,7 @@ public interface EventSink {
      * @return true if the element was enqueued, false otherwise.
      * 
      */
-    public boolean enqueueLossy(QueueElementIF element);
+    public boolean enqueueLossy(EventElement element);
 
     /**
      * Given an array of elements, atomically enqueues all of the elements in
@@ -78,7 +78,7 @@ public interface EventSink {
      *                Indicates that the sink is no longer being serviced.
      *
      */
-    public void enqueueMany(QueueElementIF[] elements) throws SinkException;
+    public void enqueueMany(EventElement[] elements) throws SinkException;
 
     /**
      * Support for transactional enqueue.
@@ -131,7 +131,7 @@ public interface EventSink {
      * @see enqueueCommit
      * @see enqueueAbort
      */
-    public Object enqueuePrepare(QueueElementIF[] elements) throws SinkException;
+    public Object enqueuePrepare(EventElement[] elements) throws SinkException;
 
     /**
      * Commit a previously prepared provisional enqueue operation (from the

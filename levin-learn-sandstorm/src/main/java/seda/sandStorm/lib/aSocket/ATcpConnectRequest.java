@@ -32,7 +32,7 @@ import java.net.*;
 /**
  * Request to establish a connection.
  */
-public class ATcpConnectRequest extends aSocketRequest implements QueueElementIF {
+public class ATcpConnectRequest extends aSocketRequest implements EventElement {
 
   public ATcpClientSocket clisock;
   public EventSink compQ;

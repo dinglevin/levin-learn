@@ -32,7 +32,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.main.SandstormConfig;
 
 /**
@@ -68,8 +68,8 @@ public class StageGraph {
         }
     }
 
-    public synchronized StageWrapperIF[] getStages() {
-        StageWrapperIF arr[] = new StageWrapperIF[stages.size()];
+    public synchronized StageWrapper[] getStages() {
+        StageWrapper arr[] = new StageWrapper[stages.size()];
         stages.copyInto(arr);
         return arr;
     }
@@ -81,7 +81,7 @@ public class StageGraph {
     }
 
     public synchronized StageGraphEdge[] getEdgesFromStage(
-            StageWrapperIF fromStage) {
+            StageWrapper fromStage) {
         stageList list = (stageList) edgesFrom.get(fromStage);
         if (list == null)
             return null;
@@ -89,11 +89,11 @@ public class StageGraph {
             return list.getEdges();
     }
 
-    public synchronized StageWrapperIF getStageFromThread(Thread thread) {
-        return (StageWrapperIF) threads.get(thread);
+    public synchronized StageWrapper getStageFromThread(Thread thread) {
+        return (StageWrapper) threads.get(thread);
     }
 
-    public synchronized void addStage(StageWrapperIF stage) {
+    public synchronized void addStage(StageWrapper stage) {
         if (DEBUG)
             System.err.println("StageGraph: Adding stage " + stage);
         if (!stages.contains(stage)) {
@@ -101,7 +101,7 @@ public class StageGraph {
         }
     }
 
-    public synchronized void addThread(Thread thread, StageWrapperIF stage) {
+    public synchronized void addThread(Thread thread, StageWrapper stage) {
         if (DEBUG)
             System.err.println("StageGraph: Adding thread " + thread
                     + " -> stage " + stage);

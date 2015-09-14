@@ -32,7 +32,7 @@ import seda.sandStorm.api.*;
  *
  * @author Matt Welsh 
  */
-public abstract class SelectQueueElement implements QueueElementIF {
+public abstract class SelectQueueElement implements EventElement {
 
   protected abstract Object getItem();
   protected abstract Object getAttachment();

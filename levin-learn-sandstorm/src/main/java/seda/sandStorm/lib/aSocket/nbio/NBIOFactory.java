@@ -24,42 +24,59 @@
 
 package seda.sandStorm.lib.aSocket.nbio;
 
-import java.io.*;
-import seda.nbio.*;
-import seda.sandStorm.api.*;
-import seda.sandStorm.lib.aSocket.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+
+import seda.nbio.SelectItem;
+import seda.sandStorm.lib.aSocket.ATcpConnectRequest;
+import seda.sandStorm.lib.aSocket.ATcpConnection;
+import seda.sandStorm.lib.aSocket.ATcpListenRequest;
+import seda.sandStorm.lib.aSocket.AUdpSocket;
+import seda.sandStorm.lib.aSocket.SelectSourceIF;
+import seda.sandStorm.lib.aSocket.SocketImplFactory;
 
 /**
  * The NBIO implementation of aSocketImplFactory.
  * 
  * @author Matt Welsh
  */
-public class NBIOFactory extends aSocketImplFactory {
-  private static final boolean DEBUG = false;
+public class NBIOFactory extends SocketImplFactory {
+    protected SelectSourceIF newSelectSource() {
+        return new SelectSource();
+    }
 
-  protected SelectSourceIF newSelectSource() {
-    return new SelectSource();
-  }
+    protected seda.sandStorm.lib.aSocket.SelectQueueElement newSelectQueueElement(
+            Object item) {
+        return new seda.sandStorm.lib.aSocket.nbio.SelectQueueElement(
+                (SelectItem) item);
+    }
 
-  protected seda.sandStorm.lib.aSocket.SelectQueueElement newSelectQueueElement(Object item) {
-    return new seda.sandStorm.lib.aSocket.nbio.SelectQueueElement((SelectItem)item);
-  }
+    protected seda.sandStorm.lib.aSocket.SockState newSockState(
+            ATcpConnection conn, Socket nbsock, int writeClogThreshold)
+                    throws IOException {
+        return new seda.sandStorm.lib.aSocket.nbio.SockState(conn, nbsock,
+                writeClogThreshold);
+    }
 
-  protected seda.sandStorm.lib.aSocket.SockState newSockState(ATcpConnection conn, Socket nbsock, int writeClogThreshold) throws IOException {
-    return new seda.sandStorm.lib.aSocket.nbio.SockState(conn, nbsock, writeClogThreshold);
-  }
+    protected seda.sandStorm.lib.aSocket.ConnectSockState newConnectSockState(
+            ATcpConnectRequest req, SelectSourceIF selsource)
+                    throws IOException {
+        return new seda.sandStorm.lib.aSocket.nbio.ConnectSockState(req,
+                selsource);
+    }
 
-  protected seda.sandStorm.lib.aSocket.ConnectSockState newConnectSockState(ATcpConnectRequest req, SelectSourceIF selsource) throws IOException {
-    return new seda.sandStorm.lib.aSocket.nbio.ConnectSockState(req, selsource);
-  }
+    protected seda.sandStorm.lib.aSocket.ListenSockState newListenSockState(
+            ATcpListenRequest req, SelectSourceIF selsource)
+                    throws IOException {
+        return new seda.sandStorm.lib.aSocket.nbio.ListenSockState(req,
+                selsource);
+    }
 
-  protected seda.sandStorm.lib.aSocket.ListenSockState newListenSockState(ATcpListenRequest req, SelectSourceIF selsource) throws IOException {
-    return new seda.sandStorm.lib.aSocket.nbio.ListenSockState(req, selsource);
-  }
-
-  protected seda.sandStorm.lib.aSocket.DatagramSockState newDatagramSockState(AUdpSocket sock, InetAddress addr, int port) throws IOException {
-    return new seda.sandStorm.lib.aSocket.nbio.DatagramSockState(sock, addr, port);
-  }
+    protected seda.sandStorm.lib.aSocket.DatagramSockState newDatagramSockState(
+            AUdpSocket sock, InetAddress addr, int port) throws IOException {
+        return new seda.sandStorm.lib.aSocket.nbio.DatagramSockState(sock, addr,
+                port);
+    }
 
 }

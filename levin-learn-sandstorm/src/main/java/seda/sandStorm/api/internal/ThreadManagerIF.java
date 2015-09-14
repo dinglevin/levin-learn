@@ -35,12 +35,12 @@ public interface ThreadManagerIF {
     /**
      * Register a stage with this thread manager and start its threads.
      */
-    public void register(StageWrapperIF stage);
+    public void register(StageWrapper stage);
 
     /**
      * Deregister a stage with this thread manager and stop its threads.
      */
-    public void deregister(StageWrapperIF stage);
+    public void deregister(StageWrapper stage);
 
     /**
      * Stop the thread manager and all threads managed by it.

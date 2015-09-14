@@ -42,7 +42,7 @@ public class SinkProxy implements EventSink, ProfilableIF {
   private static final boolean DEBUG = false;
 
   private ManagerIF mgr;
-  private StageWrapperIF toStage;
+  private StageWrapper toStage;
   private StageGraph stageGraph;
   public EventSink thesink;
   private Thread client = null;
@@ -72,7 +72,7 @@ public class SinkProxy implements EventSink, ProfilableIF {
    * @param mgr The associated manager.
    * @param toStage The stage which this sink pushes events to.
    */
-  public SinkProxy(EventSink sink, ManagerIF mgr, StageWrapperIF toStage) {
+  public SinkProxy(EventSink sink, ManagerIF mgr, StageWrapper toStage) {
     this.thesink = sink;
     this.mgr = mgr;
     this.stageGraph = mgr.getProfiler().getGraphProfiler();
@@ -90,14 +90,14 @@ public class SinkProxy implements EventSink, ProfilableIF {
     return thesink.size();
   }
 
-  public void enqueue(QueueElementIF enqueueMe) throws SinkException {
+  public void enqueue(EventElement enqueueMe) throws SinkException {
     recordUse();
     enqueueCount++; 
     thesink.enqueue(enqueueMe);
     enqueueSuccessCount++; 
   }
 
-  public boolean enqueueLossy(QueueElementIF enqueueMe) {
+  public boolean enqueueLossy(EventElement enqueueMe) {
     recordUse();
     enqueueCount++; 
     boolean pass = thesink.enqueueLossy(enqueueMe);
@@ -105,7 +105,7 @@ public class SinkProxy implements EventSink, ProfilableIF {
     return pass;
   }
 
-  public void enqueueMany(QueueElementIF[] enqueueMe) throws SinkException {
+  public void enqueueMany(EventElement[] enqueueMe) throws SinkException {
     recordUse();
     if (enqueueMe != null) {
       enqueueCount += enqueueMe.length;
@@ -123,7 +123,7 @@ public class SinkProxy implements EventSink, ProfilableIF {
     return size();
   }
 
-  public Object enqueuePrepare(QueueElementIF enqueueMe[]) throws SinkException {
+  public Object enqueuePrepare(EventElement enqueueMe[]) throws SinkException {
     recordUse();
     if (enqueueMe != null) {
       enqueueCount += enqueueMe.length;

@@ -23,37 +23,37 @@
  */
 
 package seda.sandStorm.api.internal;
+
 import seda.sandStorm.api.*;
 
 /**
- * SystemManagerIF is an internal interface allowing modules 
- * to access systemwide features. For now this allows a module to 
- * access, create, and destroy thread managers. It also allows a 
- * module to create a stage with its own stage wrapper.
+ * SystemManagerIF is an internal interface allowing modules to access
+ * systemwide features. For now this allows a module to access, create, and
+ * destroy thread managers. It also allows a module to create a stage with its
+ * own stage wrapper.
  */
 public interface SystemManagerIF {
 
-  /**
-   * Get the default thread manager.
-   */
-  public ThreadManagerIF getThreadManager();
+    /**
+     * Get the default thread manager.
+     */
+    public ThreadManagerIF getThreadManager();
 
-  /**
-   * Get the thread manager registered under the given name.
-   */
-  public ThreadManagerIF getThreadManager(String name);
+    /**
+     * Get the thread manager registered under the given name.
+     */
+    public ThreadManagerIF getThreadManager(String name);
 
-  /**
-   * Add a thread manager to the system.
-   */
-  public void addThreadManager(String name, ThreadManagerIF threadmgr);
+    /**
+     * Add a thread manager to the system.
+     */
+    public void addThreadManager(String name, ThreadManagerIF threadmgr);
 
-  /**
-   * Create a stage from the given stage wrapper. 
-   * If 'initialize' is true, the stage will be initialized immediately.
-   * Returns a handle to the stage.
-   */
-  public StageIF createStage(StageWrapperIF wrapper, boolean initialize) 
-    throws Exception;
+    /**
+     * Create a stage from the given stage wrapper. If 'initialize' is true, the
+     * stage will be initialized immediately. Returns a handle to the stage.
+     */
+    public Stage createStage(StageWrapper wrapper, boolean initialize)
+            throws Exception;
 
 }

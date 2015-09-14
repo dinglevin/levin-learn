@@ -43,19 +43,19 @@ abstract class AFileImpl extends SimpleSink {
    * Enqueues the given request (which must be an AFileRequest)
    * to the file.
    */
-  public abstract void enqueue(QueueElementIF req) throws SinkException;
+  public abstract void enqueue(EventElement req) throws SinkException;
 
   /**
    * Enqueues the given request (which must be an AFileRequest)
    * to the file.
    */
-  public abstract boolean enqueueLossy(QueueElementIF req);
+  public abstract boolean enqueueLossy(EventElement req);
 
   /**
    * Enqueues the given requests (which must be AFileRequests)
    * to the file.
    */
-  public abstract void enqueueMany(QueueElementIF[] elements) throws SinkException;
+  public abstract void enqueueMany(EventElement[] elements) throws SinkException;
 
   /**
    * Return information on the properties of the file.

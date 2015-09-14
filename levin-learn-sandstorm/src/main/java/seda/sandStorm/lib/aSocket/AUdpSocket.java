@@ -136,9 +136,9 @@ public class AUdpSocket extends SimpleSink {
    * Enqueue an outgoing packet to be written to this socket.
    * The packet must be of type BufferElement or AUdpPacket.
    */
-  public void enqueue(QueueElementIF packet) throws SinkException {
+  public void enqueue(EventElement packet) throws SinkException {
     if (closed) throw new SinkClosedException("AUdpSocket closed");
-    if (packet == null) throw new BadQueueElementException("AUdpSocket.enqueue got null element", packet);
+    if (packet == null) throw new BadEventElementException("AUdpSocket.enqueue got null element", packet);
     SocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packet));
   }
 
@@ -147,7 +147,7 @@ public class AUdpSocket extends SimpleSink {
    * The packet must be of type BufferElement or AUdpPacket. Drops the packet 
    * if it cannot be enqueued.
    */
-  public boolean enqueueLossy(QueueElementIF packet) {
+  public boolean enqueueLossy(EventElement packet) {
     if (closed) return false;
     if (packet == null) return false;
     SocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packet));
@@ -158,10 +158,10 @@ public class AUdpSocket extends SimpleSink {
    * Enqueue an set of outgoing packets to this socket.
    * Each packet must be of type BufferElement or AUdpPacket.
    */
-  public void enqueueMany(QueueElementIF packets[]) throws SinkException {
+  public void enqueueMany(EventElement packets[]) throws SinkException {
     if (closed) throw new SinkClosedException("AUdpSocket closed");
     for (int i = 0; i < packets.length; i++) {
-      if (packets[i] == null) throw new BadQueueElementException("AUdpSocket.enqueue_many got null element", packets[i]);
+      if (packets[i] == null) throw new BadEventElementException("AUdpSocket.enqueue_many got null element", packets[i]);
       SocketMgr.enqueueRequest(new AUdpWriteRequest(this, (BufferElement)packets[i]));
     }
   }

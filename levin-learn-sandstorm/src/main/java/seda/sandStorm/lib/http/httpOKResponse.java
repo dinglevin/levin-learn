@@ -37,7 +37,7 @@ import java.net.*;
  * 
  * @author Matt Welsh
  */
-public class httpOKResponse extends httpResponse implements httpConst, QueueElementIF {
+public class httpOKResponse extends httpResponse implements httpConst, EventElement {
 
   private static final boolean DEBUG = false;
   private String contentType;

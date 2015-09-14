@@ -29,7 +29,7 @@ import seda.sandStorm.api.*;
 /**
  * Request to close a connection.
  */
-public class ATcpCloseRequest extends aSocketRequest implements QueueElementIF {
+public class ATcpCloseRequest extends aSocketRequest implements EventElement {
 
   ATcpConnection conn;
   public EventSink compQ;

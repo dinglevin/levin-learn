@@ -34,7 +34,7 @@ import java.net.*;
  *
  * @author Matt Welsh
  */
-public class AUdpInPacket implements QueueElementIF {
+public class AUdpInPacket implements EventElement {
 
   private AUdpSocket sock;
   private DatagramPacket packet;

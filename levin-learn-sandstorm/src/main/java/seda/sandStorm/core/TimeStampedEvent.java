@@ -31,7 +31,7 @@ import seda.sandStorm.api.*;
  *
  * @author Matt Welsh
  */
-public abstract class TimeStampedEvent implements QueueElementIF {
+public abstract class TimeStampedEvent implements EventElement {
   public long timestamp;
 
   // Can only be instantiated by subclasses

@@ -24,38 +24,38 @@
 
 package seda.sandStorm.lib.aDisk;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.EventSource;
-import seda.sandStorm.api.StageIF;
+import seda.sandStorm.api.Stage;
 import seda.sandStorm.api.internal.ResponseTimeControllerIF;
-import seda.sandStorm.api.internal.StageStatsIF;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageStats;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.api.internal.ThreadManagerIF;
-import seda.sandStorm.internal.Stage;
+import seda.sandStorm.internal.StageImpl;
 
 /**
  * Internal stage wrapper implementation for AFileTPImpl.
  *
  * @author Matt Welsh
  */
-class AFileTPStageWrapper implements StageWrapperIF {
+class AFileTPStageWrapper implements StageWrapper {
     private String name;
-    private StageIF stage;
+    private Stage stage;
     private EventHandler handler;
-    private ConfigDataIF config;
+    private ConfigData config;
     private ThreadManagerIF tm;
 
     // This stagewrapper has no (real) event queue: Threads created
     // by AFileTPTM will poll across the per-AFile queues instead.
     // This class is just used for bookkeeping purposes.
     AFileTPStageWrapper(String name, EventHandler handler,
-            ConfigDataIF config, ThreadManagerIF tm) {
+            ConfigData config, ThreadManagerIF tm) {
         this.name = name;
         this.handler = handler;
         this.config = config;
         this.tm = tm;
-        this.stage = new Stage(name, this, null, config);
+        this.stage = new StageImpl(name, this, null, config);
         this.config.setStage(this.stage);
     }
 
@@ -93,7 +93,7 @@ class AFileTPStageWrapper implements StageWrapperIF {
     /**
      * Return the stage handle for this stage.
      */
-    public StageIF getStage() {
+    public Stage getStage() {
         return stage;
     }
 
@@ -114,7 +114,7 @@ class AFileTPStageWrapper implements StageWrapperIF {
     }
 
     /** Not implemented. */
-    public StageStatsIF getStats() {
+    public StageStats getStats() {
         return null;
     }
 

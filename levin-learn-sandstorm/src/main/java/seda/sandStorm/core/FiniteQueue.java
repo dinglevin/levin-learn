@@ -87,7 +87,7 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
         }
     }
 
-    public void enqueue(QueueElementIF enqueueMe) throws SinkFullException {
+    public void enqueue(EventElement enqueueMe) throws SinkFullException {
 
         if (DEBUG)
             System.err.println("**** ENQUEUE (" + name + ") **** Entered");
@@ -119,7 +119,7 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
             System.err.println("**** ENQUEUE (" + name + ") **** Exiting");
     }
 
-    public boolean enqueueLossy(QueueElementIF enqueueMe) {
+    public boolean enqueueLossy(EventElement enqueueMe) {
         try {
             this.enqueue(enqueueMe);
         } catch (Exception e) {
@@ -128,7 +128,7 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
         return true;
     }
 
-    public void enqueueMany(QueueElementIF[] enqueueMe)
+    public void enqueueMany(EventElement[] enqueueMe)
             throws SinkFullException {
         synchronized (blocker) {
             int qlen = enqueueMe.length;
@@ -151,22 +151,22 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
         }
     }
 
-    public QueueElementIF dequeue() {
+    public EventElement dequeue() {
 
-        QueueElementIF el = null;
+        EventElement el = null;
         synchronized (blocker) {
             synchronized (qlist) {
                 if (qlist.size() == 0)
                     return null;
 
-                el = (QueueElementIF) qlist.remove_head();
+                el = (EventElement) qlist.remove_head();
                 queueSize--;
                 return el;
             }
         }
     }
 
-    public QueueElementIF[] dequeue_all() {
+    public EventElement[] dequeue_all() {
 
         synchronized (blocker) {
             synchronized (qlist) {
@@ -174,16 +174,16 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
                 if (qs == 0)
                     return null;
 
-                QueueElementIF[] retIF = new QueueElementIF[qs];
+                EventElement[] retIF = new EventElement[qs];
                 for (int i = 0; i < qs; i++)
-                    retIF[i] = (QueueElementIF) qlist.remove_head();
+                    retIF[i] = (EventElement) qlist.remove_head();
                 queueSize -= qs;
                 return retIF;
             }
         }
     }
 
-    public QueueElementIF[] dequeue(int num) {
+    public EventElement[] dequeue(int num) {
 
         synchronized (blocker) {
             synchronized (qlist) {
@@ -192,16 +192,16 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
                 if (qs == 0)
                     return null;
 
-                QueueElementIF[] retIF = new QueueElementIF[qs];
+                EventElement[] retIF = new EventElement[qs];
                 for (int i = 0; i < qs; i++)
-                    retIF[i] = (QueueElementIF) qlist.remove_head();
+                    retIF[i] = (EventElement) qlist.remove_head();
                 queueSize -= qs;
                 return retIF;
             }
         }
     }
 
-    public QueueElementIF[] dequeue(int num, boolean mustReturnNum) {
+    public EventElement[] dequeue(int num, boolean mustReturnNum) {
 
         synchronized (blocker) {
             synchronized (qlist) {
@@ -218,17 +218,17 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
                 if (qs == 0)
                     return null;
 
-                QueueElementIF[] retIF = new QueueElementIF[qs];
+                EventElement[] retIF = new EventElement[qs];
                 for (int i = 0; i < qs; i++)
-                    retIF[i] = (QueueElementIF) qlist.remove_head();
+                    retIF[i] = (EventElement) qlist.remove_head();
                 queueSize -= qs;
                 return retIF;
             }
         }
     }
 
-    public QueueElementIF[] blocking_dequeue_all(int timeout_millis) {
-        QueueElementIF[] rets = null;
+    public EventElement[] blocking_dequeue_all(int timeout_millis) {
+        EventElement[] rets = null;
         long goal_time;
         int num_spins = 0;
 
@@ -294,10 +294,10 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
         }
     }
 
-    public QueueElementIF[] blocking_dequeue(int timeout_millis, int num,
+    public EventElement[] blocking_dequeue(int timeout_millis, int num,
             boolean mustReturnNum) {
 
-        QueueElementIF[] rets = null;
+        EventElement[] rets = null;
         long goal_time;
         int num_spins = 0;
 
@@ -337,12 +337,12 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
         }
     }
 
-    public QueueElementIF[] blocking_dequeue(int timeout_millis, int num) {
+    public EventElement[] blocking_dequeue(int timeout_millis, int num) {
         return blocking_dequeue(timeout_millis, num, false);
     }
 
-    public QueueElementIF blocking_dequeue(int timeout_millis) {
-        QueueElementIF rets = null;
+    public EventElement blocking_dequeue(int timeout_millis) {
+        EventElement rets = null;
         long goal_time;
         int num_spins = 0;
 
@@ -390,7 +390,7 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
     /**
      * Provisionally enqueue the given elements.
      */
-    public Object enqueuePrepare(QueueElementIF enqueueMe[])
+    public Object enqueuePrepare(EventElement enqueueMe[])
             throws SinkException {
         int qlen = enqueueMe.length;
         synchronized (blocker) {
@@ -416,7 +416,7 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
     public void enqueueCommit(Object key) {
         synchronized (blocker) {
             synchronized (qlist) {
-                QueueElementIF elements[] = (QueueElementIF[]) provisionalTbl
+                EventElement elements[] = (EventElement[]) provisionalTbl
                         .remove(key);
                 if (elements == null)
                     throw new IllegalArgumentException(
@@ -435,7 +435,7 @@ public class FiniteQueue implements EventQueue, ProfilableIF {
     public void enqueueAbort(Object key) {
         synchronized (blocker) {
             synchronized (qlist) {
-                QueueElementIF elements[] = (QueueElementIF[]) provisionalTbl
+                EventElement elements[] = (EventElement[]) provisionalTbl
                         .remove(key);
                 if (elements == null)
                     throw new IllegalArgumentException(

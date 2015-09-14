@@ -41,7 +41,7 @@ import java.net.*;
  * @see httpOKResponse
  * @see httpNotFoundResponse
  */
-public abstract class httpResponse implements httpConst, QueueElementIF {
+public abstract class httpResponse implements httpConst, EventElement {
 
   /** Code corresponding to '200 OK'. */ 
   public static final int RESPONSE_OK = 200;

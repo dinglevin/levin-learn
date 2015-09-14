@@ -32,7 +32,7 @@ import seda.sandStorm.api.*;
  *
  * @author Matt Welsh 
  */
-public class NullElement implements QueueElementIF {
+public class NullElement implements EventElement {
 
   // Nothing
 

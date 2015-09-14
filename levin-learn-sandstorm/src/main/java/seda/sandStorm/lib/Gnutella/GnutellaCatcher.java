@@ -69,7 +69,7 @@ public class GnutellaCatcher implements EventHandler {
     mgr.createStage("GnutellaCatcher", this, null);
   }
 
-  public void init(ConfigDataIF config) throws Exception {
+  public void init(ConfigData config) throws Exception {
     this.mygs = new GnutellaServer(mgr, config.getStage().getSink(), 0);
   }
 
@@ -96,7 +96,7 @@ public class GnutellaCatcher implements EventHandler {
     doCatch(numconns, "gnutellahosts.com", GnutellaConst.DEFAULT_GNUTELLA_PORT);
   }
 
-  public void handleEvent(QueueElementIF item) {
+  public void handleEvent(EventElement item) {
     if (DEBUG) System.err.println("GnutellaCatcher got: "+item);
     if (item instanceof GnutellaConnection) {
       GnutellaConnection gc = (GnutellaConnection)item;
@@ -129,7 +129,7 @@ public class GnutellaCatcher implements EventHandler {
     }
   }
 
-  public void handleEvents(QueueElementIF qelarr[]) {
+  public void handleEvents(EventElement qelarr[]) {
     for (int i = 0; i < qelarr.length; i++) {
       handleEvent(qelarr[i]);
     } 

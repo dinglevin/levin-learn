@@ -199,7 +199,7 @@ public class ResponseTimeControllerMulticlass extends ResponseTimeControllerDire
 
   }
 
-  public ResponseTimeControllerMulticlass(ManagerIF mgr, StageWrapperIF stage) throws IllegalArgumentException {
+  public ResponseTimeControllerMulticlass(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {
     super(mgr, stage);
 
     this.name = stage.getStage().getName();
@@ -242,7 +242,7 @@ public class ResponseTimeControllerMulticlass extends ResponseTimeControllerDire
     else return ADDITIVE_INCREASE * ((-1.0 * err) + LOW_WATER);
   }
 
-  public synchronized void adjustThreshold(QueueElementIF fetched[], long procTime) {
+  public synchronized void adjustThreshold(EventElement fetched[], long procTime) {
     long curtime = System.currentTimeMillis();
 
     for (int i = 0; i < fetched.length; i++) {

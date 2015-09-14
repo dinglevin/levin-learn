@@ -42,12 +42,12 @@ import java.net.*;
  * @see httpRequest
  * @see httpResponse
  */
-public class httpConnection extends SimpleSink implements httpConst, QueueElementIF {
+public class HttpConnection extends SimpleSink implements httpConst, EventElement {
 
   private static final boolean DEBUG = false;
 
   private ATcpConnection tcpconn;
-  private httpServer hs;
+  private HttpServer hs;
   private EventSink compQ;
   private httpPacketReader hpr;
 
@@ -61,7 +61,7 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
    * Package-internal: Create an httpConnection with the given TCP 
    * connection and completion queue.
    */
-  httpConnection(ATcpConnection tcpconn, httpServer hs, EventSink compQ) {
+  HttpConnection(ATcpConnection tcpconn, HttpServer hs, EventSink compQ) {
     this.tcpconn = tcpconn;
     this.hs = hs;
     this.compQ = compQ;
@@ -95,7 +95,7 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
    * Enqueue outgoing data on this connection. The 'element' must be
    * of type httpResponder.
    */
-  public void enqueue(QueueElementIF element) throws SinkException {
+  public void enqueue(EventElement element) throws SinkException {
     if (DEBUG) System.err.println("httpConnection.enqueue: "+element);
     httpResponder resp = (httpResponder)element;
     httpResponse packet = resp.getResponse();
@@ -107,7 +107,7 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
    * Enqueue outgoing data on this connection. The 'element' must be
    * of type httpResponder.
    */
-  public boolean enqueueLossy(QueueElementIF element) {
+  public boolean enqueueLossy(EventElement element) {
     if (DEBUG) System.err.println("httpConnection.enqueue_lossy: "+element);
     httpResponder resp = (httpResponder)element;
     httpResponse packet = resp.getResponse();
@@ -124,7 +124,7 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
    * Enqueue outgoing data on this connection. Each item in the 
    * elements array must be of type httpResponse.
    */
-  public void enqueueMany(QueueElementIF elements[]) throws SinkException {
+  public void enqueueMany(EventElement elements[]) throws SinkException {
     for (int i = 0; i < elements.length; i++) {
       enqueue(elements[i]);
     }
@@ -147,8 +147,8 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
 
     hs.cleanupConnection(this);
     tcpconn.close(new SimpleSink() {
-	public void enqueue(QueueElementIF qel) throws SinkException {
-	  compQ.enqueue(new SinkClosedEvent(httpConnection.this));
+	public void enqueue(EventElement qel) throws SinkException {
+	  compQ.enqueue(new SinkClosedEvent(HttpConnection.this));
 	}
       });
   }
@@ -161,7 +161,7 @@ public class httpConnection extends SimpleSink implements httpConst, QueueElemen
     tcpconn.flush(compQ);
   }
 
-  public Object enqueuePrepare(QueueElementIF enqueueMe[]) throws SinkException {
+  public Object enqueuePrepare(EventElement enqueueMe[]) throws SinkException {
     return tcpconn.enqueuePrepare(enqueueMe);
   }
 

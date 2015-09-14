@@ -24,9 +24,9 @@
 
 package seda.sandStorm.lib.aDisk;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.EventHandler;
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 import seda.sandStorm.api.EventSink;
 
 /**
@@ -37,17 +37,17 @@ import seda.sandStorm.api.EventSink;
 class AFileTPEventHandler implements EventHandler {
   protected EventSink eventQ;
 
-  public void init(ConfigDataIF config) {
+  public void init(ConfigData config) {
   }
 
   public void destroy() {
   }
 
-  public void handleEvent(QueueElementIF qel) {
+  public void handleEvent(EventElement qel) {
     // XXX Implement
   }
 
-  public void handleEvents(QueueElementIF qelarr[]) {
+  public void handleEvents(EventElement qelarr[]) {
     for (int i = 0; i < qelarr.length; i++) {
       handleEvent(qelarr[i]);
     }

@@ -30,12 +30,12 @@ import java.net.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
-/** 
- * This class represents an asynchronous server socket.
- * An application creates an ATcpServerSocket to listen for incoming
- * TCP connections on a given port; when a connection is received,
- * an ATcpConnection object is pushed to the SinkIF associated with 
- * the ATcpServerSocket. The ATcpConnection is then used for communication.
+/**
+ * This class represents an asynchronous server socket. An application creates
+ * an ATcpServerSocket to listen for incoming TCP connections on a given port;
+ * when a connection is received, an ATcpConnection object is pushed to the
+ * SinkIF associated with the ATcpServerSocket. The ATcpConnection is then used
+ * for communication.
  *
  * @author Matt Welsh
  * @see ATcpConnection
@@ -43,83 +43,84 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class ATcpServerSocket {
 
-  /** Internal state used by aSocket implementation */
-  public ListenSockState lss;
-  int serverPort;
+    /** Internal state used by aSocket implementation */
+    public ListenSockState lss;
+    int serverPort;
 
-  /**
-   * Open a server socket listening on the given port. When a connection 
-   * arrives, an ATcpConnection will be posted to the given compQ. 
-   * If the server socket dies, an ATcpServerSocketDeadEvent will be
-   * posted instead.
-   */
-  public ATcpServerSocket(int serverPort, EventSink compQ) throws IOException {
-    this.serverPort = serverPort;
-    SocketMgr.enqueueRequest(new ATcpListenRequest(this, serverPort, compQ, -1));
-  }
+    /**
+     * Open a server socket listening on the given port. When a connection
+     * arrives, an ATcpConnection will be posted to the given compQ. If the
+     * server socket dies, an ATcpServerSocketDeadEvent will be posted instead.
+     */
+    public ATcpServerSocket(int serverPort, EventSink compQ)
+            throws IOException {
+        this.serverPort = serverPort;
+        SocketMgr.enqueueRequest(
+                new ATcpListenRequest(this, serverPort, compQ, -1));
+    }
 
-  /**
-   * Open a server socket listening on the given port. When a connection 
-   * arrives, an ATcpConnection will be posted to the given compQ. 
-   * If the server socket dies, an ATcpServerSocketDeadEvent will be
-   * posted instead.
-   *
-   * @param writeClogThreshold The maximum number of outstanding write 
-   *   requests to a connection established using this socket before a
-   *   SinkCloggedEvent is pushed onto the completion queue for that
-   *   connection. The default value is -1, which indicates that no
-   *   SinkCloggedEvents will be generated.
-   */
-  public ATcpServerSocket(int serverPort, EventSink compQ, 
-    int writeClogThreshold) throws IOException {
-    this.serverPort = serverPort;
-    SocketMgr.enqueueRequest(new ATcpListenRequest(this, serverPort, compQ, writeClogThreshold));
-  }
+    /**
+     * Open a server socket listening on the given port. When a connection
+     * arrives, an ATcpConnection will be posted to the given compQ. If the
+     * server socket dies, an ATcpServerSocketDeadEvent will be posted instead.
+     *
+     * @param writeClogThreshold
+     *            The maximum number of outstanding write requests to a
+     *            connection established using this socket before a
+     *            SinkCloggedEvent is pushed onto the completion queue for that
+     *            connection. The default value is -1, which indicates that no
+     *            SinkCloggedEvents will be generated.
+     */
+    public ATcpServerSocket(int serverPort, EventSink compQ,
+            int writeClogThreshold) throws IOException {
+        this.serverPort = serverPort;
+        SocketMgr.enqueueRequest(new ATcpListenRequest(this, serverPort, compQ, writeClogThreshold));
+    }
 
-  protected ATcpServerSocket() {
-  }
+    protected ATcpServerSocket() {
+    }
 
-  /**
-   * Request that this server socket stop accepting new connections.
-   * This request will not take effect immediately.
-   */
-  public void suspendAccept() {
-    SocketMgr.enqueueRequest(new ATcpSuspendAcceptRequest(this));
-  }
+    /**
+     * Request that this server socket stop accepting new connections. This
+     * request will not take effect immediately.
+     */
+    public void suspendAccept() {
+        SocketMgr.enqueueRequest(new ATcpSuspendAcceptRequest(this));
+    }
 
-  /**
-   * Request that this server socket resume accepting new connections.
-   * This request will not take effect immediately.
-   */
-  public void resumeAccept() {
-    SocketMgr.enqueueRequest(new ATcpResumeAcceptRequest(this));
-  }
+    /**
+     * Request that this server socket resume accepting new connections. This
+     * request will not take effect immediately.
+     */
+    public void resumeAccept() {
+        SocketMgr.enqueueRequest(new ATcpResumeAcceptRequest(this));
+    }
 
-  /**
-   * Return the port that this socket is listening on.
-   */
-  public int getPort() {
-    return serverPort;  
-  }
+    /**
+     * Return the port that this socket is listening on.
+     */
+    public int getPort() {
+        return serverPort;
+    }
 
-  /**
-   * Return the local port for this socket. Returns -1 if no local port
-   * has yet been established.
-   */
-  public int getLocalPort() {
-    if (lss != null) {
-      return lss.getLocalPort();
-    } else return -1;
-  }
+    /**
+     * Return the local port for this socket. Returns -1 if no local port has
+     * yet been established.
+     */
+    public int getLocalPort() {
+        if (lss != null) {
+            return lss.getLocalPort();
+        } else
+            return -1;
+    }
 
-  /**
-   * Asynchronously close this server socket. An ATcpServerSocketClosedEvent
-   * will be posted to the completion queue associated with this
-   * server socket when the close completes.
-   */
-  public void close() {
-    SocketMgr.enqueueRequest(new ATcpCloseServerRequest(this));
-  }
+    /**
+     * Asynchronously close this server socket. An ATcpServerSocketClosedEvent
+     * will be posted to the completion queue associated with this server socket
+     * when the close completes.
+     */
+    public void close() {
+        SocketMgr.enqueueRequest(new ATcpCloseServerRequest(this));
+    }
 
 }
-

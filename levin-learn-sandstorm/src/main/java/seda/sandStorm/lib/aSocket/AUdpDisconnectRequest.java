@@ -29,7 +29,7 @@ import seda.sandStorm.api.*;
 /**
  * Request to disconnect a UDP socket.
  */
-public class AUdpDisconnectRequest extends aSocketRequest implements QueueElementIF {
+public class AUdpDisconnectRequest extends aSocketRequest implements EventElement {
   AUdpSocket sock;
 
   public AUdpDisconnectRequest(AUdpSocket sock) {

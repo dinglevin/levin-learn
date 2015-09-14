@@ -39,8 +39,8 @@ import java.util.*;
  */
 class StageGraphEdge {
 
-  StageWrapperIF fromStage;
-  StageWrapperIF toStage;
+  StageWrapper fromStage;
+  StageWrapper toStage;
   EventSink sink;
 
   public boolean equals(Object o) {

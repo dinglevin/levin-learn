@@ -70,8 +70,8 @@ class AFileTPTM extends TPSThreadManager implements ThreadManagerIF, ProfilableI
     numOutstandingRequests = 0;
     sysmgr.addThreadManager("AFileTPTM", this);
     AFileTPStageWrapper sw = new AFileTPStageWrapper("AFileTPTM Stage",
-	null, new ConfigData(mgr), this);
-    StageIF theStage = sysmgr.createStage(sw, true);
+	null, new ConfigDataImpl(mgr), this);
+    Stage theStage = sysmgr.createStage(sw, true);
 
     if (mgr.getProfiler() != null) {
       mgr.getProfiler().add("AFileTPTM outstanding reqs", this);
@@ -81,7 +81,7 @@ class AFileTPTM extends TPSThreadManager implements ThreadManagerIF, ProfilableI
   /**
    * Register a stage with this thread manager.
    */
-  public void register(StageWrapperIF stage) {
+  public void register(StageWrapper stage) {
     // Create a single threadPool - only one stage registered with us
     AFileTPThread at = new AFileTPThread((AFileTPStageWrapper)stage);
     SandstormConfig config = mgr.getConfig();
@@ -118,7 +118,7 @@ class AFileTPTM extends TPSThreadManager implements ThreadManagerIF, ProfilableI
   }
 
   // Used to keep track of number of elements on fileQ
-  class fileQueueEntry implements QueueElementIF {
+  class fileQueueEntry implements EventElement {
     AFileTPImpl impl;
     int size;
 

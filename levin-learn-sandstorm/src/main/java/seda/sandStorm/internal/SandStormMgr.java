@@ -33,17 +33,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.EventHandler;
 import seda.sandStorm.api.ManagerIF;
 import seda.sandStorm.api.NoSuchStageException;
 import seda.sandStorm.api.ProfilableIF;
 import seda.sandStorm.api.ProfilerIF;
 import seda.sandStorm.api.SignalMgrIF;
-import seda.sandStorm.api.StageIF;
+import seda.sandStorm.api.Stage;
 import seda.sandStorm.api.StageNameAlreadyBoundException;
 import seda.sandStorm.api.StagesInitializedSignal;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.api.internal.SystemManagerIF;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 import seda.sandStorm.lib.aDisk.AFileMgr;
@@ -70,8 +70,8 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
     private Map<String, ThreadManagerIF> tmtbl;
 
     private SandstormConfig mgrconfig;
-    private Map<String, StageWrapperIF> stagetbl;
-    private List<StageWrapperIF> stagestoinit;
+    private Map<String, StageWrapper> stagetbl;
+    private List<StageWrapper> stagestoinit;
     private SandStormProfiler profiler;
     private SignalMgr signalMgr; 
 
@@ -106,7 +106,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
 
         tmtbl.put("default", defaulttm);
 
-        initialize_io();
+        initializeIO();
         loadInitialStages();
     }
 
@@ -146,17 +146,17 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
     /**
      * Return a handle to given stage.
      */
-    public StageIF getStage(String stagename) throws NoSuchStageException {
+    public Stage getStage(String stagename) throws NoSuchStageException {
         if (stagename == null)
             throw new NoSuchStageException("no such stage: null");
-        StageWrapperIF wrapper = (StageWrapperIF) stagetbl.get(stagename);
+        StageWrapper wrapper = (StageWrapper) stagetbl.get(stagename);
         if (wrapper == null)
             throw new NoSuchStageException("no such stage: " + stagename);
         return wrapper.getStage();
     }
 
     // Initialize the I/O layer
-    private void initialize_io() throws Exception {
+    private void initializeIO() throws Exception {
 
         // Create profiler even if disabled
         profiler = new SandStormProfiler(this);
@@ -213,16 +213,15 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
 
     // Load a stage from the given classname with the given config.
     private void loadStage(StageDescr descr) throws Exception {
-        String stagename = descr.stageName;
-        String classname = descr.className;
-        ConfigData config = new ConfigData(this, descr.initArgs);
-        Class<?> theclass = Class.forName(classname);
+        String stageName = descr.stageName;
+        String className = descr.className;
+        ConfigDataImpl config = new ConfigDataImpl(this, descr.initArgs);
+        Class<?> theclass = Class.forName(className);
         EventHandler evHandler = (EventHandler) theclass.newInstance();
         
-        LOGGER.info("Sandstorm: Loaded " + stagename + " from " + classname);
+        LOGGER.info("Sandstorm: Loaded " + stageName + " from " + className);
 
-        StageWrapper wrapper = new StageWrapper(this, stagename,
-                evHandler, config, defaulttm, descr.queueThreshold);
+        StageWrapperImpl wrapper = new StageWrapperImpl(this, stageName, evHandler, config, defaulttm, descr.queueThreshold);
 
         createStage(wrapper, false);
     }
@@ -231,14 +230,13 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
      * Create a stage with the given name from the given event handler with the
      * given initial arguments.
      */
-    public StageIF createStage(String stageName, EventHandler evHandler,
-            String initargs[]) throws Exception {
-        ConfigDataIF config = new ConfigData(this, initargs);
+    public Stage createStage(String stageName, EventHandler evHandler, String initArgs[]) throws Exception {
+        ConfigData config = new ConfigDataImpl(this, initArgs);
         if (stagetbl.get(stageName) != null) {
             // Come up with a better (random) name
             stageName = stageName + "-" + stagetbl.size();
         }
-        StageWrapperIF wrapper = new StageWrapper((ManagerIF) this, stageName,
+        StageWrapper wrapper = new StageWrapperImpl((ManagerIF) this, stageName,
                 evHandler, config, defaulttm);
 
         return createStage(wrapper, true);
@@ -248,8 +246,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
      * Create a stage from the given stage wrapper. If 'initialize' is true,
      * initialize this stage immediately.
      */
-    public StageIF createStage(StageWrapperIF wrapper, boolean initialize)
-            throws Exception {
+    public Stage createStage(StageWrapper wrapper, boolean initialize) throws Exception {
         String name = wrapper.getStage().getName();
         if (stagetbl.get(name) != null) {
             throw new StageNameAlreadyBoundException(
@@ -296,7 +293,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
     // Initialize all stages
     private void initStages() {
         for (int i = 0; i < stagestoinit.size(); i++) {
-            StageWrapperIF wrapper = stagestoinit.get(i);
+            StageWrapper wrapper = stagestoinit.get(i);
             try {
                 System.err.println("-- Initializing <" + wrapper.getStage().getName() + ">");
                 wrapper.init();
@@ -313,9 +310,9 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
 
     // Destroy all stages
     private void destroyStages() {
-        Iterator<Map.Entry<String, StageWrapperIF>> iterator = stagetbl.entrySet().iterator();
+        Iterator<Map.Entry<String, StageWrapper>> iterator = stagetbl.entrySet().iterator();
         while (iterator.hasNext()) {
-            StageWrapperIF wrapper = iterator.next().getValue();
+            StageWrapper wrapper = iterator.next().getValue();
             try {
                 wrapper.destroy();
             } catch (Exception ex) {

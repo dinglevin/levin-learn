@@ -31,7 +31,7 @@ package seda.sandStorm.api;
  * @see EventSink
  * @author Matt Welsh
  */
-public class SinkFlushedEvent implements QueueElementIF {
+public class SinkFlushedEvent implements EventElement {
 
   /**
    * The sink which was flushed.

@@ -24,42 +24,31 @@
 
 package seda.sandStorm.api;
 
-import seda.sandStorm.api.internal.*;
-
 /**
- * A StageIF represents a handle to an application stage. Applications
- * to not implement StageIF directly; rather, they implement EventHandlerIF.
- * A StageIF is used by an event handler to access other stages and is
- * obtained by a call to ManagerIF.getStage().
- *
- * @see EventHandler
- * @see ManagerIF
- * @author   Matt Welsh
+ * This exception can be thrown if an inappropriate queue element is pushed onto
+ * a SinkIF.
  */
-public interface StageIF {
+public class BadEventElementException extends SinkException {
+    private static final long serialVersionUID = 1L;
+    
+    /**
+     * The event that was received.
+     */
+    public EventElement event;
 
-  /**
-   * Return the name of this stage.
-   */
-  public String getName();
+    /**
+     * Create a new BadQueueElementException with the given explanatory message
+     * and event.
+     */
+    public BadEventElementException(String msg, EventElement event) {
+        super(msg);
+        this.event = event;
+    }
 
-  /**
-   * Return the event sink for this stage. 
-   */
-  public EventSink getSink();
-
-  /**
-   * Return the stage wrapper associated with this stage.
-   * For internal use.
-   */
-  public StageWrapperIF getWrapper();
-
-  /**
-   * Destroy the given stage. Removes the stage from the system and 
-   * invokes its event handler's destroy() method. Stage destruction may
-   * be delayed until all pending events for the stage have been processed.
-   */
-  public void destroy();
-
+    /**
+     * make sure the event is added to debugging output
+     */
+    public String toString() {
+        return super.toString() + "  event=" + event;
+    }
 }
-

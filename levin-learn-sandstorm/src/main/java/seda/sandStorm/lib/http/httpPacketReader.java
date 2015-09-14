@@ -56,14 +56,14 @@ class httpPacketReader implements httpConst {
   private String url;
   private int httpver;
   private Vector header;
-  private httpConnection conn;
+  private HttpConnection conn;
   private EventSink compQ;
 
   /**
    * Create an httpPacketReader with the given httpConnection
    * and completion queue.
    */
-  httpPacketReader(httpConnection conn, EventSink compQ) {
+  httpPacketReader(HttpConnection conn, EventSink compQ) {
     this.conn = conn;
     this.compQ = compQ;
     this.ais = new aSocketInputStream();

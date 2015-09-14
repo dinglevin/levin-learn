@@ -33,23 +33,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.ManagerIF;
-import seda.sandStorm.api.StageIF;
+import seda.sandStorm.api.Stage;
 import seda.sandStorm.main.SandstormConfig;
 
 /**
  * ConfigData is used to pass configuration arguments into various components.
  */
-public class ConfigData implements ConfigDataIF {
+public class ConfigDataImpl implements ConfigData {
     private Map<String, String> vals;
     private ManagerIF mgr;
-    private StageIF stage;
+    private Stage stage;
 
     /**
      * Create a ConfigData with the given manager and no argument list.
      */
-    public ConfigData(ManagerIF mgr) {
+    public ConfigDataImpl(ManagerIF mgr) {
         this.mgr = mgr;
         this.vals = new HashMap<>(1);
     }
@@ -57,7 +57,7 @@ public class ConfigData implements ConfigDataIF {
     /**
      * Create a ConfigData with the given manager and argument list.
      */
-    public ConfigData(ManagerIF mgr, Map<String, String> args) {
+    public ConfigDataImpl(ManagerIF mgr, Map<String, String> args) {
         this.mgr = mgr;
         this.vals = args;
         if (vals == null) {
@@ -72,7 +72,7 @@ public class ConfigData implements ConfigDataIF {
      * @throws IOException
      *             If any of the strings to not match the pattern "key=value".
      */
-    public ConfigData(ManagerIF mgr, String args[]) throws IOException {
+    public ConfigDataImpl(ManagerIF mgr, String args[]) throws IOException {
         this.mgr = mgr;
         this.vals = stringArrayToMap(args);
         if (vals == null) {
@@ -215,12 +215,12 @@ public class ConfigData implements ConfigDataIF {
     /**
      * Return the stage for this ConfigData.
      */
-    public StageIF getStage() {
+    public Stage getStage() {
         return stage;
     }
 
     // Used to set stage after creating wrapper
-    public void setStage(StageIF stage) {
+    public void setStage(Stage stage) {
         this.stage = stage;
     }
 

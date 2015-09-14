@@ -42,7 +42,7 @@ public interface EventHandler {
      *                The application may throw an exception to indicate an
      *                error condition during event processing.
      */
-    public void handleEvent(QueueElementIF elem) throws EventHandlerException;
+    public void handleEvent(EventElement elem) throws EventHandlerException;
 
     /**
      * Handle the events corresponding to the given QueueElementIF array. This
@@ -54,7 +54,7 @@ public interface EventHandler {
      *                The application may throw an exception to indicate an
      *                error condition during event processing.
      */
-    public void handleEvents(QueueElementIF elemarr[]) throws EventHandlerException;
+    public void handleEvents(EventElement elemarr[]) throws EventHandlerException;
 
     /**
      * Called when an event handler is initialized. This method should perform
@@ -67,7 +67,7 @@ public interface EventHandler {
      *                The EventHandler can indicate an error to the runtime
      *                during initialization by throwing an Exception.
      */
-    public void init(ConfigDataIF config) throws Exception;
+    public void init(ConfigData config) throws Exception;
 
     /**
      * Called when an event handler is destroyed. This method should perform any

@@ -24,7 +24,7 @@
 
 package seda.sandStorm.lib.aDisk;
 
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.api.internal.ThreadManagerIF;
 
 /**
@@ -35,13 +35,13 @@ abstract class AFileTM implements ThreadManagerIF {
     /**
      * Register a stage with this thread manager.
      */
-    public abstract void register(StageWrapperIF stage);
+    public abstract void register(StageWrapper stage);
 
     /**
      *
      * Deregister a stage with this thread manager.
      */
-    public abstract void deregister(StageWrapperIF stage);
+    public abstract void deregister(StageWrapper stage);
 
     /**
      * Start the thread manager.

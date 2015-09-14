@@ -24,10 +24,10 @@
 
 package seda.sandStorm.internal;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.EventSink;
-import seda.sandStorm.api.StageIF;
-import seda.sandStorm.api.internal.StageWrapperIF;
+import seda.sandStorm.api.Stage;
+import seda.sandStorm.api.internal.StageWrapper;
 import seda.sandStorm.main.SandstormConfig;
 
 /**
@@ -35,11 +35,11 @@ import seda.sandStorm.main.SandstormConfig;
  * 
  * @author Matt Welsh
  */
-public class Stage implements StageIF {
+public class StageImpl implements Stage {
 
     private String name;
-    private StageWrapperIF wrapper;
-    private EventSink mainsink;
+    private StageWrapper wrapper;
+    private EventSink mainSink;
 
     // If true, instantate a SinkProxy for the stage's event queue
     // when batchControllor or rtController are enabled. This should
@@ -50,17 +50,16 @@ public class Stage implements StageIF {
     /**
      * Create a Stage with the given name, wrapper, and sink.
      */
-    public Stage(String name, StageWrapperIF wrapper, EventSink mainsink,
-            ConfigDataIF config) {
+    public StageImpl(String name, StageWrapper wrapper, EventSink mainSink, ConfigData config) {
         this.name = name;
         this.wrapper = wrapper;
 
         SandstormConfig cf = config.getManager().getConfig();
-        this.mainsink = mainsink;
+        this.mainSink = mainSink;
 
         if (ENABLE_SINK_PROXY && (cf.getBoolean("global.batchController.enable")
                 || cf.getBoolean("global.rtController.enable"))) {
-            this.mainsink = new SinkProxy((EventSink) mainsink,
+            this.mainSink = new SinkProxy((EventSink) mainSink,
                     config.getManager(), wrapper);
         }
     }
@@ -69,7 +68,7 @@ public class Stage implements StageIF {
      * Create a Stage with the given name and wrapper, with no sink. This is
      * used only for specialized stages.
      */
-    public Stage(String name, StageWrapperIF wrapper) {
+    public StageImpl(String name, StageWrapper wrapper) {
         this.name = name;
         this.wrapper = wrapper;
     }
@@ -85,13 +84,13 @@ public class Stage implements StageIF {
      * Return the event sink.
      */
     public EventSink getSink() {
-        return mainsink;
+        return mainSink;
     }
 
     /**
      * Return the stage wrapper for this stage.
      */
-    public StageWrapperIF getWrapper() {
+    public StageWrapper getWrapper() {
         return wrapper;
     }
 

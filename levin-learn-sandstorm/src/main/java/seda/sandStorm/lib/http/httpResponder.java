@@ -38,12 +38,12 @@ import java.net.*;
  *
  * @author Matt Welsh
  * @see httpResponse
- * @see httpConnection
+ * @see HttpConnection
  */
-public class httpResponder implements httpConst, QueueElementIF {
+public class httpResponder implements httpConst, EventElement {
 
   private httpResponse resp;
-  private httpConnection conn;
+  private HttpConnection conn;
   private boolean closeConnection;
   private boolean sendHeader;
 
@@ -54,7 +54,7 @@ public class httpResponder implements httpConst, QueueElementIF {
    * @param sendHeader Indicate that the header of the response should
    *   be sent along with the payload.
    */
-  public httpResponder(httpResponse resp, httpConnection conn,
+  public httpResponder(httpResponse resp, HttpConnection conn,
       boolean closeConnection, boolean sendHeader) {
     this.resp = resp;
     this.conn = conn;
@@ -67,7 +67,7 @@ public class httpResponder implements httpConst, QueueElementIF {
    * @param closeConnection Indicate that the connection should be
    *   closed after sending this response.
    */
-  public httpResponder(httpResponse resp, httpConnection conn,
+  public httpResponder(httpResponse resp, HttpConnection conn,
       boolean closeConnection) {
     this.resp = resp;
     this.conn = conn;
@@ -78,7 +78,7 @@ public class httpResponder implements httpConst, QueueElementIF {
   /**
    * Create an httpResponder with the given response and connection.
    */
-  public httpResponder(httpResponse resp, httpConnection conn) {
+  public httpResponder(httpResponse resp, HttpConnection conn) {
     this(resp, conn, false, true);
   }
 
@@ -118,7 +118,7 @@ public class httpResponder implements httpConst, QueueElementIF {
   /**
    * Return the connection for this responder. 
    */
-  public httpConnection getConnection() {
+  public HttpConnection getConnection() {
     return conn;
   }
 

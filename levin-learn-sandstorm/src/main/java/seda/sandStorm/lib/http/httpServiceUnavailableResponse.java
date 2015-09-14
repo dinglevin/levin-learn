@@ -38,7 +38,7 @@ import java.net.*;
  * @author Matt Welsh
  * @see httpResponse
  */
-public class httpServiceUnavailableResponse extends httpResponse implements httpConst, QueueElementIF {
+public class httpServiceUnavailableResponse extends httpResponse implements httpConst, EventElement {
 
   private static final boolean DEBUG = false;
 

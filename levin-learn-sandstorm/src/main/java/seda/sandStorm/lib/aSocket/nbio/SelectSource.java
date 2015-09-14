@@ -28,7 +28,7 @@ import java.util.Random;
 
 import seda.nbio.SelectItem;
 import seda.nbio.SelectSet;
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 import seda.sandStorm.lib.aSocket.SelectSourceIF;
 
 /**
@@ -205,7 +205,7 @@ public class SelectSource implements SelectSourceIF {
      * Dequeues the next element from the SelectSource without blocking. Returns
      * null if no entries available.
      */
-    public QueueElementIF dequeue() {
+    public EventElement dequeue() {
         if (selset.size() == 0)
             return null;
 
@@ -221,7 +221,7 @@ public class SelectSource implements SelectSourceIF {
      * Dequeues all elements which are ready from the SelectSource. Returns null
      * if no entries available.
      */
-    public QueueElementIF[] dequeue_all() {
+    public EventElement[] dequeue_all() {
         if (selset.size() == 0)
             return null;
 
@@ -242,7 +242,7 @@ public class SelectSource implements SelectSourceIF {
      * Dequeues at most <tt>num</tt> elements which are ready from the
      * SelectSource. Returns null if no entries available.
      */
-    public QueueElementIF[] dequeue(int num) {
+    public EventElement[] dequeue(int num) {
         if (selset.size() == 0)
             return null;
 
@@ -265,7 +265,7 @@ public class SelectSource implements SelectSourceIF {
      * timeout_millis milliseconds; returns null if no entries available after
      * that time. A timeout of -1 blocks forever.
      */
-    public QueueElementIF blocking_dequeue(int timeout_millis) {
+    public EventElement blocking_dequeue(int timeout_millis) {
 
         if (selset.size() == 0) {
             if (timeout_millis == 0)
@@ -299,7 +299,7 @@ public class SelectSource implements SelectSourceIF {
      * timeout_millis milliseconds; returns null if no entries available after
      * that time. A timeout of -1 blocks forever.
      */
-    public QueueElementIF[] blocking_dequeue_all(int timeout_millis) {
+    public EventElement[] blocking_dequeue_all(int timeout_millis) {
 
         if (selset.size() == 0) {
             if (timeout_millis == 0)
@@ -338,7 +338,7 @@ public class SelectSource implements SelectSourceIF {
      * timeout_millis milliseconds; returns null if no entries available after
      * that time. A timeout of -1 blocks forever.
      */
-    public QueueElementIF[] blocking_dequeue(int timeout_millis, int num) {
+    public EventElement[] blocking_dequeue(int timeout_millis, int num) {
 
         if (selset.size() == 0) {
             if (timeout_millis == 0)

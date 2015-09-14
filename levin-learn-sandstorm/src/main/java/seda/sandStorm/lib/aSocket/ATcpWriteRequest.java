@@ -30,7 +30,7 @@ import seda.sandStorm.core.*;
 /**
  * Request to write data to a connection.
  */
-public class ATcpWriteRequest extends aSocketRequest implements QueueElementIF {
+public class ATcpWriteRequest extends aSocketRequest implements EventElement {
 
   public ATcpConnection conn;
   public BufferElement buf;

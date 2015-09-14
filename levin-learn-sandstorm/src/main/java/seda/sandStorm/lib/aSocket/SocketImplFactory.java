@@ -32,16 +32,14 @@ import java.net.*;
  *
  * @author Matt Welsh
  */
-public abstract class aSocketImplFactory {
-  private static final boolean DEBUG = false;
-
-  static aSocketImplFactory getFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-    aSocketImplFactory factory;
+public abstract class SocketImplFactory {
+  static SocketImplFactory getFactory() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    SocketImplFactory factory;
 
     if (SocketMgr.USE_NIO) {
-      factory = (aSocketImplFactory)Class.forName("seda.sandStorm.lib.aSocket.nio.NIOFactory").newInstance();
+      factory = (SocketImplFactory)Class.forName("seda.sandStorm.lib.aSocket.nio.NIOFactory").newInstance();
     } else {
-      factory = (aSocketImplFactory)Class.forName("seda.sandStorm.lib.aSocket.nbio.NBIOFactory").newInstance();
+      factory = (SocketImplFactory)Class.forName("seda.sandStorm.lib.aSocket.nbio.NBIOFactory").newInstance();
     }
     return factory;
   }

@@ -31,7 +31,7 @@ package seda.sandStorm.api;
  *
  * @author Matt Welsh
  */
-public interface ConfigDataIF {
+public interface ConfigData {
 
   /**
    * The default value for a string key with no other specified value.
@@ -117,14 +117,14 @@ public interface ConfigDataIF {
    * The StageIF can be used (among other things) to access the
    * event queues for this stage.
    *
-   * @see StageIF
+   * @see Stage
    */
-  public StageIF getStage();
+  public Stage getStage();
 
   /**
    * Used to set the StageIF when initializing a ConfigDataIF.
    * This is an internal interface and not for use by applications. 
    */
-  public void setStage(StageIF stage);
+  public void setStage(Stage stage);
 
 }

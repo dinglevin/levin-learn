@@ -40,7 +40,7 @@ import java.net.*;
  * @see httpNotFoundResponse
  * 
  */
-public class httpBadRequestResponse extends httpResponse implements httpConst, QueueElementIF {
+public class httpBadRequestResponse extends httpResponse implements httpConst, EventElement {
 
   private static final boolean DEBUG = false;
 

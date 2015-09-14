@@ -32,7 +32,7 @@ import seda.sandStorm.api.*;
  *
  * @author Matt Welsh
  */
-public abstract class aSocketErrorEvent implements QueueElementIF {
+public abstract class aSocketErrorEvent implements EventElement {
 
   private String message;
 

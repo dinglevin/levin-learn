@@ -45,6 +45,6 @@ public interface EnqueuePredicateIF {
    * @param element  The <code>QueueElementIF</code> to enqueue
    * @return True if the sink accepts the element; false otherwise.
    */
-  public boolean accept(QueueElementIF element);
+  public boolean accept(EventElement element);
 
 }

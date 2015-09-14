@@ -29,7 +29,7 @@ import seda.sandStorm.api.*;
 /**
  * Request to initiate read events on a UDP socket.
  */
-public class AUdpStartReadRequest extends aSocketRequest implements QueueElementIF {
+public class AUdpStartReadRequest extends aSocketRequest implements EventElement {
   AUdpSocket sock;
   EventSink compQ;
   int readClogTries;

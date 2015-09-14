@@ -34,7 +34,7 @@ import java.net.*;
 /** 
  * This is the base class for all Gnutella network packets.
  */
-public abstract class GnutellaPacket implements GnutellaConst, QueueElementIF {
+public abstract class GnutellaPacket implements GnutellaConst, EventElement {
 
   private static final boolean DEBUG = false;
 

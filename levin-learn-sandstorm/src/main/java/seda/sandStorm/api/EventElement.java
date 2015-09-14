@@ -25,29 +25,13 @@
 package seda.sandStorm.api;
 
 /**
- * This exception can be thrown if an inappropriate queue element 
- * is pushed onto a SinkIF.
+ * A EventElement represents an event which is placed on, or taken
+ * off of, an event queue. It is an empty interface which applications
+ * should implement instances of to represent different events.
+ *
+ * @author Matt Welsh
  */
-public class BadQueueElementException extends SinkException { 
-
-  /**
-   * The event that was received.
-   */
-  public QueueElementIF event;
-
-  /**
-   * Create a new BadQueueElementException with the given explanatory
-   * message and event.
-   */
-  public BadQueueElementException(String msg, QueueElementIF event) {
-    super(msg);
-    this.event = event;
-  }
-
-  /**
-   * make sure the event is added to debugging output 
-   */
-   public String toString() {
-      return super.toString() + "  event="+event;
-   }
+public interface EventElement {
+  // Empty interface
 }
+

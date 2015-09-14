@@ -36,7 +36,7 @@ import seda.sandStorm.core.*;
  * @author Matt Welsh
  * @see ATcpConnection
  */
-public class ATcpInPacket implements QueueElementIF {
+public class ATcpInPacket implements EventElement {
 
   private ATcpConnection conn;
   private BufferElement buf;

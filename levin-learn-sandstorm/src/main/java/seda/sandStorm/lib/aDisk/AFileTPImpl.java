@@ -37,7 +37,7 @@ import java.io.*;
  * @author Matt Welsh
  * @see AFile
  */
-class AFileTPImpl extends AFileImpl implements QueueElementIF {
+class AFileTPImpl extends AFileImpl implements EventElement {
  
   private File f;
   RandomAccessFile raf;
@@ -80,13 +80,13 @@ class AFileTPImpl extends AFileImpl implements QueueElementIF {
    * Enqueues the given request (which must be an AFileRequest)
    * to the file.
    */
-  public void enqueue(QueueElementIF req) throws SinkException {
+  public void enqueue(EventElement req) throws SinkException {
     AFileRequest areq = (AFileRequest)req;
     if (closed) {
       throw new SinkClosedException("Sink is closed");
     }
     if (readOnly && (areq instanceof AFileWriteRequest)) {
-      throw new BadQueueElementException("Cannot enqueue write request for read-only file", areq);
+      throw new BadEventElementException("Cannot enqueue write request for read-only file", areq);
     }
     areq.afile = afile;
     try {
@@ -103,7 +103,7 @@ class AFileTPImpl extends AFileImpl implements QueueElementIF {
    * Enqueues the given request (which must be an AFileRequest)
    * to the file.
    */
-  public boolean enqueueLossy(QueueElementIF req) {
+  public boolean enqueueLossy(EventElement req) {
     AFileRequest areq = (AFileRequest)req;
     if (closed || (readOnly && (areq instanceof AFileWriteRequest))) {
       return false;
@@ -124,7 +124,7 @@ class AFileTPImpl extends AFileImpl implements QueueElementIF {
    * Enqueues the given requests (which must be AFileRequests)
    * to the file.
    */
-  public void enqueueMany(QueueElementIF[] elements) throws SinkException {
+  public void enqueueMany(EventElement[] elements) throws SinkException {
     if (closed) {
       throw new SinkClosedException("Sink is closed");
     }

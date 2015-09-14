@@ -30,7 +30,7 @@ import seda.sandStorm.api.*;
  * This is the superclass for the various requests that can be 
  * issued to the aSocketMgr.
  */
-public abstract class aSocketRequest implements QueueElementIF {
+public abstract class aSocketRequest implements EventElement {
 
   // Empty class
 

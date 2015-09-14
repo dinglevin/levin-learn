@@ -26,9 +26,9 @@ package seda.sandStorm.lib.aSocket;
 
 import java.io.IOException;
 
-import seda.sandStorm.api.ConfigDataIF;
+import seda.sandStorm.api.ConfigData;
 import seda.sandStorm.api.EventHandler;
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 
 /**
  * Internal event handler used to process socket read events.
@@ -40,7 +40,7 @@ class ReadEventHandler extends SocketEventHandler implements EventHandler {
     ReadEventHandler() {
     }
 
-    public void init(ConfigDataIF config) {
+    public void init(ConfigData config) {
     }
 
     public void destroy() {
@@ -60,7 +60,7 @@ class ReadEventHandler extends SocketEventHandler implements EventHandler {
         }
     }
 
-    public void handleEvent(QueueElementIF qel) {
+    public void handleEvent(EventElement qel) {
         if (DEBUG)
             System.err.println("ReadEventHandler: Got QEL: " + qel);
 
@@ -91,7 +91,7 @@ class ReadEventHandler extends SocketEventHandler implements EventHandler {
         }
     }
 
-    public void handleEvents(QueueElementIF qelarr[]) {
+    public void handleEvents(EventElement qelarr[]) {
         for (int i = 0; i < qelarr.length; i++) {
             handleEvent(qelarr[i]);
         }

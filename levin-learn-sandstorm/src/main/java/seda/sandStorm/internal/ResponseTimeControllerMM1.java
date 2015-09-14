@@ -95,7 +95,7 @@ public class ResponseTimeControllerMM1 extends ResponseTimeController {
   private int totalNumThreads = 0, countNumThreads = 0;
   private boolean enabled;
 
-  public ResponseTimeControllerMM1(ManagerIF mgr, StageWrapperIF stage) throws IllegalArgumentException {
+  public ResponseTimeControllerMM1(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {
     super(mgr, stage);
     this.sinkProxy = (SinkProxy)stage.getStage().getSink();
     this.lasttime = System.currentTimeMillis();
@@ -206,7 +206,7 @@ public class ResponseTimeControllerMM1 extends ResponseTimeController {
   } 
 
   // Measure 90thRT, mu, lambda, estimate RT from model
-  public synchronized void adjustThreshold(QueueElementIF fetched[], 
+  public synchronized void adjustThreshold(EventElement fetched[], 
       long startTime, long endTime, boolean isFirst, int numThreads) {
 //    if (DEBUG) System.err.println("RTControllerMM1 <"+stage.getStage().getName()+">: adjustThreshold called, fetched.len="+fetched.length+", time="+(endTime-startTime)+", isFirst="+isFirst+", numThreads="+numThreads);
 
@@ -419,7 +419,7 @@ public class ResponseTimeControllerMM1 extends ResponseTimeController {
     }
   }
 
-  public void adjustThreshold(QueueElementIF fetched[], long procTime) {
+  public void adjustThreshold(EventElement fetched[], long procTime) {
     throw new IllegalArgumentException("Not supported");
   }
 

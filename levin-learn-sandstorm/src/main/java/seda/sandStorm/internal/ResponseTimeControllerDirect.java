@@ -71,7 +71,7 @@ public class ResponseTimeControllerDirect extends ResponseTimeController {
   private double ninetiethRT;
   private boolean enabled;
 
-  public ResponseTimeControllerDirect(ManagerIF mgr, StageWrapperIF stage) throws IllegalArgumentException {
+  public ResponseTimeControllerDirect(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {
     super(mgr, stage);
 
     this.measurements = new long[MEASUREMENT_SIZE];
@@ -142,7 +142,7 @@ public class ResponseTimeControllerDirect extends ResponseTimeController {
     enabled = false;
   }
 
-  public synchronized void adjustThreshold(QueueElementIF fetched[], long procTime) {
+  public synchronized void adjustThreshold(EventElement fetched[], long procTime) {
     long curtime = System.currentTimeMillis();
     boolean adjust = false;
 

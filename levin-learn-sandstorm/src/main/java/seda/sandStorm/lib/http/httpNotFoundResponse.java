@@ -38,7 +38,7 @@ import java.net.*;
  * @author Matt Welsh
  * @see httpResponse
  */
-public class httpNotFoundResponse extends httpResponse implements httpConst, QueueElementIF {
+public class httpNotFoundResponse extends httpResponse implements httpConst, EventElement {
 
   private static final boolean DEBUG = false;
 

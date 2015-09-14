@@ -33,7 +33,7 @@ import seda.sandStorm.api.*;
  * @author Matt Welsh
  *
  */
-public class AUdpConnectEvent implements QueueElementIF {
+public class AUdpConnectEvent implements EventElement {
   public AUdpSocket theSocket;
 
   AUdpConnectEvent(AUdpSocket sock) {

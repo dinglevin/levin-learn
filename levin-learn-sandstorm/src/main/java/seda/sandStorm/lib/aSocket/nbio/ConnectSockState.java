@@ -87,7 +87,7 @@ public class ConnectSockState extends seda.sandStorm.lib.aSocket.ConnectSockStat
       ATcpConnection conn;
       conn = new ATcpConnection(clisock, nbsock.getInetAddress(), nbsock.getPort());
 
-      QueueElementIF tmparr[] = new QueueElementIF[1]; 
+      EventElement tmparr[] = new EventElement[1]; 
       tmparr[0] = conn;
 
       try {

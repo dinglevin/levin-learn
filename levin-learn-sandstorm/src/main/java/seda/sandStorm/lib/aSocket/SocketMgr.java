@@ -27,10 +27,10 @@ package seda.sandStorm.lib.aSocket;
 import seda.sandStorm.api.ManagerIF;
 import seda.sandStorm.api.SinkException;
 import seda.sandStorm.api.EventSink;
-import seda.sandStorm.api.StageIF;
+import seda.sandStorm.api.Stage;
 import seda.sandStorm.api.internal.SystemManagerIF;
 import seda.sandStorm.api.internal.ThreadManagerIF;
-import seda.sandStorm.internal.ConfigData;
+import seda.sandStorm.internal.ConfigDataImpl;
 import seda.sandStorm.main.Sandstorm;
 import seda.sandStorm.main.SandstormConfig;
 
@@ -44,20 +44,19 @@ import seda.sandStorm.main.SandstormConfig;
 public class SocketMgr {
     private static ThreadManagerIF aSocketTM, aSocketRCTM;
     private static EventSink read_sink;
-    private static EventSink listen_sink;
+    private static EventSink listenSink;
     private static EventSink write_sink;
 
     private static Object init_lock = new Object();
     private static boolean initialized = false;
 
     static boolean USE_NIO = false;
-    private static aSocketImplFactory factory;
+    private static SocketImplFactory factory;
 
     /**
      * Called at startup time by the Sandstorm runtime.
      */
-    public static void initialize(ManagerIF mgr, SystemManagerIF sysmgr)
-            throws Exception {
+    public static void initialize(ManagerIF mgr, SystemManagerIF sysmgr) throws Exception {
 
         synchronized (init_lock) {
             SandstormConfig cfg = mgr.getConfig();
@@ -70,8 +69,7 @@ public class SocketMgr {
 
             if (provider.equals("NIO")) {
                 USE_NIO = true;
-                System.err
-                        .println("aSocket layer using JDK1.4 java.nio package");
+                System.err.println("aSocket layer using JDK1.4 java.nio package");
             } else if (provider.equals("NBIO")) {
                 USE_NIO = false;
                 System.err.println("aSocket layer using NBIO package");
@@ -81,10 +79,9 @@ public class SocketMgr {
             }
 
             try {
-                factory = aSocketImplFactory.getFactory();
+                factory = SocketImplFactory.getFactory();
             } catch (Exception e) {
-                throw new RuntimeException(
-                        "aSocketMgr: Cannot create aSocketImplFactory: " + e);
+                throw new RuntimeException("aSocketMgr: Cannot create aSocketImplFactory: " + e);
             }
 
             aSocketTM = new SocketThreadManager(mgr);
@@ -96,26 +93,26 @@ public class SocketMgr {
                 aSocketRCTM = new aSocketRCTMSleep(mgr);
                 sysmgr.addThreadManager("aSocketRCTM", aSocketRCTM);
                 rsw = new SocketStageWrapper("aSocket ReadStage", revh,
-                        new ConfigData(mgr), aSocketRCTM);
+                        new ConfigDataImpl(mgr), aSocketRCTM);
             } else {
                 rsw = new SocketStageWrapper("aSocket ReadStage", revh,
-                        new ConfigData(mgr), aSocketTM);
+                        new ConfigDataImpl(mgr), aSocketTM);
             }
 
-            StageIF readStage = sysmgr.createStage(rsw, true);
+            Stage readStage = sysmgr.createStage(rsw, true);
             read_sink = readStage.getSink();
 
             ListenEventHandler levh = new ListenEventHandler();
             SocketStageWrapper lsw = new SocketStageWrapper(
-                    "aSocket ListenStage", levh, new ConfigData(mgr),
+                    "aSocket ListenStage", levh, new ConfigDataImpl(mgr),
                     aSocketTM);
-            StageIF listenStage = sysmgr.createStage(lsw, true);
-            listen_sink = listenStage.getSink();
+            Stage listenStage = sysmgr.createStage(lsw, true);
+            listenSink = listenStage.getSink();
 
             WriteEventHandler wevh = new WriteEventHandler();
             SocketStageWrapper wsw = new SocketStageWrapper(
-                    "aSocket WriteStage", wevh, new ConfigData(mgr), aSocketTM);
-            StageIF writeStage = sysmgr.createStage(wsw, true);
+                    "aSocket WriteStage", wevh, new ConfigDataImpl(mgr), aSocketTM);
+            Stage writeStage = sysmgr.createStage(wsw, true);
             write_sink = writeStage.getSink();
 
             initialized = true;
@@ -148,7 +145,7 @@ public class SocketMgr {
         }
     }
 
-    static aSocketImplFactory getFactory() {
+    static SocketImplFactory getFactory() {
         return factory;
     }
 
@@ -194,7 +191,7 @@ public class SocketMgr {
                 || (req instanceof ATcpCloseServerRequest)) {
 
             try {
-                listen_sink.enqueue(req);
+                listenSink.enqueue(req);
             } catch (SinkException se) {
                 System.err.println(
                         "aSocketMgr.enqueueRequest: Warning: Got SinkException "

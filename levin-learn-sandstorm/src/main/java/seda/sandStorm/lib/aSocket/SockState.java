@@ -26,7 +26,7 @@ package seda.sandStorm.lib.aSocket;
 
 import java.net.Socket;
 
-import seda.sandStorm.api.QueueElementIF;
+import seda.sandStorm.api.EventElement;
 import seda.sandStorm.api.SinkClosedException;
 import seda.sandStorm.api.EventSink;
 import seda.sandStorm.core.ssLinkedList;
@@ -38,7 +38,7 @@ public abstract class SockState implements aSocketConst {
     protected Socket nbsock;
     protected ATcpConnection conn;
     protected EventSink readCompQ;
-    protected QueueElementIF clogged_qel;
+    protected EventElement clogged_qel;
     protected int clogged_numtries;
     protected int readClogTries, writeClogThreshold;
     protected byte readBuf[];

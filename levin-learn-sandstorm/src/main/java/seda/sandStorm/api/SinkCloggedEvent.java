@@ -38,7 +38,7 @@ package seda.sandStorm.api;
  * @see SinkFullException
  * @author Matt Welsh
  */
-public class SinkCloggedEvent implements QueueElementIF {
+public class SinkCloggedEvent implements EventElement {
 
   /**
    * The sink which clogged.
@@ -48,12 +48,12 @@ public class SinkCloggedEvent implements QueueElementIF {
   /**
    * The element which clogged.
    */
-  public QueueElementIF element;
+  public EventElement element;
 
   /**
    * Create a new SinkCloggedEvent with the given sink and element.
    */
-  public SinkCloggedEvent(EventSink sink, QueueElementIF element) {
+  public SinkCloggedEvent(EventSink sink, EventElement element) {
     this.sink = sink;
     this.element = element;
   }

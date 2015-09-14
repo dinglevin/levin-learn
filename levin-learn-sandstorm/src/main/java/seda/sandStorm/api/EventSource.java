@@ -39,7 +39,7 @@ public interface EventSource {
      *
      * @return the next <code>QueueElementIF</code> on the queue
      */
-    public QueueElementIF dequeue();
+    public EventElement dequeue();
 
     /**
      * Dequeues all available elements, or returns <code>null</code> if there is
@@ -47,7 +47,7 @@ public interface EventSource {
      *
      * @return all pending <code>QueueElementIF</code>s on the queue
      */
-    public QueueElementIF[] dequeue_all();
+    public EventElement[] dequeue_all();
 
     /**
      * Dequeues at most <code>num</code> available elements, or returns
@@ -56,12 +56,12 @@ public interface EventSource {
      * @return At most <code>num</code> <code>QueueElementIF</code>s on the
      *         queue
      */
-    public QueueElementIF[] dequeue(int num);
+    public EventElement[] dequeue(int num);
 
     /**
      * Just like blocking_dequeue_all, but returns only a single element.
      */
-    public QueueElementIF blocking_dequeue(int timeout_millis);
+    public EventElement blocking_dequeue(int timeout_millis);
 
     /**
      * This method blocks on the queue up until a timeout occurs or until an
@@ -80,14 +80,14 @@ public interface EventSource {
      * @return an array of <code>QueueElementIF</code>'s. This array will be
      *         null if no elements were pending.
      */
-    public QueueElementIF[] blocking_dequeue_all(int timeout_millis);
+    public EventElement[] blocking_dequeue_all(int timeout_millis);
 
     /**
      * This method blocks on the queue up until a timeout occurs or until an
      * element appears on the queue. It returns at most <code>num</code>
      * elements waiting on the queue at that time.
      */
-    public QueueElementIF[] blocking_dequeue(int timeout_millis, int num);
+    public EventElement[] blocking_dequeue(int timeout_millis, int num);
 
     /**
      * Returns the number of elements waiting in this queue.

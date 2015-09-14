@@ -37,7 +37,7 @@ import java.net.*;
  * 
  * @author Matt Welsh
  */
-public class GnutellaConnectFailedEvent implements QueueElementIF {
+public class GnutellaConnectFailedEvent implements EventElement {
   public InetAddress address;
   public int port;
 

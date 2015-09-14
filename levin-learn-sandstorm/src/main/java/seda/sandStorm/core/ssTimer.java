@@ -65,12 +65,12 @@ public class ssTimer implements Runnable, ProfilableIF {
 
   public static class ssTimerEvent {
     public long            time_millis;
-    public QueueElementIF  obj;
+    public EventElement  obj;
     public EventSink queue;
     public ssTimerEvent      nextE;
     public ssTimerEvent      prevE;
     
-    public ssTimerEvent(long m, QueueElementIF o, EventSink q) {
+    public ssTimerEvent(long m, EventElement o, EventSink q) {
       time_millis = m;
       obj = o;
       queue = q;
@@ -92,7 +92,7 @@ public class ssTimer implements Runnable, ProfilableIF {
    * @param obj     the object that will be placed on the queue
    * @param queue   the queue on which the object will be placed
    */
-  public ssTimer.ssTimerEvent registerEvent(long millis, QueueElementIF obj,
+  public ssTimer.ssTimerEvent registerEvent(long millis, EventElement obj,
 					  EventSink queue) {
     long time_millis = System.currentTimeMillis() + millis;
     ssTimerEvent newTimer = new ssTimerEvent(time_millis, obj, queue);
@@ -112,7 +112,7 @@ public class ssTimer implements Runnable, ProfilableIF {
    * @param queue    the queue on which the object will be placed
    */
   public ssTimer.ssTimerEvent registerEvent(java.util.Date the_date,
-					  QueueElementIF obj,
+					  EventElement obj,
 					  EventSink queue) {
     ssTimerEvent newTimer = new ssTimerEvent(the_date.getTime(),
 					 obj, queue);
@@ -332,7 +332,7 @@ public class ssTimer implements Runnable, ProfilableIF {
     }
   }
 
-  private static class GQEString implements QueueElementIF {
+  private static class GQEString implements EventElement {
     private String ns = null;
     private long inj;
 
@@ -379,7 +379,7 @@ public class ssTimer implements Runnable, ProfilableIF {
 
     int num_got = 0;
     while (num_got < 13) {
-      QueueElementIF nextEl[] = q.dequeue_all();
+      EventElement nextEl[] = q.dequeue_all();
 
       if (nextEl != null) {
 	num_got += nextEl.length;

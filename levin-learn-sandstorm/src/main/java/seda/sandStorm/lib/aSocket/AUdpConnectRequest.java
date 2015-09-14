@@ -30,7 +30,7 @@ import java.net.*;
 /**
  * Request to connect a UDP socket.
  */
-public class AUdpConnectRequest extends aSocketRequest implements QueueElementIF {
+public class AUdpConnectRequest extends aSocketRequest implements EventElement {
   AUdpSocket sock;
   InetAddress addr;
   int port;

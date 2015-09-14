@@ -31,7 +31,7 @@ package seda.sandStorm.api;
  * @see SignalMgrIF
  * @author Matt Welsh
  */
-public interface SignalIF extends QueueElementIF {
+public interface SignalIF extends EventElement {
 
   // Empty class
 

@@ -29,7 +29,7 @@ import seda.sandStorm.api.*;
 /**
  * Request to flush a connection.
  */
-public class AUdpFlushRequest extends aSocketRequest implements QueueElementIF {
+public class AUdpFlushRequest extends aSocketRequest implements EventElement {
 
   AUdpSocket sock;
   EventSink compQ;

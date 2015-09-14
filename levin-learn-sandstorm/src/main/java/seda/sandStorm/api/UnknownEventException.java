@@ -25,22 +25,23 @@
 package seda.sandStorm.api;
 
 /**
- * This exception can be thrown if an unknown event type was received 
- * by a stage.
+ * This exception can be thrown if an unknown event type was received by a
+ * stage.
  */
-public class UnknownEventException extends EventHandlerException { 
+public class UnknownEventException extends EventHandlerException {
+    private static final long serialVersionUID = 1L;
+    
+    /**
+     * The event that was received.
+     */
+    public EventElement event;
 
-  /**
-   * The event that was received.
-   */
-  public QueueElementIF event;
-
-  /**
-   * Create a new UnknownEventException with the given explanatory
-   * message and event.
-   */
-  public UnknownEventException(String msg, QueueElementIF event) {
-    super(msg);
-    this.event = event;
-  }
+    /**
+     * Create a new UnknownEventException with the given explanatory message and
+     * event.
+     */
+    public UnknownEventException(String msg, EventElement event) {
+        super(msg);
+        this.event = event;
+    }
 }

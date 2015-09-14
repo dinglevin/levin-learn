@@ -28,7 +28,7 @@ package seda.sandStorm.api;
  * This exception is thrown if a sink as requested by a call to
  * StageIF.getSink() does not exist.
  *
- * @see StageIF
+ * @see Stage
  * @author Matt Welsh
  */
 public class NoSuchSinkException extends Exception { 

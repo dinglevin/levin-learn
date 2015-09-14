@@ -35,7 +35,7 @@ import seda.sandStorm.api.*;
  * @see ATcpServerSocket
  *
  */
-public class ATcpListenSuccessEvent implements QueueElementIF {
+public class ATcpListenSuccessEvent implements EventElement {
   public ATcpServerSocket theSocket;
 
   public ATcpListenSuccessEvent(ATcpServerSocket sock) {
