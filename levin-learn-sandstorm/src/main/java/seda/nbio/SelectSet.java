@@ -24,8 +24,6 @@
 
 package seda.nbio;
 
-import java.util.Vector;
-
 /**
  * A SelectSet represents a set of SelectItems which you wish to
  * poll or wait for events to occur on. The interface is very much

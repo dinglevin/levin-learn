@@ -47,7 +47,7 @@ public class EventQueueImpl implements EventQueue, Profilable {
     private final Logger LOGGER;
     
     private final String name;
-    private EnqueuePredicate pred;
+    private EnqueuePredicate predicate;
     
     private Deque<EventElement> queue;
     private int queueSize;
@@ -57,11 +57,11 @@ public class EventQueueImpl implements EventQueue, Profilable {
     /**
      * Create a EventQueueImpl with the given enqueue predicate.
      */
-    public EventQueueImpl(String name, EnqueuePredicate pred) {
+    public EventQueueImpl(String name, EnqueuePredicate predicate) {
         checkArgument(isNotBlank(name), "name is blank");
         
         this.name = name;
-        this.pred = pred;
+        this.predicate = predicate;
         this.LOGGER = LoggerFactory.getLogger(EventQueueImpl.class + "." + name);
         
         this.queue = Lists.newLinkedList();
@@ -71,7 +71,7 @@ public class EventQueueImpl implements EventQueue, Profilable {
     }
 
     /**
-     * Create a FiniteQueue with no enqueue and the given name. Used for
+     * Create a EventQueueImpl with no enqueue and the given name. Used for
      * debugging.
      */
     public EventQueueImpl(String name) {
@@ -94,7 +94,7 @@ public class EventQueueImpl implements EventQueue, Profilable {
         
         synchronized (blocker) {
             synchronized (queue) {
-                if ((pred != null) && (!pred.accept(event))) {
+                if ((predicate != null) && (!predicate.accept(event))) {
                     throw new SinkFullException("EventQueue is full!");
                 }
                 
@@ -110,29 +110,26 @@ public class EventQueueImpl implements EventQueue, Profilable {
 
     public boolean enqueueLossy(EventElement event) {
         try {
-            this.enqueue(event);
-        } catch (Exception e) {
+            enqueue(event);
+            return true;
+        } catch (SinkFullException e) {
             return false;
         }
-        return true;
     }
 
-    public void enqueueMany(EventElement[] event) throws SinkFullException {
+    public void enqueueMany(EventElement[] events) throws SinkFullException {
         synchronized (blocker) {
-            int qlen = event.length;
-
             synchronized (queue) {
-                if (pred != null) {
-                    int i = 0;
-                    while ((i < qlen) && (pred.accept(event[i])))
-                        i++;
-                    if (i != qlen)
-                        throw new SinkFullException("FiniteQueue is full!");
+                if (predicate != null) {
+                    for (EventElement event : events) {
+                        if (!predicate.accept(event)) {
+                            throw new SinkFullException("EventQueue is full!");
+                        }
+                    }
                 }
-
-                queueSize += qlen;
-                for (int i = 0; i < qlen; i++) {
-                    queue.offerLast(event[i]);
+                queueSize += events.length;
+                for (EventElement event : events) {
+                    queue.offerLast(event);
                 }
             }
             blocker.notifyAll(); // wake up all sleepers
@@ -140,15 +137,14 @@ public class EventQueueImpl implements EventQueue, Profilable {
     }
 
     public EventElement dequeue() {
-        EventElement el = null;
         synchronized (blocker) {
             synchronized (queue) {
-                if (queue.size() == 0)
+                if (queue.size() == 0) {
                     return null;
-
-                el = queue.pollFirst();
+                }
+                EventElement event = queue.pollFirst();
                 queueSize--;
-                return el;
+                return event;
             }
         }
     }
@@ -177,11 +173,11 @@ public class EventQueueImpl implements EventQueue, Profilable {
                 if (qs == 0)
                     return null;
 
-                EventElement[] retIF = new EventElement[qs];
+                EventElement[] events = new EventElement[qs];
                 for (int i = 0; i < qs; i++)
-                    retIF[i] = queue.pollFirst();
+                    events[i] = queue.pollFirst();
                 queueSize -= qs;
-                return retIF;
+                return events;
             }
         }
     }
@@ -202,60 +198,43 @@ public class EventQueueImpl implements EventQueue, Profilable {
                 if (qs == 0)
                     return null;
 
-                EventElement[] retIF = new EventElement[qs];
+                EventElement[] events = new EventElement[qs];
                 for (int i = 0; i < qs; i++)
-                    retIF[i] = queue.pollFirst();
+                    events[i] = queue.pollFirst();
                 queueSize -= qs;
-                return retIF;
+                return events;
             }
         }
     }
 
-    public EventElement[] blockingDequeueAll(int timeout_millis) {
-        EventElement[] rets = null;
-        long goal_time;
-        int num_spins = 0;
-
-        LOGGER.debug("**** B_DEQUEUE_A ({}) **** Entered", name);
-
-        goal_time = System.currentTimeMillis() + timeout_millis;
+    public EventElement[] blockingDequeueAll(int timeoutMillis) {
+        long goalTime = System.currentTimeMillis() + timeoutMillis;
         while (true) {
             synchronized (blocker) {
-                LOGGER.debug("**** B_DEQUEUE_A ({}) **** Doing D_A", name);
-                
-                rets = this.dequeueAll();
-                LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETS IS {}", name, rets);
-                
-                if ((rets != null) || (timeout_millis == 0)) {
-                    LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETURNING (1)", name);
+                EventElement[] rets = dequeueAll();
+                if ((rets != null) || (timeoutMillis == 0)) {
                     return rets;
                 }
 
-                if (timeout_millis == -1) {
+                if (timeoutMillis == -1) {
                     try {
                         blocker.wait();
                     } catch (InterruptedException ie) {
                     }
                 } else {
                     try {
-                        LOGGER.debug("**** B_DEQUEUE_A ({}) **** WAITING ON BLOCKER", name);
-                        blocker.wait(timeout_millis);
+                        blocker.wait(timeoutMillis);
                     } catch (InterruptedException ie) {
                     }
                 }
-
-                LOGGER.debug("**** B_DEQUEUE_A ({}) **** Doing D_A (2)", name);
                 
-                rets = this.dequeueAll();
-                LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETS(2) IS {}", name, rets);
+                rets = dequeueAll();
                 if (rets != null) {
-                    LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETURNING(2)", name);
                     return rets;
                 }
 
-                if (timeout_millis != -1) {
-                    if (System.currentTimeMillis() >= goal_time) {
-                        LOGGER.debug("**** B_DEQUEUE_A ({}) **** RETURNING(3)", name);
+                if (timeoutMillis != -1) {
+                    if (System.currentTimeMillis() >= goalTime) {
                         return null;
                     }
                 }
@@ -263,28 +242,26 @@ public class EventQueueImpl implements EventQueue, Profilable {
         }
     }
 
-    public EventElement[] blockingDequeue(int timeout_millis, int num, boolean mustReturnNum) {
+    public EventElement[] blockingDequeue(int timeoutMillis, int num, boolean mustReturnNum) {
         EventElement[] rets = null;
-        long goal_time;
-        int num_spins = 0;
+        long goalTime;
 
-        goal_time = System.currentTimeMillis() + timeout_millis;
+        goalTime = System.currentTimeMillis() + timeoutMillis;
         while (true) {
             synchronized (blocker) {
-
                 rets = this.dequeue(num, mustReturnNum);
-                if ((rets != null) || (timeout_millis == 0)) {
+                if ((rets != null) || (timeoutMillis == 0)) {
                     return rets;
                 }
 
-                if (timeout_millis == -1) {
+                if (timeoutMillis == -1) {
                     try {
                         blocker.wait();
                     } catch (InterruptedException ie) {
                     }
                 } else {
                     try {
-                        blocker.wait(timeout_millis);
+                        blocker.wait(timeoutMillis);
                     } catch (InterruptedException ie) {
                     }
                 }
@@ -294,8 +271,8 @@ public class EventQueueImpl implements EventQueue, Profilable {
                     return rets;
                 }
 
-                if (timeout_millis != -1) {
-                    if (System.currentTimeMillis() >= goal_time) {
+                if (timeoutMillis != -1) {
+                    if (System.currentTimeMillis() >= goalTime) {
                         // Timeout - take whatever we can get
                         return this.dequeue(num);
                     }
@@ -304,43 +281,38 @@ public class EventQueueImpl implements EventQueue, Profilable {
         }
     }
 
-    public EventElement[] blockingDequeue(int timeout_millis, int num) {
-        return blockingDequeue(timeout_millis, num, false);
+    public EventElement[] blockingDequeue(int timeoutMillis, int num) {
+        return blockingDequeue(timeoutMillis, num, false);
     }
 
-    public EventElement blockingDequeue(int timeout_millis) {
-        EventElement rets = null;
-        long goal_time;
-        int num_spins = 0;
-
-        goal_time = System.currentTimeMillis() + timeout_millis;
+    public EventElement blockingDequeue(int timeoutMillis) {
+        long goalTime = System.currentTimeMillis() + timeoutMillis;
         while (true) {
             synchronized (blocker) {
-
-                rets = this.dequeue();
-                if ((rets != null) || (timeout_millis == 0)) {
+                EventElement rets = dequeue();
+                if ((rets != null) || (timeoutMillis == 0)) {
                     return rets;
                 }
 
-                if (timeout_millis == -1) {
+                if (timeoutMillis == -1) {
                     try {
                         blocker.wait();
                     } catch (InterruptedException ie) {
                     }
                 } else {
                     try {
-                        blocker.wait(timeout_millis);
+                        blocker.wait(timeoutMillis);
                     } catch (InterruptedException ie) {
                     }
                 }
 
-                rets = this.dequeue();
+                rets = dequeue();
                 if (rets != null) {
                     return rets;
                 }
 
-                if (timeout_millis != -1) {
-                    if (System.currentTimeMillis() >= goal_time)
+                if (timeoutMillis != -1) {
+                    if (System.currentTimeMillis() >= goalTime)
                         return null;
                 }
             }
@@ -357,21 +329,19 @@ public class EventQueueImpl implements EventQueue, Profilable {
     /**
      * Provisionally enqueue the given elements.
      */
-    public Object enqueuePrepare(EventElement enqueueMe[])
-            throws SinkException {
-        int qlen = enqueueMe.length;
+    public Object enqueuePrepare(EventElement events[]) throws SinkException {
         synchronized (blocker) {
             synchronized (queue) {
-                if (pred != null) {
-                    int i = 0;
-                    while ((i < qlen) && (pred.accept(enqueueMe[i])))
-                        i++;
-                    if (i != qlen)
-                        throw new SinkFullException("FiniteQueue is full!");
+                if (predicate != null) {
+                    for (EventElement event : events) {
+                        if (!predicate.accept(event)) {
+                            throw new SinkFullException("EventQueue is full!");
+                        }
+                    }
                 }
-                queueSize += qlen;
+                queueSize += events.length;
                 Object key = new Object();
-                provisionalTbl.put(key, enqueueMe);
+                provisionalTbl.put(key, events);
                 return key;
             }
         }
@@ -383,13 +353,11 @@ public class EventQueueImpl implements EventQueue, Profilable {
     public void enqueueCommit(Object key) {
         synchronized (blocker) {
             synchronized (queue) {
-                EventElement elements[] = (EventElement[]) provisionalTbl
-                        .remove(key);
-                if (elements == null)
-                    throw new IllegalArgumentException(
-                            "Unknown enqueue key " + key);
-                for (int i = 0; i < elements.length; i++) {
-                    queue.offerLast(elements[i]);
+                EventElement[] events = provisionalTbl.remove(key);
+                if (events == null)
+                    throw new IllegalArgumentException("Unknown enqueue key " + key);
+                for (EventElement event : events) {
+                    queue.offerLast(event);
                 }
             }
             blocker.notifyAll();
@@ -402,12 +370,10 @@ public class EventQueueImpl implements EventQueue, Profilable {
     public void enqueueAbort(Object key) {
         synchronized (blocker) {
             synchronized (queue) {
-                EventElement elements[] = (EventElement[]) provisionalTbl
-                        .remove(key);
-                if (elements == null)
-                    throw new IllegalArgumentException(
-                            "Unknown enqueue key " + key);
-                queueSize -= elements.length;
+                EventElement[] events = provisionalTbl.remove(key);
+                if (events == null)
+                    throw new IllegalArgumentException("Unknown enqueue key " + key);
+                queueSize -= events.length;
             }
         }
     }
@@ -416,14 +382,14 @@ public class EventQueueImpl implements EventQueue, Profilable {
      * Set the enqueue predicate for this sink.
      */
     public void setEnqueuePredicate(EnqueuePredicate pred) {
-        this.pred = pred;
+        this.predicate = pred;
     }
 
     /**
      * Return the enqueue predicate for this sink.
      */
     public EnqueuePredicate getEnqueuePredicate() {
-        return pred;
+        return predicate;
     }
 
     public String toString() {

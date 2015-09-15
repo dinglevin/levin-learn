@@ -27,7 +27,7 @@ package seda.sandstorm.lib.socket;
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventHandler;
 import seda.sandstorm.api.EventSource;
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.internal.StageWrapper;
 import seda.sandstorm.api.internal.ThreadManager;
 import seda.sandstorm.internal.ThreadPool;
@@ -42,9 +42,9 @@ class SocketThreadManager implements ThreadManager, aSocketConst {
 
     private static final boolean DEBUG = false;
 
-    private ManagerIF mgr;
+    private Manager mgr;
 
-    SocketThreadManager(ManagerIF mgr) {
+    SocketThreadManager(Manager mgr) {
         this.mgr = mgr;
     }
 

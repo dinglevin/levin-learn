@@ -36,16 +36,16 @@ import com.google.common.collect.Maps;
 
 import seda.sandstorm.api.ConfigData;
 import seda.sandstorm.api.EventHandler;
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.NoSuchStageException;
 import seda.sandstorm.api.Profilable;
 import seda.sandstorm.api.Profiler;
-import seda.sandstorm.api.SignalMgrIF;
+import seda.sandstorm.api.SignalManager;
 import seda.sandstorm.api.Stage;
 import seda.sandstorm.api.StageNameAlreadyBoundException;
 import seda.sandstorm.api.StagesInitializedSignal;
 import seda.sandstorm.api.internal.StageWrapper;
-import seda.sandstorm.api.internal.SystemManagerIF;
+import seda.sandstorm.api.internal.SystemManager;
 import seda.sandstorm.api.internal.ThreadManager;
 import seda.sandstorm.lib.disk.AsyncFileManager;
 import seda.sandstorm.lib.socket.SocketMgr;
@@ -60,12 +60,12 @@ import seda.sandstorm.main.StageDescriptor;
  * and SystemManagerIF interfaces; this class should not be used directly.
  *
  * @author Matt Welsh
- * @see seda.sandstorm.api.ManagerIF
- * @see seda.sandstorm.api.internal.SystemManagerIF
+ * @see seda.sandstorm.api.Manager
+ * @see seda.sandstorm.api.internal.SystemManager
  * 
  */
-public class SandStormMgr implements ManagerIF, SystemManagerIF {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SandStormMgr.class);
+public class SandStormManager implements Manager, SystemManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SandStormManager.class);
 
     private ThreadManager defaulttm;
     private Map<String, ThreadManager> tmtbl;
@@ -74,18 +74,18 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
     private Map<String, StageWrapper> stagetbl;
     private List<StageWrapper> stagestoinit;
     private SandStormProfiler profiler;
-    private SignalMgr signalMgr;
+    private SignalManagerImpl signalMgr;
 
     /**
      * Create a sandStormMgr which reads its configuration from the given file.
      */
-    public SandStormMgr(SandstormConfig mgrconfig) throws Exception {
+    public SandStormManager(SandstormConfig mgrconfig) throws Exception {
         this.mgrconfig = mgrconfig;
 
         stagetbl = Maps.newHashMap();
         tmtbl = Maps.newHashMap();
         stagestoinit = Lists.newArrayList();
-        signalMgr = new SignalMgr();
+        signalMgr = new SignalManagerImpl();
 
         String dtm = mgrconfig.getString("global.defaultThreadManager");
         if (dtm == null) {
@@ -237,7 +237,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
             // Come up with a better (random) name
             stageName = stageName + "-" + stagetbl.size();
         }
-        StageWrapper wrapper = new StageWrapperImpl((ManagerIF) this, stageName,
+        StageWrapper wrapper = new StageWrapperImpl((Manager) this, stageName,
                 evHandler, config, defaulttm);
 
         return createStage(wrapper, true);
@@ -278,7 +278,7 @@ public class SandStormMgr implements ManagerIF, SystemManagerIF {
     /**
      * Return the system signal manager.
      */
-    public SignalMgrIF getSignalMgr() {
+    public SignalManager getSignalMgr() {
         return signalMgr;
     }
 

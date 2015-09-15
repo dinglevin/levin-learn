@@ -108,9 +108,9 @@ public interface ConfigData {
    * The system manager can (among other things) be used to access
    * other stages in the system.
    *
-   * @see ManagerIF
+   * @see Manager
    */
-  public ManagerIF getManager();
+  public Manager getManager();
 
   /**
    * Return the StageIF for this stage.

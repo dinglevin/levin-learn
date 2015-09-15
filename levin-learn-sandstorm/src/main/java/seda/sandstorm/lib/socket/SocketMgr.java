@@ -25,10 +25,10 @@
 package seda.sandstorm.lib.socket;
 
 import seda.sandstorm.api.EventSink;
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.SinkException;
 import seda.sandstorm.api.Stage;
-import seda.sandstorm.api.internal.SystemManagerIF;
+import seda.sandstorm.api.internal.SystemManager;
 import seda.sandstorm.api.internal.ThreadManager;
 import seda.sandstorm.internal.ConfigDataImpl;
 import seda.sandstorm.main.Sandstorm;
@@ -56,7 +56,7 @@ public class SocketMgr {
     /**
      * Called at startup time by the Sandstorm runtime.
      */
-    public static void initialize(ManagerIF mgr, SystemManagerIF sysmgr) throws Exception {
+    public static void initialize(Manager mgr, SystemManager sysmgr) throws Exception {
 
         synchronized (init_lock) {
             SandstormConfig cfg = mgr.getConfig();

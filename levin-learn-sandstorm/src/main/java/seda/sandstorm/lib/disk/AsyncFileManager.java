@@ -27,8 +27,8 @@ package seda.sandstorm.lib.disk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import seda.sandstorm.api.ManagerIF;
-import seda.sandstorm.api.internal.SystemManagerIF;
+import seda.sandstorm.api.Manager;
+import seda.sandstorm.api.internal.SystemManager;
 import seda.sandstorm.api.internal.ThreadManager;
 import seda.sandstorm.main.Sandstorm;
 import seda.sandstorm.main.SandstormConfig;
@@ -50,7 +50,7 @@ public class AsyncFileManager {
     /**
      * Called at startup time by the Sandstorm runtime.
      */
-    public static void initialize(ManagerIF mgr, SystemManagerIF sysmgr) throws Exception {
+    public static void initialize(Manager mgr, SystemManager sysmgr) throws Exception {
         synchronized (initLock) {
             // XXX Could replace with a TPSThreadManager - but need to augment
             // TPSTM to start with an initial number of threads per stage

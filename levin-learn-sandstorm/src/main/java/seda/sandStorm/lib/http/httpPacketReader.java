@@ -24,240 +24,253 @@
 
 package seda.sandstorm.lib.http;
 
-import seda.sandstorm.api.*;
-import seda.sandstorm.lib.socket.*;
-import seda.sandstorm.lib.util.*;
+import java.io.IOException;
+import java.io.StreamTokenizer;
+import java.util.Vector;
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.lib.socket.ATcpInPacket;
+import seda.sandstorm.lib.socket.aSocketInputStream;
 
 /**
- * This is a package-internal class which reads HTTP request packets.
- * An instance of this class is fed ATcpInPackets (via the 
- * <tt>parsePacket</tt> method). When a complete packet has been
- * read, an httpRequest is pushed to the corresponding SinkIF.
- * This is the bulk of the HTTP protocol implementation.
+ * This is a package-internal class which reads HTTP request packets. An
+ * instance of this class is fed ATcpInPackets (via the <tt>parsePacket</tt>
+ * method). When a complete packet has been read, an httpRequest is pushed to
+ * the corresponding SinkIF. This is the bulk of the HTTP protocol
+ * implementation.
  * 
  * @author Matt Welsh
  */
 class HttpPacketReader implements HttpConst {
 
-  private static final boolean DEBUG = false;
+    private static final boolean DEBUG = false;
 
-  private static final int STATE_START = 0;
-  private static final int STATE_HEADER = 1;
-  private static final int STATE_DONE = 2;
+    private static final int STATE_START = 0;
+    private static final int STATE_HEADER = 1;
+    private static final int STATE_DONE = 2;
 
-  private int state;
-  private aSocketInputStream ais;
-  private StreamTokenizer tok;
+    private int state;
+    private aSocketInputStream ais;
+    private StreamTokenizer tok;
 
-  private String request;
-  private String url;
-  private int httpver;
-  private Vector header;
-  private HttpConnection conn;
-  private EventSink compQ;
+    private String request;
+    private String url;
+    private int httpver;
+    private Vector header;
+    private HttpConnection conn;
+    private EventSink compQ;
 
-  /**
-   * Create an httpPacketReader with the given httpConnection
-   * and completion queue.
-   */
-  HttpPacketReader(HttpConnection conn, EventSink compQ) {
-    this.conn = conn;
-    this.compQ = compQ;
-    this.ais = new aSocketInputStream();
-    reset();
-  }
+    /**
+     * Create an httpPacketReader with the given httpConnection and completion
+     * queue.
+     */
+    HttpPacketReader(HttpConnection conn, EventSink compQ) {
+        this.conn = conn;
+        this.compQ = compQ;
+        this.ais = new aSocketInputStream();
+        reset();
+    }
 
-  /**
-   * Parse the given packet; returns true if a complete HTTP
-   * request has been received and parsed.
-   */
-  boolean parsePacket(ATcpInPacket pkt) throws IOException {
-    if (DEBUG) System.err.println("GPR: pushPacket called, size "+pkt.getBytes().length);
-    ais.addPacket(pkt);
+    /**
+     * Parse the given packet; returns true if a complete HTTP request has been
+     * received and parsed.
+     */
+    boolean parsePacket(ATcpInPacket pkt) throws IOException {
+        if (DEBUG)
+            System.err.println(
+                    "GPR: pushPacket called, size " + pkt.getBytes().length);
+        ais.addPacket(pkt);
 
-    int origstate;
+        int origstate;
 
-    do {
-      origstate = state;
+        do {
+            origstate = state;
 
-      switch (state) {
-	case STATE_START:
-	  state = parseURL();
-	  break;
+            switch (state) {
+            case STATE_START:
+                state = parseURL();
+                break;
 
-	case STATE_HEADER:
-	  state = accumulateHeader();
-	  break;
+            case STATE_HEADER:
+                state = accumulateHeader();
+                break;
 
-	case STATE_DONE:
-	  processHeader();
-	  reset();
-	  return true;
+            case STATE_DONE:
+                processHeader();
+                reset();
+                return true;
 
-	default:
-	  throw new Error("Bad state in pushPacket");
-      }
+            default:
+                throw new Error("Bad state in pushPacket");
+            }
 
-    } while (state != origstate);
+        } while (state != origstate);
 
-    return false;
-  }
+        return false;
+    }
 
-  /**
-   * Reset the internal state of the packet reader.
-   */
-  private void reset() {
-    state = STATE_START;
-    ais.clear();
-    tok = new StreamTokenizer(ais);
-    tok.resetSyntax();
-    tok.wordChars((char)0, (char)255);
-    tok.whitespaceChars('\u0000', '\u0020');
-    tok.eolIsSignificant(true);
-    request = null;
-    url = null;
-    header = null;
-    httpver = 0;
-  }
+    /**
+     * Reset the internal state of the packet reader.
+     */
+    private void reset() {
+        state = STATE_START;
+        ais.clear();
+        tok = new StreamTokenizer(ais);
+        tok.resetSyntax();
+        tok.wordChars((char) 0, (char) 255);
+        tok.whitespaceChars('\u0000', '\u0020');
+        tok.eolIsSignificant(true);
+        request = null;
+        url = null;
+        header = null;
+        httpver = 0;
+    }
 
-  /**
-   * Parse the first line of the request header.
-   */
-  private int parseURL() throws IOException {
-    ais.mark(0);
-    String req = nextWord();
-    url = nextWord();
-    String ver = nextWord();
-    if ((req == null) || (url == null) || (ver == null)) {
-      ais.reset();
-      return STATE_START;
-    } else {
-      request = req;
-      if (ver.equals("HTTP/1.0")) {
-	httpver = HttpRequest.HTTPVER_10;
-        String tmp = nextWord(); // Throw away EOL
-	return STATE_HEADER;
-      } else if (ver.equals("HTTP/1.1")) {
-	httpver = HttpRequest.HTTPVER_11;
-        String tmp = nextWord(); // Throw away EOL
-	return STATE_HEADER;
-      } else {
-	if (!ver.equals(CRLF)) {
-	  throw new IOException("Unknown HTTP version in request: "+httpver);
-	}
-	httpver = HttpRequest.HTTPVER_09;
+    /**
+     * Parse the first line of the request header.
+     */
+    private int parseURL() throws IOException {
+        ais.mark(0);
+        String req = nextWord();
+        url = nextWord();
+        String ver = nextWord();
+        if ((req == null) || (url == null) || (ver == null)) {
+            ais.reset();
+            return STATE_START;
+        } else {
+            request = req;
+            if (ver.equals("HTTP/1.0")) {
+                httpver = HttpRequest.HTTPVER_10;
+                String tmp = nextWord(); // Throw away EOL
+                return STATE_HEADER;
+            } else if (ver.equals("HTTP/1.1")) {
+                httpver = HttpRequest.HTTPVER_11;
+                String tmp = nextWord(); // Throw away EOL
+                return STATE_HEADER;
+            } else {
+                if (!ver.equals(CRLF)) {
+                    throw new IOException(
+                            "Unknown HTTP version in request: " + httpver);
+                }
+                httpver = HttpRequest.HTTPVER_09;
+                return STATE_DONE;
+            }
+        }
+    }
+
+    /**
+     * Accumulate header lines.
+     */
+    private int accumulateHeader() throws IOException {
+
+        String line;
+
+        do {
+            line = nextLine();
+            if (DEBUG)
+                System.err.println("hpr: accumulateHeader() read line " + line);
+
+            if (line == null) {
+                // End of buffer
+                return STATE_HEADER;
+            } else if (!line.equals("")) {
+                if (header == null)
+                    header = new Vector(1);
+                header.addElement(line);
+            }
+
+        } while (!line.equals(""));
         return STATE_DONE;
-      }
     }
-  }
 
-  /**
-   * Accumulate header lines.
-   */
-  private int accumulateHeader() throws IOException {
-
-    String line;
-
-    do {
-      line = nextLine();
-      if (DEBUG) System.err.println("hpr: accumulateHeader() read line "+line);
-
-      if (line == null) {
-	// End of buffer
-	return STATE_HEADER;
-      } else if (!line.equals("")) {
-	if (header == null) header = new Vector(1);
-	header.addElement(line);
-      }
-
-    } while (!line.equals(""));
-    return STATE_DONE;
-  }
-
-  /**
-   * Process the header, possibly pushing an httpRequest to the user.
-   */
-  private void processHeader() throws IOException {
-    HttpRequest req = new HttpRequest(conn,request,url,httpver,header);
-    if (DEBUG) System.err.println("httpPacketReader: Pushing req to user");
-    if (!compQ.enqueueLossy(req)) {
-      System.err.println("httpPacketReader: WARNING: Could not enqueue_lossy to user: "+req);
+    /**
+     * Process the header, possibly pushing an httpRequest to the user.
+     */
+    private void processHeader() throws IOException {
+        HttpRequest req = new HttpRequest(conn, request, url, httpver, header);
+        if (DEBUG)
+            System.err.println("httpPacketReader: Pushing req to user");
+        if (!compQ.enqueueLossy(req)) {
+            System.err.println(
+                    "httpPacketReader: WARNING: Could not enqueue_lossy to user: "
+                            + req);
+        }
     }
-  }
 
-  /**
-   * Read the next whitespace-delimited word from the packet.
-   */
-  private String nextWord() throws IOException {
-    while (true) {
-      int type = tok.nextToken();
-      switch (type) {
+    /**
+     * Read the next whitespace-delimited word from the packet.
+     */
+    private String nextWord() throws IOException {
+        while (true) {
+            int type = tok.nextToken();
+            switch (type) {
 
-	case StreamTokenizer.TT_EOL:
-	  return CRLF;
+            case StreamTokenizer.TT_EOL:
+                return CRLF;
 
-	case StreamTokenizer.TT_EOF:
-	  return null;
+            case StreamTokenizer.TT_EOF:
+                return null;
 
-	case StreamTokenizer.TT_WORD:
-	  if (DEBUG) System.err.println("nextWord returning "+tok.sval);
-	  return tok.sval;
+            case StreamTokenizer.TT_WORD:
+                if (DEBUG)
+                    System.err.println("nextWord returning " + tok.sval);
+                return tok.sval;
 
-	case StreamTokenizer.TT_NUMBER:
-	  if (DEBUG) System.err.println("nextWord returning number");
-	  return Double.toString(tok.nval);
+            case StreamTokenizer.TT_NUMBER:
+                if (DEBUG)
+                    System.err.println("nextWord returning number");
+                return Double.toString(tok.nval);
 
-	default:
-	  continue;
-      }
+            default:
+                continue;
+            }
+        }
     }
-  }
 
-  /**
-   * Read the next line from the packet.
-   */
-  private String nextLine() throws IOException {
-    String line = new String("");
-    boolean first = true;
+    /**
+     * Read the next line from the packet.
+     */
+    private String nextLine() throws IOException {
+        String line = new String("");
+        boolean first = true;
 
-    while (true) {
-      switch (tok.nextToken()) {
+        while (true) {
+            switch (tok.nextToken()) {
 
-	case StreamTokenizer.TT_EOL:
-	  if (DEBUG) System.err.println("nextLine returning "+line);
-	  return line;
+            case StreamTokenizer.TT_EOL:
+                if (DEBUG)
+                    System.err.println("nextLine returning " + line);
+                return line;
 
-	case StreamTokenizer.TT_EOF:
-	  return null;
+            case StreamTokenizer.TT_EOF:
+                return null;
 
-	case StreamTokenizer.TT_WORD:
-	  if (DEBUG) System.err.println("nextLine got word "+tok.sval);
-	  if (first) {
-	    line = tok.sval;
-	    first = false;
-	  } else {
-	    line += " "+tok.sval;
-	  }
-	  break;
+            case StreamTokenizer.TT_WORD:
+                if (DEBUG)
+                    System.err.println("nextLine got word " + tok.sval);
+                if (first) {
+                    line = tok.sval;
+                    first = false;
+                } else {
+                    line += " " + tok.sval;
+                }
+                break;
 
-	case StreamTokenizer.TT_NUMBER:
-	  if (DEBUG) System.err.println("nextLine got number "+tok.nval);
-	  if (first) {
-	    line = Double.toString(tok.nval);
-	    first = false;
-	  } else {
-	    line += " "+Double.toString(tok.nval);
-	  }
-	  break;
+            case StreamTokenizer.TT_NUMBER:
+                if (DEBUG)
+                    System.err.println("nextLine got number " + tok.nval);
+                if (first) {
+                    line = Double.toString(tok.nval);
+                    first = false;
+                } else {
+                    line += " " + Double.toString(tok.nval);
+                }
+                break;
 
-	default:
-	  continue;
-      }
+            default:
+                continue;
+            }
+        }
     }
-  }
 
 }

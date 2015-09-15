@@ -25,19 +25,26 @@
 package seda.sandstorm.api;
 
 /**
- * This exception is thrown if one attempts to enqueue a new element
- * onto a sink which is closed. A sink is considered closed when it is
- * no longer being serviced by any application component.
+ * This exception is thrown if one attempts to enqueue a new element onto a sink
+ * which is closed. A sink is considered closed when it is no longer being
+ * serviced by any application component.
  *
- * <p>As opposed to SinkClosedEvent, which is pushed when a sink closes
- * asynchronously, SinkClosedException is thrown immediately when
- * attempting to enqueue onto a closed sink.
+ * <p>
+ * As opposed to SinkClosedEvent, which is pushed when a sink closes
+ * asynchronously, SinkClosedException is thrown immediately when attempting to
+ * enqueue onto a closed sink.
  *
  * @see SinkClosedEvent
  * @author Matt Welsh
  */
-public class SinkClosedException extends SinkException { 
-  public SinkClosedException() { super(); }
-  public SinkClosedException(String s) { super(s); }
-}
+public class SinkClosedException extends SinkException {
+    private static final long serialVersionUID = 1L;
 
+    public SinkClosedException() {
+        super();
+    }
+
+    public SinkClosedException(String s) {
+        super(s);
+    }
+}

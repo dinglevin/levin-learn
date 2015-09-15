@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import seda.sandstorm.api.ConfigData;
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.Stage;
 import seda.sandstorm.main.SandstormConfig;
 
@@ -43,13 +43,13 @@ import seda.sandstorm.main.SandstormConfig;
  */
 public class ConfigDataImpl implements ConfigData {
     private Map<String, String> vals;
-    private ManagerIF mgr;
+    private Manager mgr;
     private Stage stage;
 
     /**
      * Create a ConfigData with the given manager and no argument list.
      */
-    public ConfigDataImpl(ManagerIF mgr) {
+    public ConfigDataImpl(Manager mgr) {
         this.mgr = mgr;
         this.vals = new HashMap<>(1);
     }
@@ -57,7 +57,7 @@ public class ConfigDataImpl implements ConfigData {
     /**
      * Create a ConfigData with the given manager and argument list.
      */
-    public ConfigDataImpl(ManagerIF mgr, Map<String, String> args) {
+    public ConfigDataImpl(Manager mgr, Map<String, String> args) {
         this.mgr = mgr;
         this.vals = args;
         if (vals == null) {
@@ -72,7 +72,7 @@ public class ConfigDataImpl implements ConfigData {
      * @throws IOException
      *             If any of the strings to not match the pattern "key=value".
      */
-    public ConfigDataImpl(ManagerIF mgr, String args[]) throws IOException {
+    public ConfigDataImpl(Manager mgr, String args[]) throws IOException {
         this.mgr = mgr;
         this.vals = stringArrayToMap(args);
         if (vals == null) {
@@ -208,7 +208,7 @@ public class ConfigDataImpl implements ConfigData {
     /**
      * Return the local manager.
      */
-    public ManagerIF getManager() {
+    public Manager getManager() {
         return mgr;
     }
 
@@ -226,7 +226,7 @@ public class ConfigDataImpl implements ConfigData {
 
     // Used to reset manager after creating stage
     // (for proxying the manager)
-    void setManager(ManagerIF mgr) {
+    void setManager(Manager mgr) {
         this.mgr = mgr;
     }
 }

@@ -29,7 +29,7 @@ import seda.sandstorm.api.EventHandler;
 import seda.sandstorm.api.EventSink;
 import seda.sandstorm.api.EventSource;
 import seda.sandstorm.api.Stage;
-import seda.sandstorm.api.internal.ResponseTimeControllerIF;
+import seda.sandstorm.api.internal.ResponseTimeController;
 import seda.sandstorm.api.internal.StageStats;
 import seda.sandstorm.api.internal.StageWrapper;
 import seda.sandstorm.api.internal.ThreadManager;
@@ -136,7 +136,7 @@ class SocketStageWrapper implements StageWrapper {
     }
 
     /** Not implemented. */
-    public ResponseTimeControllerIF getResponseTimeController() {
+    public ResponseTimeController getResponseTimeController() {
         return null;
     }
 

@@ -25,16 +25,22 @@
 package seda.sandstorm.api;
 
 /**
- * This is a generic exception which a sink can generate.
- * It is an abstract class; only subclasses can be instantiated.
+ * This is a generic exception which a sink can generate. It is an abstract
+ * class; only subclasses can be instantiated.
  *
  * @see SinkFullException
  * @see SinkClosedException
  * @see BadEventElementException
  * @author Matt Welsh
  */
-public abstract class SinkException extends Exception { 
-  public SinkException() { super(); }
-  public SinkException(String s) { super(s); }
-}
+public abstract class SinkException extends Exception {
+    private static final long serialVersionUID = 1L;
 
+    public SinkException() {
+        super();
+    }
+
+    public SinkException(String s) {
+        super(s);
+    }
+}

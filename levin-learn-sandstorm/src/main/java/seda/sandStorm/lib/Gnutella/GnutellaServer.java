@@ -58,7 +58,7 @@ public class GnutellaServer implements EventHandler, GnutellaConst {
 
     private ATcpServerSocket servsock;
     private ATcpClientSocket clisock;
-    private ManagerIF mgr;
+    private Manager mgr;
     private EventSink mySink, clientSink;
 
     // ATcpConnection -> GnutellaPacketReader
@@ -94,7 +94,7 @@ public class GnutellaServer implements EventHandler, GnutellaConst {
      * Create a Gnutella server listening for incoming connections on the
      * default port of 6346.
      */
-    public GnutellaServer(ManagerIF mgr, EventSink clientSink) throws Exception {
+    public GnutellaServer(Manager mgr, EventSink clientSink) throws Exception {
         this(mgr, clientSink, DEFAULT_GNUTELLA_PORT);
     }
 
@@ -103,7 +103,7 @@ public class GnutellaServer implements EventHandler, GnutellaConst {
      * listenPort. If listenPort == 0, no incoming connections will be accepted.
      * (Outgoing connections can still be established using openConnection.)
      */
-    public GnutellaServer(ManagerIF mgr, EventSink clientSink, int listenPort)
+    public GnutellaServer(Manager mgr, EventSink clientSink, int listenPort)
             throws Exception {
         this.mgr = mgr;
         this.clientSink = clientSink;

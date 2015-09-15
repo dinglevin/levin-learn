@@ -199,7 +199,7 @@ public class ResponseTimeControllerMulticlass extends ResponseTimeControllerDire
 
   }
 
-  public ResponseTimeControllerMulticlass(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {
+  public ResponseTimeControllerMulticlass(Manager mgr, StageWrapper stage) throws IllegalArgumentException {
     super(mgr, stage);
 
     this.name = stage.getStage().getName();

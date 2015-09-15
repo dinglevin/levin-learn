@@ -24,7 +24,7 @@
 
 package seda.sandstorm.internal;
 
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.Profilable;
 import seda.sandstorm.api.internal.StageStats;
 import seda.sandstorm.api.internal.StageWrapper;
@@ -90,7 +90,7 @@ public class StageStatsImpl implements StageStats {
         // Only possible to add ourselves to the profile after we start running
         if (PROFILE && first) {
             first = false;
-            ManagerIF mgr = Sandstorm.getSandstorm().getManager();
+            Manager mgr = Sandstorm.getSandstorm().getManager();
             if (mgr.getProfiler() != null) {
                 mgr.getProfiler()
                         .add("StageStats serviceRate <"

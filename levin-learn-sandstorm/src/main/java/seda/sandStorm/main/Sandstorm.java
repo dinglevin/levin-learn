@@ -24,9 +24,9 @@
 
 package seda.sandstorm.main;
 
-import seda.sandstorm.api.ManagerIF;
-import seda.sandstorm.api.internal.SystemManagerIF;
-import seda.sandstorm.internal.SandStormMgr;
+import seda.sandstorm.api.Manager;
+import seda.sandstorm.api.internal.SystemManager;
+import seda.sandstorm.internal.SandStormManager;
 
 /**
  * This is the top-level class which acts as the "wrapper" and external
@@ -46,7 +46,7 @@ import seda.sandstorm.internal.SandStormMgr;
  */
 public class Sandstorm {
 
-    private SandStormMgr mgr;
+    private SandStormManager mgr;
     private static Sandstorm globalSandstorm = null;
 
     /**
@@ -72,7 +72,7 @@ public class Sandstorm {
             throw new RuntimeException("Sandstorm: Error: Only one Sandstorm instance can be running at a given time.");
         }
         globalSandstorm = this;
-        mgr = new SandStormMgr(config);
+        mgr = new SandStormManager(config);
         mgr.start();
     }
 
@@ -80,7 +80,7 @@ public class Sandstorm {
      * Return a handler to the ManagerIF for the Sandstorm instance. This
      * interface allows one to create and obtain handles to stages.
      */
-    public ManagerIF getManager() {
+    public Manager getManager() {
         return mgr;
     }
 
@@ -88,7 +88,7 @@ public class Sandstorm {
      * Return a handle to the SystemManagerIF for the Sandstorm instance. This
      * interface allows one to create stages and thread managers.
      */
-    public SystemManagerIF getSystemManager() {
+    public SystemManager getSystemManager() {
         return mgr;
     }
 

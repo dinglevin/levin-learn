@@ -44,7 +44,7 @@ class AggThrottle {
 
   private StageWrapper stage;
   private String name;
-  private ManagerIF mgr;
+  private Manager mgr;
 
   private double bestThroughput, lastThroughput;
   private int bestTarget;
@@ -75,7 +75,7 @@ class AggThrottle {
   private int aggregationTarget;
   private Random rand = new Random();
 
-  AggThrottle(StageWrapper stage, ManagerIF mgr) {
+  AggThrottle(StageWrapper stage, Manager mgr) {
     this.stage = stage;
     this.name = stage.getStage().getName();
     this.mgr = mgr;

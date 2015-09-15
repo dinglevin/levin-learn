@@ -55,8 +55,8 @@ public class NIOFactory extends SocketImplFactory {
     return new SockState(conn, nbsock, writeClogThreshold);
   }
 
-  protected ConnectSockState newConnectSockState(ATcpConnectRequest req, SelectSourceIF selsource) throws IOException {
-    return new ConnectSockState(req, selsource);
+  protected ConnectSockStateImpl newConnectSockState(ATcpConnectRequest req, SelectSourceIF selsource) throws IOException {
+    return new ConnectSockStateImpl(req, selsource);
   }
 
   protected ListenSockState newListenSockState(ATcpListenRequest req, SelectSourceIF selsource) throws IOException {

@@ -29,14 +29,14 @@ import java.io.RandomAccessFile;
 
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventSource;
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.Profilable;
 import seda.sandstorm.api.SinkClosedEvent;
 import seda.sandstorm.api.SinkException;
 import seda.sandstorm.api.SinkFlushedEvent;
 import seda.sandstorm.api.Stage;
 import seda.sandstorm.api.internal.StageWrapper;
-import seda.sandstorm.api.internal.SystemManagerIF;
+import seda.sandstorm.api.internal.SystemManager;
 import seda.sandstorm.api.internal.ThreadManager;
 import seda.sandstorm.core.BufferEvent;
 import seda.sandstorm.core.EventQueueImpl;
@@ -66,7 +66,7 @@ class AsyncFileTPTM extends TPSThreadManager implements ThreadManager, Profilabl
     // Maximum number of consecutive requests to service per file
     private static final int MAX_REQUESTS_PER_FILE = 10;
 
-    AsyncFileTPTM(ManagerIF mgr, SystemManagerIF sysmgr) throws Exception {
+    AsyncFileTPTM(Manager mgr, SystemManager sysmgr) throws Exception {
         super(mgr, false);
 
         if (DEBUG)

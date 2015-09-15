@@ -31,7 +31,7 @@ import seda.sandstorm.internal.StageGraph;
  * time. If the system is being run in profiling mode, applications can get a
  * handle to the ProfilerIF by invoking ManagerIF.getProfiler().
  *
- * @see ManagerIF
+ * @see Manager
  * @author Matt Welsh
  */
 public interface Profiler {

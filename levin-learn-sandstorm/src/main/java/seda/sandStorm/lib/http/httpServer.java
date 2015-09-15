@@ -36,7 +36,7 @@ import seda.sandstorm.api.ConfigData;
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventHandler;
 import seda.sandstorm.api.EventSink;
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.Profiler;
 import seda.sandstorm.api.SinkCloggedEvent;
 import seda.sandstorm.api.SinkClosedEvent;
@@ -65,7 +65,7 @@ public class HttpServer implements EventHandler, HttpConst {
     // These are protected to allow subclasses to use them
     protected int listenPort;
     protected ATcpServerSocket servsock;
-    protected ManagerIF mgr;
+    protected Manager mgr;
     protected EventSink mySink, clientSink;
 
     // ATcpConnection -> httpConnection
@@ -77,7 +77,7 @@ public class HttpServer implements EventHandler, HttpConst {
      * Create an HTTP server listening for incoming connections on the default
      * port of 8080.
      */
-    public HttpServer(ManagerIF mgr, EventSink clientSink) throws Exception {
+    public HttpServer(Manager mgr, EventSink clientSink) throws Exception {
         this(mgr, clientSink, DEFAULT_HTTP_PORT);
     }
 
@@ -85,7 +85,7 @@ public class HttpServer implements EventHandler, HttpConst {
      * Create an HTTP server listening for incoming connections on the given
      * listenPort.
      */
-    public HttpServer(ManagerIF mgr, EventSink clientSink, int listenPort) throws Exception {
+    public HttpServer(Manager mgr, EventSink clientSink, int listenPort) throws Exception {
         this.mgr = mgr;
         this.clientSink = clientSink;
         this.listenPort = listenPort;

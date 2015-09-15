@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventSource;
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.SingleThreadedEventHandlerIF;
-import seda.sandstorm.api.internal.ResponseTimeControllerIF;
+import seda.sandstorm.api.internal.ResponseTimeController;
 import seda.sandstorm.api.internal.StageWrapper;
 import seda.sandstorm.api.internal.ThreadManager;
 import seda.sandstorm.main.SandstormConfig;
@@ -49,16 +49,16 @@ import seda.sandstorm.main.SandstormConfig;
 public class TPSThreadManager implements ThreadManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(TPSThreadManager.class);
     
-    protected ManagerIF mgr;
+    protected Manager mgr;
     protected SandstormConfig config;
     protected Hashtable srTbl;
     protected ThreadPoolController sizeController;
 
-    public TPSThreadManager(ManagerIF mgr) {
+    public TPSThreadManager(Manager mgr) {
         this(mgr, true);
     }
 
-    public TPSThreadManager(ManagerIF mgr, boolean initialize) {
+    public TPSThreadManager(Manager mgr, boolean initialize) {
         this.mgr = mgr;
         this.config = mgr.getConfig();
 
@@ -116,7 +116,7 @@ public class TPSThreadManager implements ThreadManager {
         protected StageWrapper wrapper;
         protected EventSource source;
         protected String name;
-        protected ResponseTimeControllerIF rtController = null;
+        protected ResponseTimeController rtController = null;
         protected boolean firstToken = false;
         protected int aggTarget = -1;
 

@@ -47,7 +47,7 @@ class aSocketRCTMSleep extends SocketThreadManager implements ThreadManager, aSo
   private static final int MAX_AGGREGATION = 32;
   private double targetRate;
 
-  aSocketRCTMSleep(ManagerIF mgr) {
+  aSocketRCTMSleep(Manager mgr) {
     super(mgr);
     this.targetRate = mgr.getConfig().getInt("global.aSocket.rateController.rate");
     System.err.println("aSocketRCTMSleep: Created, target rate "+targetRate);

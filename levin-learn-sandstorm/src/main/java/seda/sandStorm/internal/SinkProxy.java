@@ -42,7 +42,7 @@ public class SinkProxy implements EventSink, Profilable {
 
   private static final boolean DEBUG = false;
 
-  private ManagerIF mgr;
+  private Manager mgr;
   private StageWrapper toStage;
   private StageGraph stageGraph;
   public EventSink thesink;
@@ -73,7 +73,7 @@ public class SinkProxy implements EventSink, Profilable {
    * @param mgr The associated manager.
    * @param toStage The stage which this sink pushes events to.
    */
-  public SinkProxy(EventSink sink, ManagerIF mgr, StageWrapper toStage) {
+  public SinkProxy(EventSink sink, Manager mgr, StageWrapper toStage) {
     this.thesink = sink;
     this.mgr = mgr;
     this.stageGraph = mgr.getProfiler().getGraphProfiler();

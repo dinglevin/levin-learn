@@ -25,17 +25,13 @@
 package seda.sandstorm.api;
 
 /**
- * This signal indicates that all stages specified in the 
- * initial Sandstorm configuration, or created during the
- * <tt>init()</tt> method from a stage specified in the 
- * initial configuration, have been initialized. Note that 
+ * This signal indicates that all stages specified in the initial Sandstorm
+ * configuration, or created during the <tt>init()</tt> method from a stage
+ * specified in the initial configuration, have been initialized. Note that
  * additional stages may be created after initialization has completed.
  *
  * @author Matt Welsh
  */
-public class StagesInitializedSignal implements SignalIF {
-
-  // Empty class
+public class StagesInitializedSignal implements Signal {
 
 }
-

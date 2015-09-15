@@ -28,10 +28,17 @@ package seda.sandstorm.api;
  * This exception is thrown if a stage is created (via ManagerIF.createStage)
  * with a name that conflicts with another stage.
  *
- * @see ManagerIF
+ * @see Manager
  * @author Matt Welsh
  */
 public class StageNameAlreadyBoundException extends Exception {
-  public StageNameAlreadyBoundException() { super(); }
-  public StageNameAlreadyBoundException(String s) { super(s); }
+    private static final long serialVersionUID = 1L;
+
+    public StageNameAlreadyBoundException() {
+        super();
+    }
+
+    public StageNameAlreadyBoundException(String s) {
+        super(s);
+    }
 }

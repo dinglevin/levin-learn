@@ -36,7 +36,7 @@ import java.util.*;
  * 
  * @author   Matt Welsh
  */
-public class ResponseTimeControllerPID extends ResponseTimeController {
+public class ResponseTimeControllerPID extends ResponseTimeControllerImpl {
 
   private static final boolean DEBUG = true;
 
@@ -72,7 +72,7 @@ public class ResponseTimeControllerPID extends ResponseTimeController {
   private long adjtime;
   private boolean enabled;
 
-  public ResponseTimeControllerPID(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {
+  public ResponseTimeControllerPID(Manager mgr, StageWrapper stage) throws IllegalArgumentException {
     super(mgr, stage);
     this.adjtime = System.currentTimeMillis();
     this.sinkProxy = (SinkProxy)stage.getStage().getSink();

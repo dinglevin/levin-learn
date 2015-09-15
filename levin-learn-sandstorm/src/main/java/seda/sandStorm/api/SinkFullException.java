@@ -25,20 +25,27 @@
 package seda.sandstorm.api;
 
 /**
- * This exception is thrown if a SinkIF is full; that is, that no 
- * more entries can be pushed into the SinkIF immediately. This can
- * occur because the sink has reached a length threshold, or some
- * other condition is preventing the sink from (temporarily) accepting
- * new elements.
+ * This exception is thrown if a SinkIF is full; that is, that no more entries
+ * can be pushed into the SinkIF immediately. This can occur because the sink
+ * has reached a length threshold, or some other condition is preventing the
+ * sink from (temporarily) accepting new elements.
  *
- * <p>As opposed to SinkCloggedEvent, which is generated when a sink
- * becomes full asynchronously, this exception is thrown immediately
- * when attempting to enqueue onto a full sink.
+ * <p>
+ * As opposed to SinkCloggedEvent, which is generated when a sink becomes full
+ * asynchronously, this exception is thrown immediately when attempting to
+ * enqueue onto a full sink.
  *
  * @see SinkCloggedEvent
  * @author Matt Welsh
  */
-public class SinkFullException extends SinkException { 
-  public SinkFullException() { super(); }
-  public SinkFullException(String s) { super(s); }
+public class SinkFullException extends SinkException {
+    private static final long serialVersionUID = 1L;
+
+    public SinkFullException() {
+        super();
+    }
+
+    public SinkFullException(String s) {
+        super(s);
+    }
 }

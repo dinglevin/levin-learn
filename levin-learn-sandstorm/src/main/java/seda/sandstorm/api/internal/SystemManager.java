@@ -22,37 +22,38 @@
  * 
  */
 
-package seda.sandstorm.lib.socket.nbio;
+package seda.sandstorm.api.internal;
 
-import seda.nbio.*;
 import seda.sandstorm.api.*;
-import seda.sandstorm.lib.socket.*;
 
 /**
- * A SelectQueueElement is a wrapper for SelectItem which makes it a 
- * QueueElementIF.
- *
- * @author Matt Welsh 
+ * SystemManagerIF is an internal interface allowing modules to access
+ * systemwide features. For now this allows a module to access, create, and
+ * destroy thread managers. It also allows a module to create a stage with its
+ * own stage wrapper.
  */
-public class SelectQueueElement extends seda.sandstorm.lib.socket.SelectQueueElement {
+public interface SystemManager {
 
-  public SelectItem item;
+    /**
+     * Get the default thread manager.
+     */
+    public ThreadManager getThreadManager();
 
-  public SelectQueueElement(SelectItem item) {
-    this.item = item;
-  }
+    /**
+     * Get the thread manager registered under the given name.
+     */
+    public ThreadManager getThreadManager(String name);
 
-  public Object getItem() {
-    return item;
-  }
+    /**
+     * Add a thread manager to the system.
+     */
+    public void addThreadManager(String name, ThreadManager threadmgr);
 
-  public Object getAttachment() {
-      if (item != null) return item.obj;
-      else return null;
-  }
+    /**
+     * Create a stage from the given stage wrapper. If 'initialize' is true, the
+     * stage will be initialized immediately. Returns a handle to the stage.
+     */
+    public Stage createStage(StageWrapper wrapper, boolean initialize)
+            throws Exception;
 
-  public void clearEvents() {
-    if (item != null) item.revents = 0;
-  }
 }
-

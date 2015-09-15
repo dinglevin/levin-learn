@@ -37,7 +37,7 @@ import java.util.*;
  * 
  * @author   Matt Welsh
  */
-public class ResponseTimeControllerMM1 extends ResponseTimeController {
+public class ResponseTimeControllerMM1 extends ResponseTimeControllerImpl {
 
   private static final boolean DEBUG = true;
 
@@ -95,7 +95,7 @@ public class ResponseTimeControllerMM1 extends ResponseTimeController {
   private int totalNumThreads = 0, countNumThreads = 0;
   private boolean enabled;
 
-  public ResponseTimeControllerMM1(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {
+  public ResponseTimeControllerMM1(Manager mgr, StageWrapper stage) throws IllegalArgumentException {
     super(mgr, stage);
     this.sinkProxy = (SinkProxy)stage.getStage().getSink();
     this.lasttime = System.currentTimeMillis();

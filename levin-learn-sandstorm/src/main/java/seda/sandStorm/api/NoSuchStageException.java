@@ -28,7 +28,7 @@ package seda.sandstorm.api;
  * This exception is thrown if a stage as requested by a call to
  * ManagerIF.getStage() does not exist.
  * 
- * @see ManagerIF
+ * @see Manager
  * @author Matt Welsh
  */
 public class NoSuchStageException extends Exception {

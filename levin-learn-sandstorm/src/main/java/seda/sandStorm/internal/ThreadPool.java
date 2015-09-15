@@ -26,7 +26,7 @@ package seda.sandstorm.internal;
 
 import java.util.Vector;
 
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.Profilable;
 import seda.sandstorm.api.internal.StageWrapper;
 import seda.sandstorm.main.SandstormConfig;
@@ -42,7 +42,7 @@ public class ThreadPool implements Profilable {
     private static final boolean DEBUG = false;
 
     private StageWrapper stage;
-    private ManagerIF mgr;
+    private Manager mgr;
     private String poolname;
     private ThreadGroup pooltg;
     private Runnable runnable;
@@ -59,7 +59,7 @@ public class ThreadPool implements Profilable {
      * Create a thread pool for the given stage, manager and runnable, with the
      * thread pool controller determining the number of threads used.
      */
-    public ThreadPool(StageWrapper stage, ManagerIF mgr, Runnable runnable) {
+    public ThreadPool(StageWrapper stage, Manager mgr, Runnable runnable) {
         this.stage = stage;
         this.poolname = stage.getStage().getName();
         this.mgr = mgr;
@@ -119,7 +119,7 @@ public class ThreadPool implements Profilable {
      * Create a thread pool with the given name, manager, runnable, and thread
      * sizing parameters.
      */
-    public ThreadPool(StageWrapper stage, ManagerIF mgr, Runnable runnable,
+    public ThreadPool(StageWrapper stage, Manager mgr, Runnable runnable,
             int initialThreads, int minThreads, int maxThreads, int blockTime,
             int idleTimeThreshold) {
         this.stage = stage;
@@ -156,7 +156,7 @@ public class ThreadPool implements Profilable {
      * Create a thread pool with the given name, manager, runnable, and a fixed
      * number of threads.
      */
-    public ThreadPool(StageWrapper stage, ManagerIF mgr, Runnable runnable,
+    public ThreadPool(StageWrapper stage, Manager mgr, Runnable runnable,
             int numThreads) {
         this.stage = stage;
         this.poolname = stage.getStage().getName();

@@ -27,38 +27,35 @@ package seda.sandstorm.api;
 import seda.sandstorm.api.internal.*;
 
 /**
- * A StageIF represents a handle to an application stage. Applications
- * to not implement StageIF directly; rather, they implement EventHandlerIF.
- * A StageIF is used by an event handler to access other stages and is
- * obtained by a call to ManagerIF.getStage().
+ * A StageIF represents a handle to an application stage. Applications to not
+ * implement StageIF directly; rather, they implement EventHandlerIF. A StageIF
+ * is used by an event handler to access other stages and is obtained by a call
+ * to ManagerIF.getStage().
  *
  * @see EventHandler
- * @see ManagerIF
- * @author   Matt Welsh
+ * @see Manager
+ * @author Matt Welsh
  */
 public interface Stage {
+    /**
+     * Return the name of this stage.
+     */
+    public String getName();
 
-  /**
-   * Return the name of this stage.
-   */
-  public String getName();
+    /**
+     * Return the event sink for this stage.
+     */
+    public EventSink getSink();
 
-  /**
-   * Return the event sink for this stage. 
-   */
-  public EventSink getSink();
+    /**
+     * Return the stage wrapper associated with this stage. For internal use.
+     */
+    public StageWrapper getWrapper();
 
-  /**
-   * Return the stage wrapper associated with this stage.
-   * For internal use.
-   */
-  public StageWrapper getWrapper();
-
-  /**
-   * Destroy the given stage. Removes the stage from the system and 
-   * invokes its event handler's destroy() method. Stage destruction may
-   * be delayed until all pending events for the stage have been processed.
-   */
-  public void destroy();
+    /**
+     * Destroy the given stage. Removes the stage from the system and invokes
+     * its event handler's destroy() method. Stage destruction may be delayed
+     * until all pending events for the stage have been processed.
+     */
+    public void destroy();
 }
-

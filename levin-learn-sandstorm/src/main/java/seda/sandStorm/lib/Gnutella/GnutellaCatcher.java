@@ -50,7 +50,7 @@ public class GnutellaCatcher implements EventHandler {
   // connection to user
   private static final int SEARCH_DEPTH = 2;
 
-  private ManagerIF mgr;
+  private Manager mgr;
   private GnutellaServer gs;
   private GnutellaServer mygs;
   private int total, num_established;
@@ -61,7 +61,7 @@ public class GnutellaCatcher implements EventHandler {
    * using the given GnutellaServer to establish new outgoing
    * connections.
    */
-  public GnutellaCatcher(ManagerIF mgr, GnutellaServer gs) throws Exception {
+  public GnutellaCatcher(Manager mgr, GnutellaServer gs) throws Exception {
     this.mgr = mgr;
     this.gs = gs;
     this.total = 0;

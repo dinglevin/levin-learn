@@ -32,7 +32,7 @@ import seda.sandstorm.main.*;
  * 
  * @author Matt Welsh
  */
-public interface ManagerIF {
+public interface Manager {
 
     /**
      * Each stage may have multiple event queues associated with it. This is the
@@ -74,7 +74,7 @@ public interface ManagerIF {
      *                If an exception occurred during stage creation or
      *                initialization.
      *
-     * @see seda.sandstorm.api.internal.SystemManagerIF
+     * @see seda.sandstorm.api.internal.SystemManager
      * @see ConfigData
      */
     public Stage createStage(String stagename, EventHandler eventHandler, String initargs[]) throws Exception;
@@ -82,7 +82,7 @@ public interface ManagerIF {
     /**
      * Returns a handle to the system signal interface.
      */
-    public SignalMgrIF getSignalMgr();
+    public SignalManager getSignalMgr();
 
     /**
      * Returns a handle to the system profiler.

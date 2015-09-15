@@ -28,9 +28,9 @@ import seda.sandstorm.api.ConfigData;
 import seda.sandstorm.api.EventHandler;
 import seda.sandstorm.api.EventSink;
 import seda.sandstorm.api.EventSource;
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.Stage;
-import seda.sandstorm.api.internal.ResponseTimeControllerIF;
+import seda.sandstorm.api.internal.ResponseTimeController;
 import seda.sandstorm.api.internal.StageStats;
 import seda.sandstorm.api.internal.StageWrapper;
 import seda.sandstorm.api.internal.ThreadManager;
@@ -52,13 +52,13 @@ class StageWrapperImpl implements StageWrapper {
     private EventQueueImpl eventQ;
     private ThreadManager threadmgr;
     private StageStats stats;
-    private ResponseTimeControllerIF rtcon;
+    private ResponseTimeController rtcon;
 
     /**
      * Create a StageWrapper with the given name, handler, config data, and
      * thread manager.
      */
-    StageWrapperImpl(ManagerIF mgr, String name, EventHandler handler,
+    StageWrapperImpl(Manager mgr, String name, EventHandler handler,
             ConfigData config, ThreadManager threadmgr) {
         this.name = name;
         this.handler = handler;
@@ -75,7 +75,7 @@ class StageWrapperImpl implements StageWrapper {
      * Create a StageWrapper with the given name, handler, config data, thread
      * manager, and queue threshold.
      */
-    StageWrapperImpl(ManagerIF mgr, String name, EventHandler handler,
+    StageWrapperImpl(Manager mgr, String name, EventHandler handler,
             ConfigData config, ThreadManager threadmgr,
             int queueThreshold) {
         this.name = name;
@@ -95,7 +95,7 @@ class StageWrapperImpl implements StageWrapper {
         createRTController(mgr);
     }
 
-    private void createRTController(ManagerIF mgr) {
+    private void createRTController(Manager mgr) {
         boolean rtControllerEnabled = mgr.getConfig()
                 .getBoolean("global.rtController.enable");
         String deftype = mgr.getConfig().getString("global.rtController.type");
@@ -176,7 +176,7 @@ class StageWrapperImpl implements StageWrapper {
     /**
      * Return the response time controller, if any.
      */
-    public ResponseTimeControllerIF getResponseTimeController() {
+    public ResponseTimeController getResponseTimeController() {
         return rtcon;
     }
 

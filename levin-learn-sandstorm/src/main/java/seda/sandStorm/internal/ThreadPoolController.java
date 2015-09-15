@@ -30,7 +30,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.Profilable;
 import seda.sandstorm.api.internal.StageWrapper;
 import seda.sandstorm.main.SandstormConfig;
@@ -59,14 +59,14 @@ public class ThreadPoolController {
 
     private static final double SMOOTH_CONST = 0.3;
 
-    private ManagerIF mgr;
+    private Manager mgr;
     private Vector tpvec;
 
     private boolean autoMaxDetect;
     private Thread controller;
     private int controllerDelay, controllerThreshold;
 
-    public ThreadPoolController(ManagerIF mgr) {
+    public ThreadPoolController(Manager mgr) {
         this.mgr = mgr;
         tpvec = new Vector();
 
@@ -81,7 +81,7 @@ public class ThreadPoolController {
         start();
     }
 
-    public ThreadPoolController(ManagerIF mgr, int delay, int threshold) {
+    public ThreadPoolController(Manager mgr, int delay, int threshold) {
         this.mgr = mgr;
         tpvec = new Vector();
         this.controllerDelay = delay;

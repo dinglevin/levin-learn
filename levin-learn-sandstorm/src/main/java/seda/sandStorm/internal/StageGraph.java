@@ -31,7 +31,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import seda.sandstorm.api.ManagerIF;
+import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.internal.StageWrapper;
 import seda.sandstorm.main.SandstormConfig;
 
@@ -54,7 +54,7 @@ public class StageGraph {
     private Hashtable edgesFrom = new Hashtable(1);
     private PrintWriter graphpw = null;
 
-    StageGraph(ManagerIF mgr) {
+    StageGraph(Manager mgr) {
         SandstormConfig config = mgr.getConfig();
         boolean dumpModuleGraph = config.getBoolean("global.profile.graph");
         if (dumpModuleGraph) {

@@ -24,25 +24,20 @@
 
 package seda.sandstorm.lib.socket;
 
-import seda.sandstorm.api.*;
-import seda.sandstorm.core.*;
-
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import seda.sandstorm.api.EventSink;
 
 /**
- * Internal class used to represent state of a socket while an 
- * outgoing connection is pending.
+ * Internal class used to represent state of a socket while an outgoing
+ * connection is pending.
  */
 public abstract class ConnectSockState {
+    protected ATcpClientSocket clisock;
+    protected EventSink completionQueue;
+    protected int connectClogTries, connectNumTries;
+    protected int writeClogThreshold;
+    protected boolean completed = false;
 
-  protected ATcpClientSocket clisock; 
-  protected EventSink compQ;
-  protected int connectClogTries, connectNumTries;
-  protected int writeClogThreshold;
-  protected boolean completed = false;
+    protected abstract void complete();
 
-  protected abstract void complete();
-  protected abstract void error(aSocketErrorEvent error);
+    protected abstract void error(aSocketErrorEvent error);
 }

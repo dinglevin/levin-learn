@@ -22,38 +22,14 @@
  * 
  */
 
-package seda.sandstorm.api.internal;
-
-import seda.sandstorm.api.*;
+package seda.sandstorm.api;
 
 /**
- * SystemManagerIF is an internal interface allowing modules to access
- * systemwide features. For now this allows a module to access, create, and
- * destroy thread managers. It also allows a module to create a stage with its
- * own stage wrapper.
+ * This is an empty interface that must be implemented by all classes
+ * representing signal events.
+ * 
+ * @see SignalManager
+ * @author Matt Welsh
  */
-public interface SystemManagerIF {
-
-    /**
-     * Get the default thread manager.
-     */
-    public ThreadManager getThreadManager();
-
-    /**
-     * Get the thread manager registered under the given name.
-     */
-    public ThreadManager getThreadManager(String name);
-
-    /**
-     * Add a thread manager to the system.
-     */
-    public void addThreadManager(String name, ThreadManager threadmgr);
-
-    /**
-     * Create a stage from the given stage wrapper. If 'initialize' is true, the
-     * stage will be initialized immediately. Returns a handle to the stage.
-     */
-    public Stage createStage(StageWrapper wrapper, boolean initialize)
-            throws Exception;
-
+public interface Signal extends EventElement {
 }

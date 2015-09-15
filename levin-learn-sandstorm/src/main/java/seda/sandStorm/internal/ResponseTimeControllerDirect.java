@@ -38,7 +38,7 @@ import java.util.*;
  * 
  * @author   Matt Welsh
  */
-public class ResponseTimeControllerDirect extends ResponseTimeController {
+public class ResponseTimeControllerDirect extends ResponseTimeControllerImpl {
 
   private static final boolean DEBUG = true;
 
@@ -72,7 +72,7 @@ public class ResponseTimeControllerDirect extends ResponseTimeController {
   private double ninetiethRT;
   private boolean enabled;
 
-  public ResponseTimeControllerDirect(ManagerIF mgr, StageWrapper stage) throws IllegalArgumentException {
+  public ResponseTimeControllerDirect(Manager mgr, StageWrapper stage) throws IllegalArgumentException {
     super(mgr, stage);
 
     this.measurements = new long[MEASUREMENT_SIZE];

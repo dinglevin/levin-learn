@@ -64,7 +64,7 @@ public interface StageWrapper {
     /**
      * Return a ResponseTimeControllerIF for this stage.
      */
-    public ResponseTimeControllerIF getResponseTimeController();
+    public ResponseTimeController getResponseTimeController();
 
     /**
      * Initialize this stage.
