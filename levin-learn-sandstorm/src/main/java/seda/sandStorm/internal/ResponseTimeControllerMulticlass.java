@@ -271,7 +271,7 @@ public class ResponseTimeControllerMulticlass extends ResponseTimeControllerDire
 
     if (adjusted_any) {
       for (int c = 0; c < NUM_CLASSES; c++) {
-	if (DEBUG) System.err.println("RTController <"+name+"> class "+c+": ninetiethRT "+MDWUtil.format(carr[c].ninetiethRT)+" target "+MDWUtil.format(carr[c].targetRT)+" rate now "+MDWUtil.format(carr[c].curRate));
+	if (DEBUG) System.err.println("RTController <"+name+"> class "+c+": ninetiethRT "+carr[c].ninetiethRT+" target "+carr[c].targetRT+" rate now "+carr[c].curRate);
       }
     }
 

@@ -24,51 +24,55 @@
 
 package seda.sandstorm.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import seda.sandstorm.api.*;
 
 /**
- * This enqueue predicate implements a simple threshold for the
- * size of the queue.
+ * This enqueue predicate implements a simple threshold for the size of the
+ * queue.
  */
 public class QueueThresholdPredicate implements EnqueuePredicate {
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueueThresholdPredicate.class);
 
-  private static final boolean DEBUG = false;
+    private EventSink thesink;
+    private int threshold;
 
-  private EventSink thesink;
-  private int threshold;
+    /**
+     * Create a new QueueThresholdPredicate for the given sink and threshold. A
+     * threshold of -1 indicates no threshold.
+     */
+    public QueueThresholdPredicate(EventSink sink, int threshold) {
+        this.thesink = sink;
+        this.threshold = threshold;
+    }
 
-  /**
-   * Create a new QueueThresholdPredicate for the given sink and
-   * threshold. A threshold of -1 indicates no threshold.
-   */
-  public QueueThresholdPredicate(EventSink sink, int threshold) {
-    this.thesink = sink;
-    this.threshold = threshold;
-  }
+    /**
+     * Returns true if the given element can be accepted into the queue.
+     */
+    public boolean accept(EventElement event) {
+        LOGGER.debug("accept [{}]: size {}, thresh {}", thesink, thesink.size(), threshold);
+        
+        if (threshold == -1)
+            return true;
+        if ((thesink.size() + 1) > threshold)
+            return false;
+        return true;
+    }
 
-  /**
-   * Returns true if the given element can be accepted into the queue.
-   */
-  public boolean accept(EventElement qel) {
-    if (DEBUG) System.err.println("QueueThresholdPredicate.accept ["+thesink+"]: size "+thesink.size()+", thresh "+threshold);
-    if (threshold == -1) return true;
-    if ((thesink.size() + 1) > threshold) return false;
-    return true;
-  }
+    /**
+     * Return the current queue threshold.
+     */
+    public int getThreshold() {
+        return threshold;
+    }
 
-  /**
-   * Return the current queue threshold.
-   */
-  public int getThreshold() {
-    return threshold;
-  }
-
-  /**
-   * Set the current queue threshold. A queue threshold of -1 indicates
-   * an infinite threshold.
-   */
-  public void setThreshold(int threshold) {
-    this.threshold = threshold;
-  }
-
+    /**
+     * Set the current queue threshold. A queue threshold of -1 indicates an
+     * infinite threshold.
+     */
+    public void setThreshold(int threshold) {
+        this.threshold = threshold;
+    }
 }

@@ -27,14 +27,10 @@ package seda.sandstorm.core;
 import seda.sandstorm.api.*;
 
 /**
- * This is a 'null' QueueElementIF implementation, which can be used
- * for signalling.
+ * This is a 'null' QueueElementIF implementation, which can be used for
+ * signalling.
  *
- * @author Matt Welsh 
+ * @author Matt Welsh
  */
-public class NullElement implements EventElement {
-
-  // Nothing
-
+public class NullEvent implements EventElement {
 }
-

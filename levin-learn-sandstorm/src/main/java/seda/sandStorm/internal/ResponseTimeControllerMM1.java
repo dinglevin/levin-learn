@@ -363,7 +363,8 @@ public class ResponseTimeControllerMM1 extends ResponseTimeControllerImpl {
 
     numProcessed = 0; numReceived = 0; totalProcTime = 0L;
 
-    if (DEBUG) System.err.println("RTControllerMM1 <"+stage.getStage().getName()+">: ninetiethRT "+ninetiethRT+" est "+MDWUtil.format(est_ninetiethRT)+" mu "+MDWUtil.format(measured_mu)+" lambda "+MDWUtil.format(measured_lambda));
+    if (DEBUG) System.err.println("RTControllerMM1 <"+stage.getStage().getName()+">: ninetiethRT "+ninetiethRT+" est "+ est_ninetiethRT+" mu "+
+    measured_mu+" lambda "+measured_lambda);
 
     if (!enabled) return;
 

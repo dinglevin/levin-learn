@@ -24,6 +24,9 @@
 
 package seda.sandstorm.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import seda.sandstorm.api.EnqueuePredicate;
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventSink;
@@ -33,17 +36,18 @@ import seda.util.StatsGatherer;
  * This enqueue predicate implements input rate policing.
  */
 public class RateLimitingPredicate implements EnqueuePredicate {
-    private EventSink thesink;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RateLimitingPredicate.class);
+    
+    // Number of milliseconds between regenerations
+    private static final long MIN_REGEN_TIME = 0;
+    
+    private EventSink eventSink;
     private double targetRate;
     private int depth;
     private double tokenCount;
     private double regenTimeMS;
     private long lasttime;
 
-    // Number of milliseconds between regenerations
-    private long MIN_REGEN_TIME = 0;
-
-    private static final boolean PROFILE = true;
     private StatsGatherer interArrivalStats;
     private StatsGatherer acceptArrivalStats;
 
@@ -52,31 +56,23 @@ public class RateLimitingPredicate implements EnqueuePredicate {
      * token bucket depth. A rate of -1.0 indicates no rate limit.
      */
     public RateLimitingPredicate(EventSink sink, double targetRate, int depth) {
-        this.thesink = sink;
+        this.eventSink = sink;
         this.targetRate = targetRate;
-        this.regenTimeMS = (1.0 / targetRate) * 1.0e3;
-        if (this.regenTimeMS < 1)
-            this.regenTimeMS = 1;
+        this.regenTimeMS = calculateRegenTimeMS(targetRate);
         this.depth = depth;
         this.tokenCount = depth * 1.0;
         this.lasttime = System.currentTimeMillis();
 
-        System.err.println(
-                "RateLimitingPredicate<" + sink.toString() + ">: Created");
+        LOGGER.info("EventSink<{}>: Created", this.eventSink);
 
-        if (PROFILE) {
-            interArrivalStats = new StatsGatherer("IA<" + sink.toString() + ">",
-                    "IA<" + sink.toString() + ">", 1, 0);
-            acceptArrivalStats = new StatsGatherer(
-                    "AA<" + sink.toString() + ">",
-                    "AA<" + sink.toString() + ">", 1, 0);
-        }
+        interArrivalStats = new StatsGatherer("IA<" + sink + ">", "IA<" + sink + ">", 1, 0);
+        acceptArrivalStats = new StatsGatherer("AA<" + sink + ">", "AA<" + sink + ">", 1, 0);
     }
 
     /**
      * Returns true if the given element can be accepted into the queue.
      */
-    public boolean accept(EventElement qel) {
+    public boolean accept(EventElement event) {
         if (targetRate == -1.0)
             return true;
 
@@ -84,9 +80,7 @@ public class RateLimitingPredicate implements EnqueuePredicate {
         long curtime = System.currentTimeMillis();
         long delay = curtime - lasttime;
 
-        if (PROFILE) {
-            interArrivalStats.add(delay);
-        }
+        interArrivalStats.add(delay);
 
         if (delay >= MIN_REGEN_TIME) {
             double numTokens = ((double) delay * 1.0) / (regenTimeMS * 1.0);
@@ -98,9 +92,7 @@ public class RateLimitingPredicate implements EnqueuePredicate {
 
         if (tokenCount >= 1.0) {
             tokenCount -= 1.0;
-            if (PROFILE) {
-                acceptArrivalStats.add(delay);
-            }
+            acceptArrivalStats.add(delay);
             return true;
         } else {
             return false;
@@ -133,9 +125,7 @@ public class RateLimitingPredicate implements EnqueuePredicate {
      */
     public void setTargetRate(double targetRate) {
         this.targetRate = targetRate;
-        this.regenTimeMS = (1.0 / targetRate) * 1.0e3;
-        if (regenTimeMS < 1)
-            regenTimeMS = 1;
+        this.regenTimeMS = calculateRegenTimeMS(targetRate);
     }
 
     /**
@@ -144,5 +134,11 @@ public class RateLimitingPredicate implements EnqueuePredicate {
     public void setDepth(int depth) {
         this.depth = depth;
     }
-
+    
+    private double calculateRegenTimeMS(double targetRate) {
+        double regenTimeMS = (1.0 / targetRate) * 1.0e3;
+        if (regenTimeMS < 1)
+            regenTimeMS = 1;
+        return regenTimeMS;
+    }
 }

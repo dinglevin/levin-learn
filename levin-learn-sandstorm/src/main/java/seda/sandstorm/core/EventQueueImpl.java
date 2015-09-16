@@ -216,17 +216,7 @@ public class EventQueueImpl implements EventQueue, Profilable {
                     return rets;
                 }
 
-                if (timeoutMillis == -1) {
-                    try {
-                        blocker.wait();
-                    } catch (InterruptedException ie) {
-                    }
-                } else {
-                    try {
-                        blocker.wait(timeoutMillis);
-                    } catch (InterruptedException ie) {
-                    }
-                }
+                blockerWait(timeoutMillis);
                 
                 rets = dequeueAll();
                 if (rets != null) {
@@ -243,30 +233,17 @@ public class EventQueueImpl implements EventQueue, Profilable {
     }
 
     public EventElement[] blockingDequeue(int timeoutMillis, int num, boolean mustReturnNum) {
-        EventElement[] rets = null;
-        long goalTime;
-
-        goalTime = System.currentTimeMillis() + timeoutMillis;
+        long goalTime = System.currentTimeMillis() + timeoutMillis;
         while (true) {
             synchronized (blocker) {
-                rets = this.dequeue(num, mustReturnNum);
+                EventElement[] rets = dequeue(num, mustReturnNum);
                 if ((rets != null) || (timeoutMillis == 0)) {
                     return rets;
                 }
 
-                if (timeoutMillis == -1) {
-                    try {
-                        blocker.wait();
-                    } catch (InterruptedException ie) {
-                    }
-                } else {
-                    try {
-                        blocker.wait(timeoutMillis);
-                    } catch (InterruptedException ie) {
-                    }
-                }
+                blockerWait(timeoutMillis);
 
-                rets = this.dequeue(num, mustReturnNum);
+                rets = dequeue(num, mustReturnNum);
                 if (rets != null) {
                     return rets;
                 }
@@ -293,19 +270,9 @@ public class EventQueueImpl implements EventQueue, Profilable {
                 if ((rets != null) || (timeoutMillis == 0)) {
                     return rets;
                 }
-
-                if (timeoutMillis == -1) {
-                    try {
-                        blocker.wait();
-                    } catch (InterruptedException ie) {
-                    }
-                } else {
-                    try {
-                        blocker.wait(timeoutMillis);
-                    } catch (InterruptedException ie) {
-                    }
-                }
-
+                
+                blockerWait(timeoutMillis);
+                
                 rets = dequeue();
                 if (rets != null) {
                     return rets;
@@ -394,5 +361,19 @@ public class EventQueueImpl implements EventQueue, Profilable {
 
     public String toString() {
         return "EventQueueImpl <" + name + ">";
+    }
+    
+    private void blockerWait(int timeoutMillis) {
+        if (timeoutMillis == -1) {
+            try {
+                blocker.wait();
+            } catch (InterruptedException ie) {
+            }
+        } else {
+            try {
+                blocker.wait(timeoutMillis);
+            } catch (InterruptedException ie) {
+            }
+        }
     }
 }

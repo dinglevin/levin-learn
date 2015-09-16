@@ -237,7 +237,7 @@ class AggThrottle {
       }
     }
 
-    if (DEBUG) System.err.println("AggThrottle <"+name+">: avgThroughput "+MDWUtil.format(avgThroughput)+", last "+MDWUtil.format(lastThroughput)+", state "+((state==0)?"dec":"inc")+", aggTarget "+aggregationTarget);
+    if (DEBUG) System.err.println("AggThrottle <"+name+">: avgThroughput "+ avgThroughput +", last "+ lastThroughput +", state "+((state==0)?"dec":"inc")+", aggTarget "+aggregationTarget);
 
     //if ((adjustCount % ADJUST_DELAY) == 0) lastThroughput = avgThroughput;
     lastThroughput = avgThroughput;

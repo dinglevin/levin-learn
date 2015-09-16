@@ -22,10 +22,12 @@
  * 
  */
 
-package seda.sandstorm.core;
+package seda.sandstorm.timer;
 
-import seda.sandstorm.api.*;
-import seda.util.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.Profilable;
+import seda.sandstorm.core.EventQueueImpl;
 
 /**
  * The ssTimer class provides a mechanism for registering timer events that will
@@ -44,7 +46,7 @@ import seda.util.*;
  * @author Matt Welsh and Steve Gribble
  */
 
-public class SsTimer implements Runnable, Profilable {
+public class Timer implements Runnable, Profilable {
     private static final boolean DEBUG = false;
     
     private SsTimerEvent head_event = null;
@@ -54,7 +56,7 @@ public class SsTimer implements Runnable, Profilable {
     private boolean die_thread;
     private int num_events = 0;
 
-    public SsTimer() {
+    public Timer() {
         sync_o = new Object();
         die_thread = false;
         thr = new Thread(this, "SandStorm ssTimer thread");
@@ -93,7 +95,7 @@ public class SsTimer implements Runnable, Profilable {
      * @param queue
      *            the queue on which the object will be placed
      */
-    public SsTimer.SsTimerEvent registerEvent(long millis, EventElement obj, EventSink queue) {
+    public Timer.SsTimerEvent registerEvent(long millis, EventElement obj, EventSink queue) {
         long time_millis = System.currentTimeMillis() + millis;
         SsTimerEvent newTimer = new SsTimerEvent(time_millis, obj, queue);
 
@@ -114,7 +116,7 @@ public class SsTimer implements Runnable, Profilable {
      * @param queue
      *            the queue on which the object will be placed
      */
-    public SsTimer.SsTimerEvent registerEvent(java.util.Date the_date, EventElement obj, EventSink queue) {
+    public Timer.SsTimerEvent registerEvent(java.util.Date the_date, EventElement obj, EventSink queue) {
         SsTimerEvent newTimer = new SsTimerEvent(the_date.getTime(), obj,
                 queue);
         insertEvent(newTimer);
@@ -369,41 +371,41 @@ public class SsTimer implements Runnable, Profilable {
     }
 
     public static void main(String args[]) {
-        EventQueueImpl q = new EventQueueImpl("timer");
-        SsTimer te = new SsTimer();
-        SsTimer.SsTimerEvent t1, t10, t20, t30, t40, t50, t250, t500, t2500,
+        EventQueueImpl eventQueue = new EventQueueImpl("timer");
+        Timer te = new Timer();
+        Timer.SsTimerEvent t1, t10, t20, t30, t40, t50, t250, t500, t2500,
                 t1500, t3500, t15000, t8000;
 
         System.out.println("adding 1 millisecond event");
-        t1 = te.registerEvent(1, new GQEString("1"), q);
+        t1 = te.registerEvent(1, new GQEString("1"), eventQueue);
         System.out.println("adding 10 millisecond event");
-        t10 = te.registerEvent(10, new GQEString("10"), q);
+        t10 = te.registerEvent(10, new GQEString("10"), eventQueue);
         System.out.println("adding 20 millisecond event");
-        t20 = te.registerEvent(20, new GQEString("20"), q);
+        t20 = te.registerEvent(20, new GQEString("20"), eventQueue);
         System.out.println("adding 30 millisecond event");
-        t30 = te.registerEvent(30, new GQEString("30"), q);
+        t30 = te.registerEvent(30, new GQEString("30"), eventQueue);
         System.out.println("adding 40 millisecond event");
-        t40 = te.registerEvent(40, new GQEString("40"), q);
+        t40 = te.registerEvent(40, new GQEString("40"), eventQueue);
         System.out.println("adding 50 millisecond event");
-        t50 = te.registerEvent(50, new GQEString("50"), q);
+        t50 = te.registerEvent(50, new GQEString("50"), eventQueue);
         System.out.println("adding 250 millisecond event");
-        t250 = te.registerEvent(250, new GQEString("250"), q);
+        t250 = te.registerEvent(250, new GQEString("250"), eventQueue);
         System.out.println("adding 500 millisecond event");
-        t500 = te.registerEvent(500, new GQEString("500"), q);
+        t500 = te.registerEvent(500, new GQEString("500"), eventQueue);
         System.out.println("adding 2500 millisecond event");
-        t2500 = te.registerEvent(2500, new GQEString("2500"), q);
+        t2500 = te.registerEvent(2500, new GQEString("2500"), eventQueue);
         System.out.println("adding 1500 millisecond event");
-        t1500 = te.registerEvent(1500, new GQEString("1500"), q);
+        t1500 = te.registerEvent(1500, new GQEString("1500"), eventQueue);
         System.out.println("adding 3500 millisecond event");
-        t3500 = te.registerEvent(3500, new GQEString("3500"), q);
+        t3500 = te.registerEvent(3500, new GQEString("3500"), eventQueue);
         System.out.println("adding 15000 millisecond event");
-        t15000 = te.registerEvent(15000, new GQEString("15000"), q);
+        t15000 = te.registerEvent(15000, new GQEString("15000"), eventQueue);
         System.out.println("adding 8000 millisecond event");
-        t8000 = te.registerEvent(8000, new GQEString("8000"), q);
+        t8000 = te.registerEvent(8000, new GQEString("8000"), eventQueue);
 
         int num_got = 0;
         while (num_got < 13) {
-            EventElement nextEl[] = q.dequeueAll();
+            EventElement nextEl[] = eventQueue.dequeueAll();
 
             if (nextEl != null) {
                 num_got += nextEl.length;

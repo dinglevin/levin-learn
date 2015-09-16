@@ -24,7 +24,11 @@
 
 package seda.sandstorm.core;
 
-import seda.sandstorm.api.*;
+import seda.sandstorm.api.EnqueuePredicate;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.Profilable;
+import seda.sandstorm.api.SinkException;
 
 /**
  * The SimpleSink class is an abstract class which implements 'null'
@@ -70,8 +74,7 @@ public abstract class SimpleSink implements EventSink, Profilable {
     /**
      * Not supported; throws an IllegalArgumentException.
      */
-    public Object enqueuePrepare(EventElement events[])
-            throws SinkException {
+    public Object enqueuePrepare(EventElement events[]) throws SinkException {
         throw new IllegalArgumentException(
                 "enqueue_prepare not supported on SimpleSink objects");
     }

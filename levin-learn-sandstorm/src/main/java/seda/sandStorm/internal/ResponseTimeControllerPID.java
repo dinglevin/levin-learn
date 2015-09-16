@@ -205,7 +205,7 @@ public class ResponseTimeControllerPID extends ResponseTimeControllerImpl {
       out = ((PROP_GAIN * err) + (DERIV_GAIN * derr) + (INTR_GAIN*totalinterr));
     }
 
-    if (DEBUG) System.err.println("RTControllerPID <"+stage.getStage().getName()+">: lambda "+MDWUtil.format(lambda)+" 90th "+MDWUtil.format(ninetiethRT)+" err "+MDWUtil.format(err)+" derr "+MDWUtil.format(derr)+" interr "+MDWUtil.format(totalinterr)+" out "+MDWUtil.format(out));
+    if (DEBUG) System.err.println("RTControllerPID <"+stage.getStage().getName()+">: lambda "+lambda+" 90th "+ninetiethRT+" err "+ err+" derr "+derr+" interr "+totalinterr+" out "+out);
 
     if (!enabled) return;
 

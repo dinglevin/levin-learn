@@ -24,12 +24,9 @@
 
 package seda.sandstorm.lib.socket;
 
-import seda.sandstorm.api.*;
-import seda.sandstorm.api.internal.*;
-import seda.sandstorm.core.*;
-
-import java.util.*;
-import seda.util.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.Manager;
+import seda.sandstorm.api.internal.ThreadManager;
 
 /**
  * aSocketRCTMSleep is a version of aSocketThreadManager that incorporates
@@ -149,9 +146,9 @@ class aSocketRCTMSleep extends SocketThreadManager implements ThreadManager, aSo
 	if ((num_measurements % MEASUREMENT_SIZE) == 0) {
 	  double timesec = ((t2-t1)*1.0e-3);
 	  double actualrate = num_events / timesec;
-	  System.err.println("aSocketRCTMSleep ("+name+"): time "+MDWUtil.format(timesec)+", num_events "+num_events);
+	  System.err.println("aSocketRCTMSleep ("+name+"): time "+ timesec+", num_events "+num_events);
 	  //if (DEBUG) 
-	  System.err.println("aSocketRCTMSleep ("+name+"): Rate is "+MDWUtil.format(actualrate)+", target "+targetRate+", sleeptime "+sleeptime);
+	  System.err.println("aSocketRCTMSleep ("+name+"): Rate is "+ actualrate +", target "+targetRate+", sleeptime "+sleeptime);
 
 	  if ((actualrate >= (1.05 * targetRate)) ||
 	      (actualrate <= (0.95 * targetRate))) {
