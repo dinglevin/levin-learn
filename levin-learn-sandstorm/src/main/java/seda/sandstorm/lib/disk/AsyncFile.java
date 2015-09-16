@@ -24,10 +24,14 @@
 
 package seda.sandstorm.lib.disk;
 
-import seda.sandstorm.api.*;
-import seda.sandstorm.core.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
-import java.io.*;
+import seda.sandstorm.api.EventElement;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.SinkException;
+import seda.sandstorm.core.BufferEvent;
+import seda.sandstorm.core.SimpleSink;
 
 /**
  * This class represents an asynchronous file I/O interface.
@@ -51,7 +55,7 @@ public class AsyncFile extends SimpleSink {
      *
      * @param name
      *            A system-dependent filename.
-     * @param compQ
+     * @param completionQueue
      *            The default completion queue on which read and write
      *            completion events will be posted. A completion queue can be
      *            specified for each individual request by setting the 'completionQueue'
@@ -64,12 +68,12 @@ public class AsyncFile extends SimpleSink {
      * @exception FileNotFoundException
      *                If the file does not exist and 'create' is false.
      */
-    public AsyncFile(String name, EventSink compQ, boolean create, boolean readOnly) throws IOException {
+    public AsyncFile(String name, EventSink completionQueue, boolean create, boolean readOnly) throws IOException {
         AsyncFileManager.initialize();
-        this.completionQueue = compQ;
+        this.completionQueue = completionQueue;
         this.filename = name;
         AsyncFileTPTM asyncFileThreadMgr = (AsyncFileTPTM) AsyncFileManager.getTM();
-        this.impl = new AsyncFileTPImpl(this, name, compQ, create, readOnly, asyncFileThreadMgr);
+        this.impl = new AsyncFileTPImpl(this, name, completionQueue, create, readOnly, asyncFileThreadMgr);
     }
 
     /**

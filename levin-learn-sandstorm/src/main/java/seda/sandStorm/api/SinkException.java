@@ -33,7 +33,7 @@ package seda.sandstorm.api;
  * @see BadEventElementException
  * @author Matt Welsh
  */
-public abstract class SinkException extends Exception {
+public abstract class SinkException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     public SinkException() {

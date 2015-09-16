@@ -51,7 +51,7 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
     private AsyncFile afile;
     private AsyncFileTPTM tm;
     private EventSink completionQueue;
-    private EventQueueImpl eventQ;
+    private EventQueueImpl eventQueue;
     private boolean readOnly;
     private boolean closed;
 
@@ -66,7 +66,7 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
         this.completionQueue = completionQueue;
         this.readOnly = readOnly;
 
-        eventQ = new EventQueueImpl("async.file");
+        eventQueue = new EventQueueImpl("async.file");
 
         f = new File(fname);
         if (!f.exists() && !create) {
@@ -93,17 +93,15 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
             throw new SinkClosedException("Sink is closed");
         }
         if (readOnly && (areq instanceof AsyncFileWriteRequest)) {
-            throw new BadEventElementException(
-                    "Cannot enqueue write request for read-only file", areq);
+            throw new BadEventElementException("Cannot enqueue write request for read-only file", areq);
         }
         areq.afile = afile;
         try {
-            eventQ.enqueue(areq);
+            eventQueue.enqueue(areq);
         } catch (SinkException se) {
-            throw new InternalError(
-                    "AFileTPImpl.enqueue got SinkException - this should not happen, please contact <mdw@cs.berkeley.edu>");
+            throw new InternalError("Failed to enqueue event: " + req);
         }
-        if (eventQ.size() == 1) {
+        if (eventQueue.size() == 1) {
             tm.fileReady(this);
         }
     }
@@ -118,12 +116,12 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
         }
         areq.afile = afile;
         try {
-            eventQ.enqueue(areq);
+            eventQueue.enqueue(areq);
         } catch (SinkException se) {
             throw new InternalError(
                     "AFileTPImpl.enqueue got SinkException - this should not happen, please contact <mdw@cs.berkeley.edu>");
         }
-        if (eventQ.size() == 1) {
+        if (eventQueue.size() == 1) {
             tm.fileReady(this);
         }
         return true;
@@ -176,6 +174,6 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
      * Return the per-file event queue.
      */
     EventQueue getQueue() {
-        return eventQ;
+        return eventQueue;
     }
 }

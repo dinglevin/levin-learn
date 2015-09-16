@@ -24,13 +24,23 @@
 
 package seda.sandstorm.timer;
 
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventSink;
 import seda.sandstorm.api.Profilable;
-import seda.sandstorm.core.EventQueueImpl;
 
 /**
- * The ssTimer class provides a mechanism for registering timer events that will
+ * The Timer class provides a mechanism for registering timer events that will
  * go off at some future time. The future time can be specified in absolute or
  * relative terms. When the timer goes off, an element is placed on a queue.
  * There is no way to unregister a timer. Events will be delivered guaranteed,
@@ -47,40 +57,24 @@ import seda.sandstorm.core.EventQueueImpl;
  */
 
 public class Timer implements Runnable, Profilable {
-    private static final boolean DEBUG = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Timer.class);
     
-    private SsTimerEvent head_event = null;
-    private SsTimerEvent tail_event = null;
-    private Thread thr;
-    private Object sync_o;
-    private boolean die_thread;
-    private int num_events = 0;
+    private final Thread thread;
+    private final Lock lock;
+    private final Condition condition;
+    
+    private volatile boolean threadDied;
+    private int numEvents = 0;
+    
+    private TimerNode head = null;
+    private TimerNode tail = null;
 
     public Timer() {
-        sync_o = new Object();
-        die_thread = false;
-        thr = new Thread(this, "SandStorm ssTimer thread");
-        thr.start();
-    }
-
-    public static class SsTimerEvent {
-        public long time_millis;
-        public EventElement obj;
-        public EventSink queue;
-        public SsTimerEvent nextE;
-        public SsTimerEvent prevE;
-
-        public SsTimerEvent(long m, EventElement o, EventSink q) {
-            time_millis = m;
-            obj = o;
-            queue = q;
-            nextE = null;
-            prevE = null;
-        }
-
-        public String toString() {
-            return "ssTimerEvent<" + hashCode() + ">";
-        }
+        lock = new ReentrantLock();
+        condition = lock.newCondition();
+        threadDied = false;
+        thread = new Thread(this, "SandStorm Timer thread");
+        thread.start();
     }
 
     /**
@@ -88,27 +82,23 @@ public class Timer implements Runnable, Profilable {
      * earlier than <code>millis</code> milliseconds from now.
      *
      * @param millis
-     *            the number of milliseconds from now when the event will take
-     *            place
+     *            the number of milliseconds from now when the event will take place
      * @param obj
      *            the object that will be placed on the queue
      * @param queue
      *            the queue on which the object will be placed
      */
-    public Timer.SsTimerEvent registerEvent(long millis, EventElement obj, EventSink queue) {
-        long time_millis = System.currentTimeMillis() + millis;
-        SsTimerEvent newTimer = new SsTimerEvent(time_millis, obj, queue);
-
-        insertEvent(newTimer);
-
-        return newTimer;
+    public TimerHandle registerEvent(long delay, EventElement event, EventSink queue) {
+        TimerNode node = new TimerNode(delay + System.currentTimeMillis(), event, queue);
+        insertEvent(node);
+        return node;
     }
 
     /**
      * Object <code>obj</code> will be placed on SinkIF <code>queue</code> no
      * earlier than absolute time <code>the_date</code>.
      *
-     * @param the_date
+     * @param happening
      *            the date when the event will take place - if this date is in
      *            the past, the event will happen right away
      * @param obj
@@ -116,22 +106,22 @@ public class Timer implements Runnable, Profilable {
      * @param queue
      *            the queue on which the object will be placed
      */
-    public Timer.SsTimerEvent registerEvent(java.util.Date the_date, EventElement obj, EventSink queue) {
-        SsTimerEvent newTimer = new SsTimerEvent(the_date.getTime(), obj,
-                queue);
-        insertEvent(newTimer);
-
-        return newTimer;
+    public TimerHandle registerEvent(Date happening, EventElement obj, EventSink queue) {
+        TimerNode node = new TimerNode(happening.getTime(), obj, queue);
+        insertEvent(node);
+        return node;
     }
 
     /**
      * Kills off this timer object, dropping all pending events on floor.
      */
     public void doneWithTimer() {
-        die_thread = true;
-
-        synchronized (sync_o) {
-            sync_o.notify();
+        threadDied = true;
+        lock.lock();
+        try {
+            condition.signalAll();
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -139,7 +129,7 @@ public class Timer implements Runnable, Profilable {
      * How many events yet to fire?
      */
     public int size() {
-        return num_events;
+        return numEvents;
     }
 
     /**
@@ -148,204 +138,151 @@ public class Timer implements Runnable, Profilable {
     public int profileSize() {
         return size();
     }
+    
+    public boolean isDead() {
+        return threadDied;
+    }
 
     /**
      * Cancels all events.
      */
     public void cancelAll() {
-        synchronized (sync_o) {
-            head_event = tail_event = null;
-            num_events = 0;
+        lock.lock();
+        try {
+            head = tail = null;
+            numEvents = 0;
+        } finally {
+            lock.unlock();
         }
     }
 
     /**
      * Cancels the firing of this timer event.
      *
-     * @param evt
+     * @param handle
      *            the ssTimer.ssTimerEvent to cancel. This ssTimerEvent is
      *            returned to you when you call registerEvent
      */
-    public void cancelEvent(SsTimerEvent evt) {
-        if (evt == null)
+    public void cancelEvent(TimerHandle handle) {
+        Preconditions.checkNotNull(handle, "handle is null");
+        if (!handle.isActive()) {
             return;
-
+        }
+        
+        TimerNode node = (TimerNode) handle;
+        lock.lock();
         try {
-            synchronized (sync_o) {
-                if (evt == tail_event) {
+            if (handle == tail && handle == head) {
+                tail = head = null;
+                numEvents--;
+                return;
+            }
+            
+            if (handle == tail) {
+                tail = tail.getPrev();
+                tail.setNext(null);
+                numEvents--;
+                return;
+            }
+            
+            if (handle == head) {
+                head = head.getNext();
+                head.setPrev(null);
+                numEvents--;
+                return;
+            } 
 
-                    // is this only list item?
-                    if (tail_event == head_event) {
-                        tail_event = head_event = null;
-                        num_events--;
-                        return;
-                    }
-
-                    // not only list item, is at tail, so lop off tail
-                    tail_event = tail_event.prevE;
-                    tail_event.nextE = null;
-                    num_events--;
-                    return;
-
-                } else if (evt == head_event) {
-
-                    // not only list item, is at head, so lop off head
-                    head_event = head_event.nextE;
-                    head_event.prevE = null;
-                    num_events--;
-                    return;
-
-                } else {
-
-                    // make sure event didn't fire already
-                    if ((evt.prevE != null) && (evt.nextE != null)) {
-                        // in middle somewhere
-                        evt.prevE.nextE = evt.nextE;
-                        evt.nextE.prevE = evt.prevE;
-                        num_events--;
-                        return;
-                    }
-                }
+            if ((node.getNext() != null) && (node.getPrev() != null)) {
+                node.getPrev().setNext(node.getNext());
+                numEvents--;
+                return;
             }
         } finally {
-            evt.nextE = null;
-            evt.prevE = null;
+            node.unlink();
+            lock.unlock();
         }
     }
 
     // takes the event, does insertion-sort into ssTimerEvent linked list
-    private void insertEvent(SsTimerEvent newTimer) {
-        boolean do_notify = false;
-
-        synchronized (sync_o) {
-            if (head_event == null) {
-                // list empty
-                if (DEBUG)
-                    System.err.println(
-                            "ssTimer: Inserting first event, num pending "
-                                    + num_events + " event " + newTimer);
-                tail_event = newTimer;
-                head_event = newTimer;
-                num_events++;
-                do_notify = true;
-            } else if (head_event.time_millis > newTimer.time_millis) {
-                // insert head
-                if (DEBUG)
-                    System.err.println(
-                            "ssTimer: Inserting event at head, num pending "
-                                    + num_events + " event " + newTimer);
-                newTimer.nextE = head_event;
-                head_event.prevE = newTimer;
-                head_event = newTimer;
-                num_events++;
-                do_notify = true;
-            } else if (tail_event.time_millis <= newTimer.time_millis) {
-                // insert tail
-                if (DEBUG)
-                    System.err.println(
-                            "ssTimer: Inserting event at tail, num pending "
-                                    + num_events + " event " + newTimer);
-                newTimer.prevE = tail_event;
-                tail_event.nextE = newTimer;
-                tail_event = newTimer;
-                num_events++;
-                // if not insert at head, no notify! :)
+    private void insertEvent(TimerNode node) {
+        lock.lock();
+        try {
+            if (head == null) {
+                tail = node;
+                head = node;
+                condition.signal();
+            } else if (node.getHappening() < head.getHappening()) {
+                node.setNext(head);
+                head.setPrev(node);
+                head = node;
+                condition.signal();
+            } else if (node.getHappening() >= tail.getHappening()) {
+                node.setPrev(tail);
+                tail.setNext(node);
+                tail = node;
             } else {
-                // insert somewhere in middle :(
-                if (DEBUG)
-                    System.err.println(
-                            "ssTimer: Inserting new event in middle, num pending "
-                                    + num_events + " event " + newTimer);
-                SsTimerEvent prevE = tail_event.prevE;
-                SsTimerEvent curE = tail_event;
-                boolean gotit = false;
-                while ((prevE != null) && (gotit == false)) {
-                    if (prevE.time_millis <= newTimer.time_millis) {
-                        prevE.nextE = newTimer;
-                        curE.prevE = newTimer;
-                        newTimer.nextE = curE;
-                        newTimer.prevE = prevE;
-                        // if not insert at head, no notify! :)
-                        gotit = true;
+                TimerNode cur = tail;
+                TimerNode prev = tail.getPrev();
+                while (prev != null) {
+                    if (node.getHappening() >= prev.getHappening()) {
+                        break;
                     }
-                    curE = prevE;
-                    prevE = prevE.prevE;
+                    cur = prev;
+                    prev = prev.getPrev();
                 }
-                num_events++;
+                cur.setPrev(node);
+                prev.setNext(node);
             }
-
-            if (do_notify) {
-                sync_o.notify();
-            }
+            numEvents++;
+        } finally {
+            lock.unlock();
         }
     }
 
-    private void process_head() {
-
-        SsTimerEvent fire = null;
-        long wait_time = -1;
-
+    private void processHead() {
         long curTime = System.currentTimeMillis();
-
-        if (head_event.time_millis <= curTime) {
+        if (head.getHappening() <= curTime) {
             // fire off event
-            fire = head_event;
-            if (DEBUG)
-                System.err.println("Firing " + fire + " -> " + head_event.nextE
-                        + " " + (num_events - 1) + " pending");
-            head_event = head_event.nextE;
-            if (head_event == null) {
-                // was only event
-                tail_event = null;
+            TimerNode fire = head;
+            head = head.getNext();
+            if (head == null) {
+                tail = null;
             } else {
-                // reset back pointer
-                head_event.prevE = null;
+                head.setPrev(null);
             }
 
-            if ((head_event == null) && (num_events != 1)) {
-                System.err.println(
-                        "ssTimer: Warning: No more events to process, but still have "
-                                + (num_events - 1)
-                                + " pending. This is a bug; please contact <mdw@cs.berkeley.edu>");
+            if ((head == null) && (numEvents != 1)) {
+                LOGGER.warn("No more events to process, but still have {} pending. BUG", (numEvents - 1));
             }
 
-            fire.nextE = null;
-            fire.prevE = null;
-            num_events--;
-
+            fire.unlink();
+            fire.eventReady();
+            numEvents--;
         } else {
             // sleep till head
-            if (DEBUG)
-                System.err.println(
-                        "ssTimer: head is " + (head_event.time_millis - curTime)
-                                + " ms in the future");
-            wait_time = head_event.time_millis - curTime;
-            if (wait_time != -1) {
+            long waitTime = head.getHappening() - curTime;
+            if (waitTime > 0) {
                 try {
-                    sync_o.wait(wait_time);
+                    condition.await(waitTime, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException ie) {
-                    // Ignore
                 }
             }
-        }
-
-        if (fire != null) {
-            fire.queue.enqueueLossy(fire.obj);
         }
     }
 
     public void run() {
-        synchronized (sync_o) {
-            while (die_thread == false) {
+        lock.lock();
+        try {
+            while (!threadDied) {
                 try {
-                    if (head_event != null) {
-                        process_head();
+                    if (head != null) {
+                        processHead();
                     } else {
-                        if (die_thread == true)
+                        if (threadDied)
                             return;
 
                         try {
-                            sync_o.wait(500);
+                            condition.await(500, TimeUnit.MILLISECONDS);
                         } catch (InterruptedException ie) {
                         }
                     }
@@ -353,78 +290,8 @@ public class Timer implements Runnable, Profilable {
                     t.printStackTrace();
                 }
             }
+        } finally {
+            lock.unlock();
         }
-    }
-
-    private static class GQEString implements EventElement {
-        private String ns = null;
-        private long inj;
-
-        public GQEString(String f) {
-            ns = f;
-            inj = System.currentTimeMillis();
-        }
-
-        public String toString() {
-            return ns + " elapsed=" + (System.currentTimeMillis() - inj);
-        }
-    }
-
-    public static void main(String args[]) {
-        EventQueueImpl eventQueue = new EventQueueImpl("timer");
-        Timer te = new Timer();
-        Timer.SsTimerEvent t1, t10, t20, t30, t40, t50, t250, t500, t2500,
-                t1500, t3500, t15000, t8000;
-
-        System.out.println("adding 1 millisecond event");
-        t1 = te.registerEvent(1, new GQEString("1"), eventQueue);
-        System.out.println("adding 10 millisecond event");
-        t10 = te.registerEvent(10, new GQEString("10"), eventQueue);
-        System.out.println("adding 20 millisecond event");
-        t20 = te.registerEvent(20, new GQEString("20"), eventQueue);
-        System.out.println("adding 30 millisecond event");
-        t30 = te.registerEvent(30, new GQEString("30"), eventQueue);
-        System.out.println("adding 40 millisecond event");
-        t40 = te.registerEvent(40, new GQEString("40"), eventQueue);
-        System.out.println("adding 50 millisecond event");
-        t50 = te.registerEvent(50, new GQEString("50"), eventQueue);
-        System.out.println("adding 250 millisecond event");
-        t250 = te.registerEvent(250, new GQEString("250"), eventQueue);
-        System.out.println("adding 500 millisecond event");
-        t500 = te.registerEvent(500, new GQEString("500"), eventQueue);
-        System.out.println("adding 2500 millisecond event");
-        t2500 = te.registerEvent(2500, new GQEString("2500"), eventQueue);
-        System.out.println("adding 1500 millisecond event");
-        t1500 = te.registerEvent(1500, new GQEString("1500"), eventQueue);
-        System.out.println("adding 3500 millisecond event");
-        t3500 = te.registerEvent(3500, new GQEString("3500"), eventQueue);
-        System.out.println("adding 15000 millisecond event");
-        t15000 = te.registerEvent(15000, new GQEString("15000"), eventQueue);
-        System.out.println("adding 8000 millisecond event");
-        t8000 = te.registerEvent(8000, new GQEString("8000"), eventQueue);
-
-        int num_got = 0;
-        while (num_got < 13) {
-            EventElement nextEl[] = eventQueue.dequeueAll();
-
-            if (nextEl != null) {
-                num_got += nextEl.length;
-                System.out.println("got " + nextEl.length + " event"
-                        + (nextEl.length > 1 ? "s" : ""));
-                for (int i = 0; i < nextEl.length; i++)
-                    System.out.println("  " + i + ": " + nextEl[i]);
-                System.out.println("total num got so far is: " + num_got);
-                System.out.println("num remain is: " + te.size());
-                if (num_got == 3)
-                    te.cancelEvent(t2500);
-            } else {
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException ie) {
-                }
-            }
-        }
-
-        te.doneWithTimer();
     }
 }

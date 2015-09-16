@@ -1,4 +1,4 @@
-package levin.learn.seda.disk;
+package levin.learn.seda.sandstorm.disk;
 
 import java.util.Arrays;
 
@@ -13,9 +13,9 @@ public class FileWriterTest {
     @Test
     public void testSimpleWriter() throws Exception {
         EventQueueImpl eventQueue = new EventQueueImpl("async.file.test");
-        AsyncFile file = new AsyncFile("test.txt", eventQueue, true, false);
+        AsyncFile file = new AsyncFile("target/test.txt", eventQueue, true, false);
         for (int i = 0; i < 10; i++) {
-            BufferEvent bufEvent = new BufferEvent(("Test" + i).getBytes());
+            BufferEvent bufEvent = new BufferEvent(("Test" + i + "\n").getBytes());
             file.write(bufEvent);
         }
         
