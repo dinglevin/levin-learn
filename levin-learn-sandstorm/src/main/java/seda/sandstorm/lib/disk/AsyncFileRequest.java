@@ -39,33 +39,33 @@ import seda.sandstorm.api.EventSink;
  * @see AsyncFileCloseRequest
  */
 public abstract class AsyncFileRequest implements EventElement {
-    AsyncFile afile;
-    EventSink compQ;
+    private AsyncFile asyncFile;
+    private EventSink completionQueue;
 
-    protected AsyncFileRequest(EventSink compQ) {
-        this.compQ = compQ;
+    protected AsyncFileRequest(EventSink completionQueue) {
+        this.completionQueue = completionQueue;
     }
 
-    protected AsyncFileRequest(AsyncFile afile, EventSink compQ) {
-        this.afile = afile;
-        this.compQ = compQ;
+    protected AsyncFileRequest(AsyncFile asyncFile, EventSink completionQueue) {
+        this.asyncFile = asyncFile;
+        this.completionQueue = completionQueue;
     }
 
     AsyncFile getFile() {
-        return afile;
+        return asyncFile;
     }
 
     AsyncFileImpl getImpl() {
-        return afile.getImpl();
+        return asyncFile.getImpl();
     }
 
-    EventSink getCompQ() {
-        return compQ;
+    EventSink getCompletionQueue() {
+        return completionQueue;
     }
 
-    void complete(EventElement comp) {
-        if (compQ != null) {
-            compQ.enqueueLossy(comp);
+    void complete(EventElement event) {
+        if (completionQueue != null) {
+            completionQueue.enqueueLossy(event);
         }
     }
 }

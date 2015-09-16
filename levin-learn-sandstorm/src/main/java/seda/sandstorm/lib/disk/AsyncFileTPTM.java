@@ -124,8 +124,7 @@ class AsyncFileTPTM extends TPSThreadManager implements ThreadManager, Profilabl
                 numOutstandingRequests += fqe.size;
             }
         } catch (SinkException se) {
-            throw new InternalError(
-                    "AFileTPTM.fileReady() got SinkException -- this should not happen, please contact <mdw@cs.berkeley.edu>");
+            throw new InternalError("AFileTPTM.fileReady() got SinkException");
         }
     }
 
