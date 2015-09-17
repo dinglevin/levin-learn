@@ -25,35 +25,34 @@
 package seda.sandstorm.api;
 
 /**
- * This event indicates that a sink has closed, either intentionally
- * by the application, or unintentionally, due to an error condition.
- * A sink is considered closed when it is no longer being serviced.
+ * This event indicates that a sink has closed, either intentionally by the
+ * application, or unintentionally, due to an error condition. A sink is
+ * considered closed when it is no longer being serviced.
  * 
- * <p>As opposed to SinkClosedException (which is thrown immediately
- * if one tries to enqueue onto a closed sink), this event is pushed
- * to a stage if a sink closes asynchronously (that is, without being
- * requested by the application), or some time after the original 
- * enqueue occurred.
+ * <p>
+ * As opposed to SinkClosedException (which is thrown immediately if one tries
+ * to enqueue onto a closed sink), this event is pushed to a stage if a sink
+ * closes asynchronously (that is, without being requested by the application),
+ * or some time after the original enqueue occurred.
  *
  * @see SinkClosedException
  * @author Matt Welsh
  */
 public class SinkClosedEvent implements EventElement {
 
-  /**
-   * The sink that closed.
-   */
-  public EventSink sink;
+    /**
+     * The sink that closed.
+     */
+    public EventSink sink;
 
-  /**
-   * Create a new SinkClosedEvent with the given sink.
-   */
-  public SinkClosedEvent(EventSink sink) {
-    this.sink = sink;
-  }
+    /**
+     * Create a new SinkClosedEvent with the given sink.
+     */
+    public SinkClosedEvent(EventSink sink) {
+        this.sink = sink;
+    }
 
-  public String toString() {
-    return "SinkClosedEvent [sink="+sink+"]";
-  }
+    public String toString() {
+        return "SinkClosedEvent [sink=" + sink + "]";
+    }
 }
-

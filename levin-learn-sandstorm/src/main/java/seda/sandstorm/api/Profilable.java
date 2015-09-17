@@ -33,10 +33,8 @@ package seda.sandstorm.api;
  * @author Matt Welsh
  */
 public interface Profilable {
-
     /**
      * Return the size of the object being profiled.
      */
     public int profileSize();
-
 }

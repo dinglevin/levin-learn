@@ -49,7 +49,7 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
     private File f;
     RandomAccessFile raf;
     private AsyncFile afile;
-    private AsyncFileTPTM tm;
+    private AsyncFileTPTM threadManager;
     private EventSink completionQueue;
     private EventQueueImpl eventQueue;
     private boolean readOnly;
@@ -60,9 +60,9 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
      * create/readOnly flags, and Thread Manager.
      */
     AsyncFileTPImpl(AsyncFile afile, String fname, EventSink completionQueue, boolean create,
-            boolean readOnly, AsyncFileTPTM tm) throws IOException {
+            boolean readOnly, AsyncFileTPTM threadManager) throws IOException {
         this.afile = afile;
-        this.tm = tm;
+        this.threadManager = threadManager;
         this.completionQueue = completionQueue;
         this.readOnly = readOnly;
 
@@ -95,14 +95,14 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
         if (readOnly && (areq instanceof AsyncFileWriteRequest)) {
             throw new BadEventElementException("Cannot enqueue write request for read-only file", areq);
         }
-        areq.afile = afile;
+        areq.setAsyncFile(afile);
         try {
             eventQueue.enqueue(areq);
         } catch (SinkException se) {
             throw new InternalError("Failed to enqueue event: " + req);
         }
         if (eventQueue.size() == 1) {
-            tm.fileReady(this);
+            threadManager.fileReady(this);
         }
     }
 
@@ -114,15 +114,14 @@ class AsyncFileTPImpl extends AsyncFileImpl implements EventElement {
         if (closed || (readOnly && (areq instanceof AsyncFileWriteRequest))) {
             return false;
         }
-        areq.afile = afile;
+        areq.setAsyncFile(afile);
         try {
             eventQueue.enqueue(areq);
         } catch (SinkException se) {
-            throw new InternalError(
-                    "AFileTPImpl.enqueue got SinkException - this should not happen, please contact <mdw@cs.berkeley.edu>");
+            throw new InternalError("AFileTPImpl.enqueue got SinkException");
         }
         if (eventQueue.size() == 1) {
-            tm.fileReady(this);
+            threadManager.fileReady(this);
         }
         return true;
     }

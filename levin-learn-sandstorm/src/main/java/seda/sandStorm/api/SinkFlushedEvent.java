@@ -25,24 +25,23 @@
 package seda.sandstorm.api;
 
 /**
- * This event indicates that the given sink was successfully flushed;
- * this event is generated in response to a SinkIF.flush() call.
+ * This event indicates that the given sink was successfully flushed; this event
+ * is generated in response to a SinkIF.flush() call.
  *
  * @see EventSink
  * @author Matt Welsh
  */
 public class SinkFlushedEvent implements EventElement {
 
-  /**
-   * The sink which was flushed.
-   */
-  public EventSink sink;
+    /**
+     * The sink which was flushed.
+     */
+    public EventSink sink;
 
-  /**
-   * Generate a new SinkFlushedEvent with the given sink.
-   */
-  public SinkFlushedEvent(EventSink sink) {
-    this.sink = sink;
-  }
+    /**
+     * Generate a new SinkFlushedEvent with the given sink.
+     */
+    public SinkFlushedEvent(EventSink sink) {
+        this.sink = sink;
+    }
 }
-

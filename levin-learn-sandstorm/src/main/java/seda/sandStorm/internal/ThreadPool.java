@@ -24,7 +24,12 @@
 
 package seda.sandstorm.internal;
 
-import java.util.Vector;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.Profilable;
@@ -36,17 +41,16 @@ import seda.sandstorm.main.SandstormConfig;
  * 
  * @author Matt Welsh
  */
-
 public class ThreadPool implements Profilable {
-
-    private static final boolean DEBUG = false;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadPool.class);
+    
     private StageWrapper stage;
     private Manager mgr;
     private String poolname;
-    private ThreadGroup pooltg;
+    private ThreadGroup poolThreadGroup;
     private Runnable runnable;
-    private Vector threads, stoppedThreads;
+    private List<Thread> threads;
+    private List<Thread> stoppedThreads;
 
     int minThreads, maxThreads;
 
@@ -72,8 +76,8 @@ public class ThreadPool implements Profilable {
             this.maxAggregation = config.getInt("global.batchController.maxBatch");
         }
 
-        threads = new Vector();
-        stoppedThreads = new Vector();
+        threads = Lists.newArrayList();
+        stoppedThreads = Lists.newArrayList();
 
         // First look for stages.[stageName] options, then global options
         String tag = "stages." + (stage.getStage().getName()) + ".threadPool.";
@@ -100,19 +104,16 @@ public class ThreadPool implements Profilable {
 
         this.blockTime = config.getInt(tag + "blockTime",
                 config.getInt(globaltag + "blockTime", blockTime));
-        this.idleTimeThreshold = config
-                .getInt(tag + "sizeController.idleTimeThreshold",
-                        config.getInt(
-                                globaltag + "sizeController.idleTimeThreshold",
-                                blockTime));
+        this.idleTimeThreshold = config.getInt(tag + "sizeController.idleTimeThreshold",
+                        config.getInt(globaltag + "sizeController.idleTimeThreshold", blockTime));
 
-        System.err.println("TP <" + poolname + ">: initial " + initialSize
+        LOGGER.info("TP <" + poolname + ">: initial " + initialSize
                 + ", min " + minThreads + ", max " + maxThreads + ", blockTime "
                 + blockTime + ", idleTime " + idleTimeThreshold);
 
         addThreads(initialSize, false);
         mgr.getProfiler().add("ThreadPool <" + poolname + ">", this);
-        pooltg = new ThreadGroup("TP <" + poolname + ">");
+        poolThreadGroup = new ThreadGroup("TP <" + poolname + ">");
     }
 
     /**
@@ -131,12 +132,11 @@ public class ThreadPool implements Profilable {
         if (config.getBoolean("global.batchController.enable")) {
             aggThrottle = new AggThrottle(stage, mgr);
         } else {
-            this.maxAggregation = config
-                    .getInt("global.batchController.maxBatch");
+            this.maxAggregation = config.getInt("global.batchController.maxBatch");
         }
 
-        threads = new Vector();
-        stoppedThreads = new Vector();
+        threads = Lists.newArrayList();
+        stoppedThreads = Lists.newArrayList();
         if (initialThreads < 1)
             initialThreads = 1;
         this.minThreads = minThreads;
@@ -149,7 +149,7 @@ public class ThreadPool implements Profilable {
 
         addThreads(initialThreads, false);
         mgr.getProfiler().add("ThreadPool <" + poolname + ">", this);
-        pooltg = new ThreadGroup("TP <" + poolname + ">");
+        poolThreadGroup = new ThreadGroup("TP <" + poolname + ">");
     }
 
     /**
@@ -167,40 +167,34 @@ public class ThreadPool implements Profilable {
         if (config.getBoolean("global.batchController.enable")) {
             aggThrottle = new AggThrottle(stage, mgr);
         } else {
-            this.maxAggregation = config
-                    .getInt("global.batchController.maxBatch");
+            this.maxAggregation = config.getInt("global.batchController.maxBatch");
         }
 
-        threads = new Vector();
-        stoppedThreads = new Vector();
+        threads = Lists.newArrayList();
+        stoppedThreads = Lists.newArrayList();
         maxThreads = minThreads = numThreads;
         addThreads(numThreads, false);
         mgr.getProfiler().add("ThreadPool <" + poolname + ">", this);
-        pooltg = new ThreadGroup("TP <" + poolname + ">");
+        poolThreadGroup = new ThreadGroup("TP <" + poolname + ">");
     }
 
     /**
      * Start the thread pool.
      */
     public void start() {
-        System.err.print(
-                "TP <" + poolname + ">: Starting " + numThreads() + " threads");
-        if (aggThrottle != null) {
-            System.err.println(", batchController enabled");
-        } else {
-            System.err.println(", maxBatch=" + maxAggregation);
-        }
-        for (int i = 0; i < threads.size(); i++) {
-            Thread t = (Thread) threads.elementAt(i);
-            t.start();
+        LOGGER.info("TP <" + poolname + ">: Starting " + numThreads() + " threads" +
+                ((aggThrottle != null) ? ", batchController enabled" : (", maxBatch=" + maxAggregation)));
+        for (Thread thread : threads) {
+            thread.start();
         }
     }
 
     /**
      * Stop the thread pool.
      */
+    @SuppressWarnings("deprecation")
     public void stop() {
-        pooltg.stop();
+        poolThreadGroup.stop();
     }
 
     /**
@@ -216,17 +210,17 @@ public class ThreadPool implements Profilable {
                 numToAdd = numTotal - numThreads();
             }
             if ((maxThreads < 0) || (numToAdd < maxThreads)) {
-                System.err.println("TP <" + poolname + ">: Adding " + numToAdd
+                LOGGER.info("TP <" + poolname + ">: Adding " + numToAdd
                         + " threads to pool, size "
                         + (numThreads() + numToAdd));
             }
             for (int i = 0; i < numToAdd; i++) {
                 String name = "TP-" + numThreads() + " <" + poolname + ">";
-                Thread t = new Thread(pooltg, runnable, name);
-                threads.addElement(t);
-                mgr.getProfiler().getGraphProfiler().addThread(t, stage);
+                Thread thread = new Thread(poolThreadGroup, runnable, name);
+                threads.add(thread);
+                mgr.getProfiler().getGraphProfiler().addThread(thread, stage);
                 if (start)
-                    t.start();
+                    thread.start();
             }
         }
     }
@@ -235,15 +229,14 @@ public class ThreadPool implements Profilable {
      * Remove threads from pool.
      */
     void removeThreads(int num) {
-        System.err.print("TP <" + poolname + ">: Removing " + num
-                + " threads from pool, ");
+        LOGGER.info("TP <" + poolname + ">: Removing " + num + " threads from pool, ");
         synchronized (this) {
             for (int i = 0; (i < num) && (numThreads() > minThreads); i++) {
-                Thread t = (Thread) threads.firstElement();
+                Thread t = threads.get(0);
                 stopThread(t);
             }
         }
-        System.err.println("size " + numThreads());
+        LOGGER.info("size " + numThreads());
     }
 
     /**
@@ -251,11 +244,10 @@ public class ThreadPool implements Profilable {
      */
     void stopThread(Thread t) {
         synchronized (this) {
-            threads.removeElement(t);
-            stoppedThreads.addElement(t);
+            threads.remove(t);
+            stoppedThreads.add(t);
         }
-        System.err.println(
-                "TP <" + poolname + ">: stopping thread, size " + numThreads());
+        LOGGER.info("TP <" + poolname + ">: stopping thread, size " + numThreads());
     }
 
     /**

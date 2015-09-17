@@ -51,8 +51,12 @@ public abstract class AsyncFileRequest implements EventElement {
         this.completionQueue = completionQueue;
     }
 
-    AsyncFile getFile() {
+    AsyncFile getAsyncFile() {
         return asyncFile;
+    }
+    
+    void setAsyncFile(AsyncFile asyncFile) {
+        this.asyncFile = asyncFile;
     }
 
     AsyncFileImpl getImpl() {

@@ -250,8 +250,7 @@ public class SandStormManager implements Manager, SystemManager {
     public Stage createStage(StageWrapper wrapper, boolean initialize) throws Exception {
         String name = wrapper.getStage().getName();
         if (stagetbl.get(name) != null) {
-            throw new StageNameAlreadyBoundException(
-                    "Stage name " + name + " already in use");
+            throw new StageNameAlreadyBoundException("Stage name " + name + " already in use");
         }
         stagetbl.put(name, wrapper);
 

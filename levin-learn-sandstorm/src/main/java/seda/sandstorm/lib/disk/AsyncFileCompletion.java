@@ -52,7 +52,7 @@ public abstract class AsyncFileCompletion implements EventElement {
      * Return the AFile object associated with this completion.
      */
     public AsyncFile getFile() {
-        return req.getFile();
+        return req.getAsyncFile();
     }
 
 }

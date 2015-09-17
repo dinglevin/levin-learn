@@ -24,11 +24,12 @@
 
 package seda.sandstorm.internal;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
 
 import seda.sandstorm.api.EventElement;
 import seda.sandstorm.api.EventSource;
@@ -51,7 +52,7 @@ public class TPSThreadManager implements ThreadManager {
     
     protected Manager mgr;
     protected SandstormConfig config;
-    protected Hashtable srTbl;
+    protected Map<StageRunnable, StageWrapper> srTbl;
     protected ThreadPoolController sizeController;
 
     public TPSThreadManager(Manager mgr) {
@@ -66,7 +67,7 @@ public class TPSThreadManager implements ThreadManager {
             if (config.getBoolean("global.threadPool.sizeController.enable")) {
                 sizeController = new ThreadPoolController(mgr);
             }
-            srTbl = new Hashtable();
+            srTbl = Maps.newHashMap();
         }
     }
 
@@ -83,13 +84,12 @@ public class TPSThreadManager implements ThreadManager {
      * Deregister a stage with this thread manager.
      */
     public void deregister(StageWrapper stage) {
-        Enumeration e = srTbl.keys();
-        while (e.hasMoreElements()) {
-            StageRunnable sr = (StageRunnable) e.nextElement();
-            StageWrapper s = (StageWrapper) srTbl.get(sr);
-            if (s == stage) {
-                sr.tp.stop();
-                srTbl.remove(sr);
+        for (Map.Entry<StageRunnable, StageWrapper> entry : srTbl.entrySet()) {
+            StageRunnable stageRunnable = entry.getKey();
+            StageWrapper existingStage = entry.getValue();
+            if (existingStage == stage) {
+                stageRunnable.threadPool.stop();
+                srTbl.remove(stageRunnable);
             }
         }
     }
@@ -98,12 +98,10 @@ public class TPSThreadManager implements ThreadManager {
      * Stop the thread manager and all threads managed by it.
      */
     public void deregisterAll() {
-        Enumeration e = srTbl.keys();
-        while (e.hasMoreElements()) {
-            StageRunnable sr = (StageRunnable) e.nextElement();
-            StageWrapper s = (StageWrapper) srTbl.get(sr);
-            sr.tp.stop();
-            srTbl.remove(sr);
+        for (Map.Entry<StageRunnable, StageWrapper> entry : srTbl.entrySet()) {
+            StageRunnable stageRunnable = entry.getKey();
+            stageRunnable.threadPool.stop();
+            srTbl.remove(stageRunnable);
         }
     }
 
@@ -111,8 +109,7 @@ public class TPSThreadManager implements ThreadManager {
      * Internal class representing the Runnable for a single stage.
      */
     public class StageRunnable implements Runnable {
-
-        protected ThreadPool tp;
+        protected ThreadPool threadPool;
         protected StageWrapper wrapper;
         protected EventSource source;
         protected String name;
@@ -122,19 +119,15 @@ public class TPSThreadManager implements ThreadManager {
 
         protected StageRunnable(StageWrapper wrapper, ThreadPool tp) {
             this.wrapper = wrapper;
-            this.tp = tp;
+            this.threadPool = tp;
             this.source = wrapper.getSource();
             this.name = wrapper.getStage().getName();
 
             if (tp != null) {
                 if (sizeController != null) {
-                    // The sizeController is globally enabled -- has the user
-                    // disabled
-                    // it for this stage?
-                    String val = config.getString("stages." + this.name
-                            + ".threadPool.sizeController.enable");
-                    if ((val == null) || val.equals("true")
-                            || val.equals("TRUE")) {
+                    // The sizeController is globally enabled -- has the user disabled it for this stage?
+                    String val = config.getString("stages." + this.name + ".threadPool.sizeController.enable");
+                    if ((val == null) || val.equals("true") || val.equals("TRUE")) {
                         sizeController.register(wrapper, tp);
                     }
                 }
@@ -152,24 +145,21 @@ public class TPSThreadManager implements ThreadManager {
 
             // Create a threadPool for the stage
             if (wrapper.getEventHandler() instanceof SingleThreadedEventHandlerIF) {
-                tp = new ThreadPool(wrapper, mgr, this, 1);
+                threadPool = new ThreadPool(wrapper, mgr, this, 1);
             } else {
-                tp = new ThreadPool(wrapper, mgr, this);
+                threadPool = new ThreadPool(wrapper, mgr, this);
             }
 
             if (sizeController != null) {
-                // The sizeController is globally enabled -- has the user
-                // disabled
-                // it for this stage?
-                String val = config.getString("stages." + this.name
-                        + ".threadPool.sizeController.enable");
+                // The sizeController is globally enabled -- has the user disabled it for this stage?
+                String val = config.getString("stages." + this.name + ".threadPool.sizeController.enable");
                 if ((val == null) || val.equals("true") || val.equals("TRUE")) {
-                    sizeController.register(wrapper, tp);
+                    sizeController.register(wrapper, threadPool);
                 }
             }
             this.rtController = wrapper.getResponseTimeController();
 
-            tp.start();
+            threadPool.start();
         }
 
         public void run() {
@@ -192,8 +182,8 @@ public class TPSThreadManager implements ThreadManager {
 
                 try {
 
-                    blockTime = (int) tp.getBlockTime();
-                    aggTarget = tp.getAggregationTarget();
+                    blockTime = (int) threadPool.getBlockTime();
+                    aggTarget = threadPool.getAggregationTarget();
 
                     LOGGER.trace("{}: Doing blocking dequeue for {}", name, wrapper);
 
@@ -208,7 +198,7 @@ public class TPSThreadManager implements ThreadManager {
 
                     if (fetched == null) {
                         t2 = System.currentTimeMillis();
-                        if (tp.timeToStop(t2 - t1)) {
+                        if (threadPool.timeToStop(t2 - t1)) {
                             LOGGER.debug("{}: Exiting", name);
                             if (isFirst) {
                                 synchronized (this) {
@@ -237,14 +227,13 @@ public class TPSThreadManager implements ThreadManager {
                         if (rtController instanceof ResponseTimeControllerMM1) {
                             ((ResponseTimeControllerMM1) rtController)
                                     .adjustThreshold(fetched, tstart, tend,
-                                            isFirst, tp.numThreads());
+                                            isFirst, threadPool.numThreads());
                         } else {
-                            rtController.adjustThreshold(fetched,
-                                    tend - tstart);
+                            rtController.adjustThreshold(fetched, tend - tstart);
                         }
                     }
 
-                    if (tp.timeToStop(0)) {
+                    if (threadPool.timeToStop(0)) {
                         LOGGER.debug("{}: Exiting", name);
                         if (isFirst) {
                             synchronized (this) {

@@ -28,7 +28,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
-import java.util.Vector;
+import java.util.List;
+
+import com.google.common.collect.Lists;
 
 import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.Profilable;
@@ -47,7 +49,7 @@ import seda.sandstorm.main.SandstormConfig;
 class SandStormProfiler extends Thread implements Profiler {
     private int delay;
     private PrintWriter pw;
-    private Vector profilables;
+    private List<Profile> profilables;
     private boolean started = false;
     private StageGraph graphProfiler;
 
@@ -59,7 +61,7 @@ class SandStormProfiler extends Thread implements Profiler {
         if (config.getBoolean("global.profile.enable")) {
             pw = new PrintWriter(new FileWriter(filename, true));
         }
-        profilables = new Vector(1);
+        profilables = Lists.newArrayList();
     }
 
     /**
@@ -79,7 +81,7 @@ class SandStormProfiler extends Thread implements Profiler {
             return;
         synchronized (profilables) {
             pw.println("# Registered " + profilables.size() + " " + name);
-            profilables.addElement(new profile(name, pr));
+            profilables.add(new Profile(name, pr));
         }
     }
 
@@ -100,7 +102,7 @@ class SandStormProfiler extends Thread implements Profiler {
             synchronized (profilables) {
                 if (profilables.size() > 0) {
                     for (int i = 0; i < profilables.size(); i++) {
-                        profile p = (profile) profilables.elementAt(i);
+                        Profile p = profilables.get(i);
                         pw.print("pr" + i + " " + p.pr.profileSize() + " ");
                     }
                 }
@@ -119,11 +121,11 @@ class SandStormProfiler extends Thread implements Profiler {
         return graphProfiler;
     }
 
-    class profile {
+    class Profile {
         String name;
         Profilable pr;
 
-        profile(String name, Profilable pr) {
+        Profile(String name, Profilable pr) {
             this.name = name;
             this.pr = pr;
         }
