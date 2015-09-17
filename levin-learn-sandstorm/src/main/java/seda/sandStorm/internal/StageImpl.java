@@ -28,7 +28,6 @@ import seda.sandstorm.api.ConfigData;
 import seda.sandstorm.api.EventSink;
 import seda.sandstorm.api.Stage;
 import seda.sandstorm.api.internal.StageWrapper;
-import seda.sandstorm.main.SandstormConfig;
 
 /**
  * A Stage is a basic implementation of StageIF for application-level stages.
@@ -41,27 +40,13 @@ public class StageImpl implements Stage {
     private StageWrapper wrapper;
     private EventSink mainSink;
 
-    // If true, instantate a SinkProxy for the stage's event queue
-    // when batchControllor or rtController are enabled. This should
-    // be obsolete; older implementations of these controllers relied
-    // on the proxy, but it's no longer needed.
-    private static final boolean ENABLE_SINK_PROXY = false;
-
     /**
      * Create a Stage with the given name, wrapper, and sink.
      */
     public StageImpl(String name, StageWrapper wrapper, EventSink mainSink, ConfigData config) {
         this.name = name;
         this.wrapper = wrapper;
-
-        SandstormConfig cf = config.getManager().getConfig();
         this.mainSink = mainSink;
-
-        if (ENABLE_SINK_PROXY && (cf.getBoolean("global.batchController.enable")
-                || cf.getBoolean("global.rtController.enable"))) {
-            this.mainSink = new SinkProxy((EventSink) mainSink,
-                    config.getManager(), wrapper);
-        }
     }
 
     /**

@@ -24,11 +24,11 @@
 
 package seda.sandstorm.internal;
 
-import seda.sandstorm.api.Manager;
-import seda.sandstorm.api.Profilable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import seda.sandstorm.api.internal.StageStats;
 import seda.sandstorm.api.internal.StageWrapper;
-import seda.sandstorm.main.Sandstorm;
 
 /**
  * This class provides controllers with a view of statistics gathered by the
@@ -38,9 +38,8 @@ import seda.sandstorm.main.Sandstorm;
  */
 
 public class StageStatsImpl implements StageStats {
-    private static final boolean DEBUG = false;
-    private static final boolean PROFILE = false;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(StageStatsImpl.class);
+    
     private static final double SMOOTH_ALPHA = 0.7;
     private static final int ESTIMATION_SIZE = 100;
     private static final long ESTIMATION_TIME = 1000;
@@ -53,8 +52,7 @@ public class StageStatsImpl implements StageStats {
 
     /* 90th percentile response time of the stage. */
     private double rt90thPercentile;
-
-    private boolean first = true;
+    
     private long lastTime;
     private int count;
     private long totalServiceTime, totalEvents, cumulativeEvents;
@@ -86,23 +84,6 @@ public class StageStatsImpl implements StageStats {
      * Record the service time for numEvents taking 'time' msec to be processed.
      */
     public synchronized void recordServiceRate(int numEvents, long time) {
-
-        // Only possible to add ourselves to the profile after we start running
-        if (PROFILE && first) {
-            first = false;
-            Manager mgr = Sandstorm.getSandstorm().getManager();
-            if (mgr.getProfiler() != null) {
-                mgr.getProfiler()
-                        .add("StageStats serviceRate <"
-                                + stage.getStage().getName() + ">",
-                        new Profilable() {
-                            public int profileSize() {
-                                return (int) serviceRate;
-                            }
-                        });
-            }
-        }
-
         totalEvents += numEvents;
         cumulativeEvents += numEvents;
         totalServiceTime += time;
@@ -110,17 +91,14 @@ public class StageStatsImpl implements StageStats {
         count++;
         long curTime = System.currentTimeMillis();
 
-        if ((count == ESTIMATION_SIZE)
-                || (curTime - lastTime >= ESTIMATION_TIME)) {
+        if ((count == ESTIMATION_SIZE) || (curTime - lastTime >= ESTIMATION_TIME)) {
             if (totalServiceTime == 0)
                 totalServiceTime = 1;
             double rate = totalEvents / (totalServiceTime * 1.0e-3);
-            serviceRate = (rate * SMOOTH_ALPHA)
-                    + (serviceRate * (1.0 - SMOOTH_ALPHA));
-            if (DEBUG)
-                System.err.println("Stats <" + stage.getStage().getName()
-                        + ">: numEvents=" + totalEvents + " time="
-                        + totalServiceTime + ", rate=" + serviceRate);
+            serviceRate = (rate * SMOOTH_ALPHA) + (serviceRate * (1.0 - SMOOTH_ALPHA));
+            
+            LOGGER.debug("Stats <" + stage.getStage().getName() + ">: numEvents=" + totalEvents + " time=" + totalServiceTime + ", rate=" + serviceRate);
+            
             count = 0;
             lastTime = curTime;
             totalEvents = totalServiceTime = 0;
@@ -136,5 +114,4 @@ public class StageStatsImpl implements StageStats {
     public synchronized double get90thRT() {
         return this.rt90thPercentile;
     }
-
 }

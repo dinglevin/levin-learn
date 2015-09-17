@@ -24,40 +24,36 @@
 
 package seda.sandstorm.internal;
 
-import seda.sandstorm.api.*;
-import seda.sandstorm.api.internal.*;
-import seda.sandstorm.core.*;
-import seda.sandstorm.main.*;
-
-import java.io.*;
-import java.util.*;
+import seda.sandstorm.api.EventSink;
+import seda.sandstorm.api.internal.StageWrapper;
 
 /**
- * This class represents an edge in the stage-connectivity graph.
- * Used by StageGraph.
+ * This class represents an edge in the stage-connectivity graph. Used by
+ * StageGraph.
  *
  * @author Matt Welsh
  */
 class StageGraphEdge {
+    StageWrapper fromStage;
+    StageWrapper toStage;
+    EventSink sink;
 
-  StageWrapper fromStage;
-  StageWrapper toStage;
-  EventSink sink;
-
-  public boolean equals(Object o) {
-    if (!(o instanceof StageGraphEdge)) return false;
-    StageGraphEdge e = (StageGraphEdge)o;
-    if ((e.fromStage.equals(fromStage)) &&
-	(e.toStage.equals(toStage)) &&
-	(e.sink.equals(sink))) {
-      return true;
-    } else {
-      return false;
+    public boolean equals(Object o) {
+        if (!(o instanceof StageGraphEdge))
+            return false;
+        
+        StageGraphEdge e = (StageGraphEdge) o;
+        if ((e.fromStage.equals(fromStage)) && (e.toStage.equals(toStage))
+                && (e.sink.equals(sink))) {
+            return true;
+        } else {
+            return false;
+        }
     }
-  }
 
-  public String toString() {
-    return "StageGraphEdge [from="+fromStage+", to="+toStage+", sink="+sink+"]";
-  }
+    public String toString() {
+        return "StageGraphEdge [from=" + fromStage + ", to=" + toStage
+                + ", sink=" + sink + "]";
+    }
 
 }

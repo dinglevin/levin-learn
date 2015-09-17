@@ -27,9 +27,14 @@ package seda.sandstorm.internal;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import seda.sandstorm.api.Manager;
 import seda.sandstorm.api.internal.StageWrapper;
@@ -46,12 +51,12 @@ import seda.sandstorm.main.SandstormConfig;
  * @see SinkProxy
  */
 public class StageGraph {
-    private static final boolean DEBUG = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(StageGraph.class);
 
-    private Vector stages = new Vector(1);
-    private Vector edges = new Vector(1);
-    private Hashtable threads = new Hashtable(1);
-    private Hashtable edgesFrom = new Hashtable(1);
+    private List<StageWrapper> stages = Lists.newArrayList();
+    private List<StageGraphEdge> edges = Lists.newArrayList();
+    private Map<Thread, StageWrapper> threads = Maps.newHashMap();
+    private Map<StageWrapper, StageList> edgesFrom = Maps.newHashMap();
     private PrintWriter graphpw = null;
 
     StageGraph(Manager mgr) {
@@ -62,27 +67,22 @@ public class StageGraph {
             try {
                 graphpw = new PrintWriter(new FileWriter(gfilename, true));
             } catch (IOException e) {
-                System.err.println("StageGraph: Warning: Could not open file "
+                LOGGER.error("StageGraph: Warning: Could not open file "
                         + gfilename + " for writing, disabling graph dump.");
             }
         }
     }
 
     public synchronized StageWrapper[] getStages() {
-        StageWrapper arr[] = new StageWrapper[stages.size()];
-        stages.copyInto(arr);
-        return arr;
+        return stages.toArray(new StageWrapper[stages.size()]);
     }
 
     public synchronized StageGraphEdge[] getEdges() {
-        StageGraphEdge arr[] = new StageGraphEdge[edges.size()];
-        edges.copyInto(arr);
-        return arr;
+        return edges.toArray(new StageGraphEdge[edges.size()]);
     }
 
-    public synchronized StageGraphEdge[] getEdgesFromStage(
-            StageWrapper fromStage) {
-        stageList list = (stageList) edgesFrom.get(fromStage);
+    public synchronized StageGraphEdge[] getEdgesFromStage(StageWrapper fromStage) {
+        StageList list = (StageList) edgesFrom.get(fromStage);
         if (list == null)
             return null;
         else
@@ -90,21 +90,19 @@ public class StageGraph {
     }
 
     public synchronized StageWrapper getStageFromThread(Thread thread) {
-        return (StageWrapper) threads.get(thread);
+        return threads.get(thread);
     }
 
     public synchronized void addStage(StageWrapper stage) {
-        if (DEBUG)
-            System.err.println("StageGraph: Adding stage " + stage);
+        LOGGER.info("StageGraph: Adding stage " + stage);
+        
         if (!stages.contains(stage)) {
-            stages.addElement(stage);
+            stages.add(stage);
         }
     }
 
     public synchronized void addThread(Thread thread, StageWrapper stage) {
-        if (DEBUG)
-            System.err.println("StageGraph: Adding thread " + thread
-                    + " -> stage " + stage);
+        LOGGER.info("StageGraph: Adding thread " + thread + " -> stage " + stage);
         addStage(stage);
         threads.put(thread, stage);
     }
@@ -118,13 +116,12 @@ public class StageGraph {
             addStage(edge.fromStage);
             addStage(edge.toStage);
 
-            if (DEBUG)
-                System.err.println("StageGraph: Adding edge " + edge);
+            LOGGER.info("StageGraph: Adding edge " + edge);
 
-            edges.addElement(edge);
-            stageList list = (stageList) edgesFrom.get(edge.fromStage);
+            edges.add(edge);
+            StageList list = (StageList) edgesFrom.get(edge.fromStage);
             if (list == null) {
-                list = new stageList();
+                list = new StageList();
                 list.add(edge);
                 edgesFrom.put(edge.fromStage, list);
             } else {
@@ -143,38 +140,30 @@ public class StageGraph {
             return;
         graphpw.println("digraph sandstorm {");
         graphpw.println("  rankdir=TB;");
-        Enumeration e = edges.elements();
-        if (e != null) {
-            while (e.hasMoreElements()) {
-                StageGraphEdge edge = (StageGraphEdge) e.nextElement();
-                String from = edge.fromStage.getStage().getName();
-                String to = edge.toStage.getStage().getName();
-                int count = 0;
-                try {
-                    count = ((SinkProxy) edge.sink).enqueueCount;
-                } catch (ClassCastException cce) {
-                    // Ignore
-                }
-                graphpw.println("  \"" + from + "\" -> \"" + to + "\" [label=\""
-                        + count + "\"];");
+        for (StageGraphEdge edge : edges) {
+            String from = edge.fromStage.getStage().getName();
+            String to = edge.toStage.getStage().getName();
+            int count = 0;
+            try {
+                count = ((SinkProxy) edge.sink).enqueueCount;
+            } catch (ClassCastException cce) {
+                // Ignore
             }
-            graphpw.println("}");
+            graphpw.println("  \"" + from + "\" -> \"" + to + "\" [label=\"" + count + "\"];");
         }
+        graphpw.println("}");
         graphpw.flush();
     }
 
-    class stageList {
-        Vector vec = new Vector(1);
+    class StageList {
+        List<StageGraphEdge> vec = Lists.newArrayList();
 
         void add(StageGraphEdge edge) {
-            vec.addElement(edge);
+            vec.add(edge);
         }
 
         StageGraphEdge[] getEdges() {
-            StageGraphEdge arr[] = new StageGraphEdge[vec.size()];
-            vec.copyInto(arr);
-            return arr;
+            return vec.toArray(new StageGraphEdge[vec.size()]);
         }
     }
-
 }
