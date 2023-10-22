@@ -11,18 +11,25 @@
     <description>Levin Learn EHCache Project</description>
 
     <properties>
-        <ehcache.version>2.6.6</ehcache.version>
+        <ehcache.version>2.6.11</ehcache.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
             <version>${ehcache.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>levin.learn</groupId>
-            <artifactId>levin-learn-commons</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

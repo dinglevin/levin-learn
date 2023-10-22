@@ -11,7 +11,7 @@
     <description>Easy Mock Learn Project</description>
     
     <properties>
-        <easymock.version>3.2</easymock.version>
+        <easymock.version>5.1.0</easymock.version>
     </properties>
 
     <dependencies>
@@ -19,6 +19,11 @@
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
             <version>${easymock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
