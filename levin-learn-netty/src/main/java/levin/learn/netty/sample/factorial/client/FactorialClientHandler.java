@@ -13,10 +13,19 @@ import static levin.learn.netty.sample.factorial.client.FactorialClient.COUNT;
 
 
 public class FactorialClientHandler extends SimpleChannelInboundHandler<BigInteger> {
+    private final ChannelFutureListener numberSender = future -> {
+        if (future.isSuccess()) {
+            sendNumbers();
+        } else {
+            future.cause().printStackTrace();
+            future.channel().close();
+        }
+    };
+
     private ChannelHandlerContext ctx;
     private int receivedMessages;
     private int next = 1;
-    final BlockingQueue<BigInteger> answer = new LinkedBlockingQueue<BigInteger>();
+    final BlockingQueue<BigInteger> answer = new LinkedBlockingQueue<>();
     
     public BigInteger getFactorial() {
         boolean interrupted = false;
@@ -68,15 +77,4 @@ public class FactorialClientHandler extends SimpleChannelInboundHandler<BigInteg
         
         ctx.flush();
     }
-
-    private final ChannelFutureListener numberSender = new ChannelFutureListener() {
-        public void operationComplete(ChannelFuture future) throws Exception {
-            if (future.isSuccess()) {
-                sendNumbers();
-            } else {
-                future.cause().printStackTrace();
-                future.channel().close();
-            }
-        }
-    };
 }

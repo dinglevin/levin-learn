@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
@@ -18,7 +18,6 @@ import java.util.Set;
  */
 public class NioClient {
     private static final int SERVER_PORT = 9000;
-    private static final Charset CHARSET = Charset.forName("UTF-8");
 
     public static void main(String[] args) throws Exception {
         NioClient client = new NioClient(SERVER_PORT);
@@ -96,7 +95,7 @@ public class NioClient {
                 ByteBuffer buffer = ByteBuffer.allocate(1024);
                 channel.read(buffer);
                 buffer.flip();
-                String content = CHARSET.decode(buffer).toString();
+                String content = StandardCharsets.UTF_8.decode(buffer).toString();
                 System.out.println("Got response from server: " + content);
                 key.interestOps(SelectionKey.OP_READ);
             }
@@ -113,7 +112,7 @@ public class NioClient {
                         continue;
                     }
 
-                    socketChannel.write(CHARSET.encode(line));
+                    socketChannel.write(StandardCharsets.UTF_8.encode(line));
                 }
                 scanner.close();
             } catch (Exception ex) {
